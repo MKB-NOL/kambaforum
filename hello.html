@@ -3,236 +3,219 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KAMBA Forum - Login / Register</title>
+<title>KAMBA Forum - Chat</title>
 <style>
+  /* Basic reset and Discord style */
   * {
     box-sizing: border-box;
   }
-  body {
-    margin: 0;
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    background-color: #36393f;
+    color: #dcddde;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #36393f; /* Discord dark bg */
-    display: flex;
-    min-height: 100vh;
-  }
-  .left-panel {
-    flex: 1;
-    background: url('https://i.imgur.com/3aX4O8M.png') no-repeat center/cover;
-    color: white;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    padding: 2rem;
   }
-  .left-panel h1 {
-    font-size: 2.2rem;
-    margin: 0 0 10px 0;
-  }
-  .left-panel p {
-    font-size: 1rem;
-    max-width: 320px;
-    opacity: 0.8;
-    line-height: 1.3;
-  }
-  .right-panel {
-    flex: 1;
+  header {
     background-color: #2f3136;
+    padding: 1rem 2rem;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 2rem;
+    color: white;
   }
-  .auth-box {
-    background-color: #36393f;
-    padding: 2rem 2.5rem;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
   }
-  .auth-box h2 {
-    color: #fff;
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-    font-size: 1.8rem;
-    text-align: center;
-  }
-  label {
-    color: #b9bbbe;
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
-    display: block;
-  }
-  input, select {
-    width: 100%;
-    padding: 0.75rem 0.8rem;
-    border-radius: 4px;
+  header button {
+    background-color: #f04747;
     border: none;
-    background-color: #202225;
-    color: #dcddde;
-    font-size: 1rem;
-    margin-bottom: 1rem;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
   }
-  input:focus, select:focus {
-    outline: 2px solid #5865f2;
+  header button:hover {
+    background-color: #c03939;
+  }
+  #chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+    overflow-y: auto;
+    gap: 1rem;
     background-color: #2f3136;
   }
-  .phone-row {
-    display: flex;
-    gap: 0.7rem;
-    margin-bottom: 1rem;
+  .message {
+    background-color: #202225;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    max-width: 75%;
+    word-break: break-word;
+    position: relative;
   }
-  .phone-row select {
-    flex: 0 0 30%;
-    font-size: 1rem;
+  .username {
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+    display: inline-block;
+    cursor: default;
+  }
+  .message-text {
+    white-space: pre-wrap;
+  }
+  .reply-to {
+    font-size: 0.75rem;
+    color: #b9bbbe;
+    margin-bottom: 0.3rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #5865f2;
+  }
+  .reply-btn {
+    font-size: 0.7rem;
+    color: #5865f2;
     cursor: pointer;
+    margin-top: 0.3rem;
+    user-select: none;
   }
-  .phone-row input {
+  .reply-btn:hover {
+    text-decoration: underline;
+  }
+  #message-input-area {
+    background-color: #40444b;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  #message-input {
     flex: 1;
+    padding: 0.6rem 0.8rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    color: white;
+    background-color: #2f3136;
   }
-  button {
-    width: 100%;
+  #message-input:focus {
+    outline: 2px solid #5865f2;
+  }
+  #send-btn {
     background-color: #5865f2;
     border: none;
     color: white;
-    padding: 0.85rem;
+    padding: 0.55rem 1.2rem;
     font-weight: 700;
-    font-size: 1rem;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.25s ease;
+    transition: background-color 0.2s ease;
   }
-  button:hover {
+  #send-btn:hover {
     background-color: #4752c4;
   }
-  .switch {
-    margin-top: 1.25rem;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #b9bbbe;
-  }
-  .switch a {
-    color: #5865f2;
-    text-decoration: none;
-    font-weight: 700;
+  #emoji-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
     cursor: pointer;
+    color: #b9bbbe;
+    user-select: none;
   }
-  .switch a:hover {
-    text-decoration: underline;
+  #emoji-picker {
+    position: absolute;
+    bottom: 3.8rem;
+    right: 2rem;
+    background-color: #202225;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 1000;
   }
-  .error-message {
+  #emoji-picker span {
+    font-size: 1.6rem;
+    margin: 0 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease;
+  }
+  #emoji-picker span:hover {
+    transform: scale(1.3);
+  }
+  #no-song-notification {
     background-color: #f04747;
     color: white;
-    padding: 0.6rem 1rem;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .username.green { color: #43b581; }   /* New user */
+  .username.blue { color: #5865f2; }    /* 100+ sparks */
+  .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
+  .username.red { color: #f04747; }     /* Admin */
+
+  /* Scrollbar styling */
+  #chat-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-container::-webkit-scrollbar-thumb {
+    background-color: #5865f2;
     border-radius: 5px;
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-    display: none;
-  }
-  /* Loading overlay */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  .spinner {
-    width: 45px;
-    height: 45px;
-    border: 6px solid #ccc;
-    border-top-color: #5865f2;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  @media (max-width: 768px) {
-    body {
-      flex-direction: column;
-    }
-    .left-panel {
-      display: none;
-    }
-    .right-panel {
-      flex: none;
-      padding: 1rem;
-    }
-    .auth-box {
-      padding: 1.5rem 1.5rem;
-      max-width: 100%;
-    }
   }
 </style>
 </head>
 <body>
 
-<div class="left-panel">
+<header>
   <h1>KAMBA Forum</h1>
-  <p>Chat, connect, and share ideas with the KAMBA community — your space to belong.</p>
+  <button id="signout-btn">Sign Out</button>
+</header>
+
+<div id="chat-container"></div>
+
+<div id="no-song-notification" style="display:none; cursor:pointer;">
+  No song set. Click here to set your song in Settings.
 </div>
 
-<div class="right-panel">
-  <div class="auth-box">
-    <h2 id="form-title">Welcome Back!</h2>
-
-    <div id="error-box" class="error-message"></div>
-
-    <label for="email">Email</label>
-    <input type="email" id="email" placeholder="your.email@example.com" autocomplete="username" />
-
-    <div id="phone-group" style="display:none;">
-      <label for="phone-code">Country Code & Phone Number</label>
-      <div class="phone-row">
-        <select id="phone-code" aria-label="Select country code">
-          <option value="+250">🇷🇼 Rwanda (+250)</option>
-          <option value="+257">🇧🇮 Burundi (+257)</option>
-          <option value="+255">🇹🇿 Tanzania (+255)</option>
-          <option value="+27">🇿🇦 South Africa (+27)</option>
-          <option value="+254">🇰🇪 Kenya (+254)</option>
-          <option value="+224">🇬🇳 Guinea (+224)</option>
-          <option value="+1">🇺🇸 USA (+1)</option>
-        </select>
-        <input type="tel" id="phone" placeholder="Phone number" autocomplete="tel" />
-      </div>
-    </div>
-
-    <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Your password" autocomplete="current-password" />
-
-    <button id="auth-btn">Login</button>
-
-    <div class="switch" id="switch-text">
-      Need an account? <a href="#" id="switch-link">Register</a>
-    </div>
-  </div>
+<div id="message-input-area">
+  <button id="emoji-btn" title="Emoji picker">😀</button>
+  <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" />
+  <button id="send-btn">Send</button>
 </div>
 
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
+<div id="emoji-picker" aria-label="Emoji picker" role="list">
+  <span>😀</span>
+  <span>😂</span>
+  <span>😎</span>
+  <span>❤️</span>
+  <span>🔥</span>
 </div>
+
+<audio id="background-audio" loop></audio>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
   import {
     getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
+    signOut,
     onAuthStateChanged,
-    setPersistence,
-    browserLocalPersistence,
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
   import {
     getFirestore,
     collection,
-    doc,
-    getDocs,
     query,
-    where,
-    setDoc,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    doc,
+    getDoc,
+    updateDoc,
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -250,179 +233,250 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  setPersistence(auth, browserLocalPersistence);
+  const chatContainer = document.getElementById("chat-container");
+  const messageInput = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+  const signoutBtn = document.getElementById("signout-btn");
+  const emojiBtn = document.getElementById("emoji-btn");
+  const emojiPicker = document.getElementById("emoji-picker");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const backgroundAudio = document.getElementById("background-audio");
 
-  const formTitle = document.getElementById("form-title");
-  const authBtn = document.getElementById("auth-btn");
-  const switchLink = document.getElementById("switch-link");
-  const phoneGroup = document.getElementById("phone-group");
-  const errorBox = document.getElementById("error-box");
-  const loading = document.getElementById("loading");
+  let currentUser = null;
+  let currentUserData = null;
+  let replyToMessageId = null;
+  let replyToMessageText = null;
 
-  let isLogin = true;
+  // Emoji picker toggle
+  emojiBtn.addEventListener("click", () => {
+    emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
+  });
 
-  // Show error message
-  function showError(msg) {
-    errorBox.style.display = "block";
-    errorBox.textContent = msg;
+  // Add emoji to input
+  emojiPicker.querySelectorAll("span").forEach((emojiSpan) => {
+    emojiSpan.addEventListener("click", () => {
+      messageInput.value += emojiSpan.textContent;
+      emojiPicker.style.display = "none";
+      messageInput.focus();
+    });
+  });
+
+  // Close emoji picker if clicking outside
+  document.addEventListener("click", (e) => {
+    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+      emojiPicker.style.display = "none";
+    }
+  });
+
+  // Listen for auth state
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // Not logged in, redirect to sign page
+      window.location.href = "sign.html";
+      return;
+    }
+    currentUser = user;
+
+    // Load user data from Firestore
+    const userDocRef = doc(db, "Kamba_users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) {
+      alert("User data not found in database. Please contact admin.");
+      return;
+    }
+    currentUserData = userDocSnap.data();
+
+    // Set background audio source & volume
+    if (currentUserData.song && currentUserData.song.trim() !== "") {
+      backgroundAudio.src = currentUserData.song;
+      backgroundAudio.volume = currentUserData.volume ?? 0.5;
+      backgroundAudio.play().catch(() => {
+        // autoplay might be blocked; ignore silently
+      });
+      noSongNotification.style.display = "none";
+    } else {
+      noSongNotification.style.display = "block";
+    }
+
+    // Load messages realtime
+    setupMessagesListener();
+
+  });
+
+  // Redirect user to settings on notification click
+  noSongNotification.addEventListener("click", () => {
+    window.location.href = "settings.html";
+  });
+
+  // Sign out button
+  signoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "sign.html";
+    });
+  });
+
+  // Helper: remove @gmail.com and similar domains
+  function simplifyEmail(email) {
+    return email.split("@")[0];
   }
 
-  // Clear error message
-  function clearError() {
-    errorBox.style.display = "none";
-    errorBox.textContent = "";
+  // Load user status color
+  function getStatusClass(status) {
+    switch (status) {
+      case "green": return "green";
+      case "blue": return "blue";
+      case "violet": return "violet";
+      case "red": return "red";
+      default: return "green";
+    }
   }
 
-  // Show loading spinner
-  function showLoading() {
-    loading.style.display = "flex";
+  // Render a message
+  function renderMessage(id, msgData) {
+    const div = document.createElement("div");
+    div.className = "message";
+    div.dataset.id = id;
+
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "username " + getStatusClass(msgData.status);
+    usernameSpan.textContent = msgData.sender;
+    div.appendChild(usernameSpan);
+
+    if (msgData.replyToText) {
+      const replyDiv = document.createElement("div");
+      replyDiv.className = "reply-to";
+      replyDiv.textContent = "Replying to: " + msgData.replyToText;
+      div.appendChild(replyDiv);
+    }
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "message-text";
+    textDiv.textContent = msgData.message;
+    div.appendChild(textDiv);
+
+    const replyBtn = document.createElement("div");
+    replyBtn.className = "reply-btn";
+    replyBtn.textContent = "Reply";
+    replyBtn.addEventListener("click", () => {
+      replyToMessageId = id;
+      replyToMessageText = msgData.message;
+      messageInput.focus();
+      messageInput.placeholder = "Replying: " + replyToMessageText.slice(0, 30) + "... (click send)";
+    });
+    div.appendChild(replyBtn);
+
+    return div;
   }
 
-  // Hide loading spinner
-  function hideLoading() {
-    loading.style.display = "none";
-  }
+  // Setup Firestore real-time listener for messages
+  function setupMessagesListener() {
+    const messagesQuery = query(
+      collection(db, "Kamba_messages"),
+      orderBy("timestamp", "asc")
+    );
 
-  // Email validation regex
-  function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+    onSnapshot(messagesQuery, async (querySnapshot) => {
+      chatContainer.innerHTML = ""; // Clear chat on update
 
-  // Phone number validation: digits only, 6-15 digits
-  function validatePhone(phone) {
-    return /^\d{6,15}$/.test(phone);
-  }
+      // We want to show username colored by status, so fetch user statuses:
+      const userIds = new Set();
+      querySnapshot.forEach((doc) => {
+        userIds.add(doc.data().userId);
+      });
+      // Preload user data for all message senders:
+      const userDataMap = new Map();
+      const userDocsPromises = [];
+      userIds.forEach((uid) => {
+        userDocsPromises.push(getDoc(doc(db, "Kamba_users", uid)));
+      });
+      const userDocs = await Promise.all(userDocsPromises);
+      userDocs.forEach((docSnap) => {
+        if (docSnap.exists()) {
+          userDataMap.set(docSnap.id, docSnap.data());
+        }
+      });
 
-  // Switch between login/register modes
-  function switchMode() {
-    isLogin = !isLogin;
-    formTitle.textContent = isLogin ? "Welcome Back!" : "Create an account";
-    authBtn.textContent = isLogin ? "Login" : "Register";
-    phoneGroup.style.display = isLogin ? "none" : "block";
-    document.getElementById("switch-text").innerHTML = isLogin
-      ? 'Need an account? <a href="#" id="switch-link">Register</a>'
-      : 'Already have an account? <a href="#" id="switch-link">Login</a>';
-    document.getElementById("switch-link").addEventListener("click", (e) => {
-      e.preventDefault();
-      switchMode();
+      // Render messages
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const senderUid = data.userId;
+        const userData = userDataMap.get(senderUid);
+        const displayName = simplifyEmail(data.senderEmail || "unknown");
+        const status = userData ? userData.status : "green";
+
+        const messageData = {
+          sender: displayName,
+          status: status,
+          message: data.message,
+          replyToText: data.replyToText || null,
+        };
+        const msgDiv = renderMessage(docSnap.id, messageData);
+        chatContainer.appendChild(msgDiv);
+      });
+
+      // Scroll to bottom on new messages
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     });
   }
 
-  // Initial event listener for mode switch
-  switchLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    switchMode();
-  });
-
-  // Redirect logged-in users away from sign page
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, redirect to hello.html
-      window.location.href = "hello.html";
+  // Send message handler
+  sendBtn.addEventListener("click", sendMessage);
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   });
 
-  authBtn.addEventListener("click", async () => {
-    clearError();
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text) return;
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const senderEmail = currentUser.email;
+    const userId = currentUser.uid;
 
-    if (!validateEmail(email)) {
-      showError("Please enter a valid email address.");
+    // Get user doc ref and data
+    const userDocRef = doc(db, "Kamba_users", userId);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) {
+      alert("User data missing. Contact admin.");
       return;
     }
-
-    if (password.length < 6) {
-      showError("Password must be at least 6 characters.");
-      return;
-    }
-
-    if (!isLogin) {
-      // Validate phone for registration
-      const phoneCode = document.getElementById("phone-code").value;
-      const phone = document.getElementById("phone").value.trim();
-      if (!validatePhone(phone)) {
-        showError("Please enter a valid phone number (6-15 digits).");
-        return;
-      }
-    }
-
-    showLoading();
+    const userData = userDocSnap.data();
 
     try {
-      if (isLogin) {
-        // Login flow
-        await signInWithEmailAndPassword(auth, email, password);
-        // On success, firebase onAuthStateChanged triggers redirect
-      } else {
-        // Registration flow
-        const phoneCode = document.getElementById("phone-code").value;
-        const phone = document.getElementById("phone").value.trim();
+      // Add message doc
+      await addDoc(collection(db, "Kamba_messages"), {
+        userId: userId,
+        senderEmail: senderEmail,
+        sender: simplifyEmail(senderEmail),
+        message: text,
+        replyTo: replyToMessageId || null,
+        replyToText: replyToMessageText || null,
+        timestamp: Date.now(),
+      });
 
-        // Check if phone exists already
-        const phoneQuery = query(
-          collection(db, "Kamba_users"),
-          where("phone", "==", phoneCode + phone)
-        );
-        const phoneSnapshot = await getDocs(phoneQuery);
-        if (!phoneSnapshot.empty) {
-          hideLoading();
-          showError("Phone number already registered.");
-          return;
-        }
+      // Reset input & reply
+      messageInput.value = "";
+      messageInput.placeholder = "Type a message...";
+      replyToMessageId = null;
+      replyToMessageText = null;
 
-        // Check if email exists already (email == document ID)
-        const emailDoc = await doc(db, "Kamba_users", email);
-        const emailSnapshot = await getDocs(
-          query(collection(db, "Kamba_users"), where("email", "==", email))
-        );
-        if (!emailSnapshot.empty) {
-          hideLoading();
-          showError("Email already registered.");
-          return;
-        }
+      // Update sparks and status
+      let newSparks = (userData.sparks || 0) + 1;
+      let newStatus = userData.status || "green";
+      if (newSparks >= 1000) newStatus = "violet";
+      else if (newSparks >= 100) newStatus = "blue";
+      else newStatus = "green";
 
-        // Create user with Firebase auth
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-        // Save phone & email to Firestore document with UID as ID
-        await setDoc(doc(db, "Kamba_users", userCredential.user.uid), {
-          email: email,
-          phone: phoneCode + phone,
-          status: "green",
-          sparks: 0,
-          song: "",
-          volume: 0.5,
-        });
-
-        // Firebase onAuthStateChanged will redirect automatically
-      }
-    } catch (error) {
-      hideLoading();
-      // Clean up Firebase error messages for user friendliness
-      let msg = error.message;
-      if (msg.includes("auth/wrong-password")) {
-        msg = "Incorrect password.";
-      } else if (msg.includes("auth/user-not-found")) {
-        msg = "User not found.";
-      } else if (msg.includes("auth/email-already-in-use")) {
-        msg = "Email already in use.";
-      } else if (msg.includes("auth/invalid-email")) {
-        msg = "Invalid email address.";
-      } else if (msg.includes("auth/weak-password")) {
-        msg = "Password is too weak.";
-      }
-      showError(msg);
-    } finally {
-      hideLoading();
+      await updateDoc(userDocRef, {
+        sparks: newSparks,
+        status: newStatus,
+      });
+    } catch (err) {
+      alert("Error sending message: " + err.message);
     }
-  });
+  }
 </script>
-
 </body>
 </html>
