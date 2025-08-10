@@ -2,379 +2,570 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KAMBA Forum - Chat</title>
+  <!-- Font Awesome for modern icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-papO1sAQq+xIs12bWPr3BTmKIkO0n+HQ3xljJ+1wErLhj6X3LK+8Iyy/NChzFUYnqk0xsvOHwxNN4Az4Jr5HbQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
   <style>
-    * { box-sizing: border-box; }
-    body, html {
-      margin: 0; padding: 0;
-      height: 100%;
-      background-color: #36393f;
-      color: #dcddde;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      overflow: hidden;
-    }
-    .main-container {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-    header {
-      background-color: #2f3136;
-      padding: 1rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
-    header h1 {
+    /* RESET & BASE */
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-size: 1.4rem;
-      font-weight: 700;
+      padding: 0;
     }
-    #sign-out-btn {
-      background-color: #f04747;
-      border: none;
-      color: white;
-      font-weight: bold;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-    #sign-out-btn:hover {
-      background-color: #c03939;
-    }
-    #chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #36393f;
+      color: #dcddde;
       overflow: hidden;
     }
-    #chat-container {
-      flex: 1;
+
+    /* FLEX LAYOUT */
+    #app {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Left Sidebar (servers) - thin vertical bar */
+    #sidebar-servers {
+      width: 72px;
+      background: #2f3136;
       display: flex;
       flex-direction: column;
-      padding: 1rem;
-      overflow-y: auto;
-      gap: 0.5rem;
-      background-color: #2f3136;
-      scrollbar-width: thin;
-      scrollbar-color: #202225 #2f3136;
-    }
-    #chat-container::-webkit-scrollbar {
-      width: 8px;
-    }
-    #chat-container::-webkit-scrollbar-track {
-      background: #2f3136;
-    }
-    #chat-container::-webkit-scrollbar-thumb {
-      background: #202225;
-      border-radius: 4px;
-    }
-    .message {
-      background-color: #36393f;
-      padding: 0.7rem 1rem;
-      border-radius: 6px;
-      max-width: 80%;
-      word-break: break-word;
-      position: relative;
-      margin: 0.3rem 0;
-    }
-    .username {
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 0.2rem;
-      display: inline-block;
-    }
-    .username.green { color: #43b581; }
-    .username.blue { color: #5865f2; }
-    .username.violet { color: #9b59b6; }
-    .username.red { color: #ed4245; }
-    .message-text {
-      white-space: pre-wrap;
-      font-size: 0.95rem;
-    }
-    .reply-to {
-      font-size: 0.7rem;
-      color: #b9bbbe;
-      margin-bottom: 0.3rem;
-      padding-left: 0.5rem;
-      border-left: 2px solid #5865f2;
-    }
-    .reply-btn {
-      font-size: 0.7rem;
-      color: #5865f2;
-      cursor: pointer;
-      margin-top: 0.3rem;
-      user-select: none;
-    }
-    .reply-btn:hover {
-      text-decoration: underline;
-    }
-    #input-area {
-      background-color: #40444b;
-      padding: 0.8rem 1rem;
-      display: flex;
       align-items: center;
-      gap: 0.5rem;
+      padding: 10px 0;
+      gap: 12px;
+      overflow-y: auto;
     }
-    #message-input {
-      flex: 1;
-      padding: 0.6rem 0.8rem;
-      border-radius: 5px;
-      border: none;
-      font-size: 0.95rem;
+    #sidebar-servers .server-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #72767d;
       color: white;
-      background-color: #2f3136;
+      font-weight: 700;
+      font-size: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.3s;
     }
-    #message-input:focus {
-      outline: 2px solid #5865f2;
-    }
-    #send-btn, #emoji-btn {
+    #sidebar-servers .server-icon:hover,
+    #sidebar-servers .server-icon.active {
       background: #5865f2;
-      border: none;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
+      box-shadow: 0 0 10px #5865f2;
     }
-    #send-btn:hover, #emoji-btn:hover {
-      background: #4752c4;
-    }
-    #emoji-btn {
-      background: transparent;
-      font-size: 1.3rem;
-      padding: 0.5rem;
-    }
-    #emoji-picker {
-      position: absolute;
-      bottom: 4rem;
-      right: 1rem;
-      background: #202225;
-      border-radius: 6px;
-      padding: 0.5rem;
-      display: none;
-      box-shadow: 0 0 10px rgba(0,0,0,0.7);
-      z-index: 1000;
-    }
-    #emoji-picker span {
-      font-size: 1.5rem;
-      margin: 0 0.3rem;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
-    #emoji-picker span:hover {
-      transform: scale(1.2);
-    }
-    #no-song-notification {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: #f04747;
-      color: white;
-      padding: 0.8rem;
-      border-radius: 5px;
-      font-size: 0.85rem;
-      display: none;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-    }
-    #no-song-notification:hover {
-      background: #c03939;
-    }
-    #music-controls {
-      position: fixed;
-      bottom: 5rem;
-      right: 1rem;
-      background: #202225;
-      padding: 0.5rem;
-      border-radius: 5px;
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    #volume-slider {
-      width: 100px;
-    }
-    #groups-sidebar {
+
+    /* Secondary Sidebar (channels, groups, announcements) */
+    #sidebar-channels {
       width: 240px;
-      min-width: 72px;
       background: #2f3136;
-      border-left: 1px solid #202225;
       display: flex;
       flex-direction: column;
-      padding: 1rem;
+      padding: 16px;
+      border-right: 1px solid #202225;
       overflow-y: auto;
-      position: relative;
-      resize: horizontal;
-      max-width: 400px;
     }
-    #groups-sidebar::-webkit-scrollbar {
-      width: 6px;
+    #sidebar-channels h2 {
+      color: #b9bbbe;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
-    #groups-sidebar::-webkit-scrollbar-track {
-      background: #2f3136;
-    }
-    #groups-sidebar::-webkit-scrollbar-thumb {
-      background: #202225;
-      border-radius: 3px;
-    }
-    .group-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      cursor: pointer;
+    #sidebar-channels .list-item {
+      padding: 8px 10px;
+      margin-bottom: 6px;
       border-radius: 4px;
-      margin-bottom: 0.5rem;
+      cursor: pointer;
+      color: #dcddde;
+      font-size: 14px;
+      user-select: none;
+      transition: background 0.2s;
     }
-    .group-item:hover {
+    #sidebar-channels .list-item:hover {
       background: #40444b;
     }
-    .group-image {
+
+    /* Main content area (chat + header + input) */
+    #main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background: #36393f;
+    }
+
+    /* Header - top bar */
+    #header {
+      height: 60px;
+      background: #2f3136;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid #202225;
+      justify-content: space-between;
+    }
+    #header .title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #fff;
+    }
+    #header .search-container {
+      position: relative;
+      flex-grow: 1;
+      max-width: 400px;
+      margin: 0 20px;
+    }
+    #header input[type="search"] {
+      width: 100%;
+      padding: 8px 36px 8px 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      outline: none;
+      background: #202225;
+      color: #dcddde;
+    }
+    #header .search-clear-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #b9bbbe;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+    }
+    #header .search-clear-btn:hover {
+      color: #fff;
+    }
+
+    /* Profile icon in header */
+    #profile-icon {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      object-fit: cover;
-    }
-    .group-details {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-    }
-    .group-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: #dcddde;
-    }
-    .group-description {
-      font-size: 0.75rem;
-      color: #b9bbbe;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    #create-group-btn {
       background: #5865f2;
-      color: white;
-      border: none;
-      padding: 0.5rem;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
-      text-align: center;
-    }
-    #create-group-btn:hover {
-      background: #4752c4;
-    }
-    #create-group-btn.hidden {
-      display: none;
-    }
-    #groups-sidebar.wide .group-details {
-      display: flex;
-    }
-    #profile-section {
-      padding: 1rem;
-      background: #202225;
-      border-bottom: 1px solid #2f3136;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: box-shadow 0.3s;
     }
-    #profile-username {
-      font-weight: 600;
-      font-size: 0.9rem;
+    #profile-icon.green {
+      background: #43b581; /* new */
     }
-    #profile-sparks {
-      font-size: 0.75rem;
+    #profile-icon.blue {
+      background: #3b82f6; /* blue */
+    }
+    #profile-icon.violet {
+      background: #8a2be2; /* violet */
+    }
+    #profile-icon.red {
+      background: #f04747; /* red */
+    }
+    #profile-icon:hover {
+      box-shadow: 0 0 10px #5865f2;
+    }
+
+    /* Chat area */
+    #chat-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 20px;
+      background: #36393f;
+    }
+
+    /* Messages container */
+    #chat-messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #5865f2 transparent;
+    }
+    #chat-messages::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chat-messages::-webkit-scrollbar-thumb {
+      background-color: #5865f2;
+      border-radius: 4px;
+    }
+
+    /* Each message */
+    .message {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      max-width: 70%;
+      background: #2f3136;
+      border-radius: 10px;
+      padding: 12px 16px;
+      word-break: break-word;
+      position: relative;
+    }
+    .message.green .username {
+      color: #43b581;
+    }
+    .message.blue .username {
+      color: #3b82f6;
+    }
+    .message.violet .username {
+      color: #8a2be2;
+    }
+    .message.red .username {
+      color: #f04747;
+    }
+    .message .username {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .message .reply-to {
+      font-size: 12px;
       color: #b9bbbe;
+      margin-bottom: 8px;
+      border-left: 3px solid #5865f2;
+      padding-left: 10px;
+      font-style: italic;
     }
+    .message .text {
+      white-space: pre-wrap;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .message .chat-image {
+      max-width: 200px;
+      margin-top: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .message .chat-image:hover {
+      transform: scale(1.05);
+    }
+    .message .img-save-icon {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      color: #b9bbbe;
+      user-select: none;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 6px;
+      border-radius: 4px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .message .img-save-icon:hover {
+      opacity: 1;
+    }
+    .message .reply-btn {
+      align-self: flex-end;
+      font-size: 12px;
+      color: #5865f2;
+      cursor: pointer;
+      user-select: none;
+      margin-top: 8px;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      padding: 0;
+      outline: none;
+      transition: color 0.2s;
+    }
+    .message .reply-btn:hover,
+    .message .reply-btn:focus {
+      color: #4752c4;
+      text-decoration: underline;
+    }
+
+    /* Input area */
+    #input-area {
+      padding: 12px 20px;
+      background: #2f3136;
+      border-top: 1px solid #202225;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #message-input {
+      flex-grow: 1;
+      padding: 10px 14px;
+      border-radius: 20px;
+      border: none;
+      background: #40444b;
+      color: #dcddde;
+      font-size: 15px;
+      resize: none;
+      outline: none;
+      min-height: 36px;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    #input-area button {
+      background: transparent;
+      border: none;
+      color: #5865f2;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 6px 8px;
+      transition: color 0.3s;
+      border-radius: 50%;
+    }
+    #input-area button:hover {
+      color: #4752c4;
+      background: #40444b;
+    }
+    #upload-image-input {
+      display: none;
+    }
+
+    /* Emoji picker */
+    .emoji-picker {
+      position: absolute;
+      bottom: 70px;
+      right: 20px;
+      background: #2f3136;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.6);
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      z-index: 1000;
+    }
+    .emoji-picker button {
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #dcddde;
+      transition: transform 0.2s;
+      border-radius: 6px;
+    }
+    .emoji-picker button:hover {
+      transform: scale(1.3);
+      color: #5865f2;
+    }
+
+    /* Fullscreen image viewer */
+    #fullscreen-image-viewer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20000;
+    }
+    #fullscreen-image-viewer img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #5865f2;
+    }
+
+    /* Notification bar (No song set) */
+    #no-song-notification {
+      background: #f04747;
+      color: white;
+      padding: 10px 20px;
+      font-weight: 600;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      font-size: 15px;
+    }
+    #no-song-notification a {
+      color: #fff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    #dismiss-no-song-btn {
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    /* Responsive: Mobile */
     @media (max-width: 768px) {
-      .main-container {
-        flex-direction: column;
+      #sidebar-servers {
+        width: 56px;
+        padding: 6px 0;
       }
-      #groups-sidebar {
-        width: 100%;
-        min-width: 100%;
-        resize: none;
-        max-width: none;
-        border-left: none;
-        border-top: 1px solid #202225;
+      #sidebar-servers .server-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
       }
-      #groups-sidebar.wide .group-details {
+      #sidebar-channels {
         display: none;
       }
-      header { padding: 0.8rem 1rem; }
-      header h1 { font-size: 1.2rem; }
-      #chat-container { padding: 0.5rem; }
-      .message { max-width: 90%; }
-      #input-area { padding: 0.5rem; }
-      #music-controls { bottom: 4.5rem; right: 0.5rem; }
-      #no-song-notification { right: 0.5rem; top: 0.5rem; }
-    }
-    @media (min-width: 769px) {
-      #groups-sidebar {
-        width: 240px;
+      #header .search-container {
+        max-width: 200px;
+        margin: 0 10px;
       }
-      #groups-sidebar.wide {
-        width: 300px;
+      #profile-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+      }
+      #input-area {
+        padding: 8px 12px;
+        gap: 8px;
+      }
+      #message-input {
+        font-size: 14px;
+        min-height: 32px;
+        max-height: 80px;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>KAMBA Forum - Public Chat</h1>
-    <button id="sign-out-btn">Sign Out</button>
-  </header>
+  <div id="app">
+    <!-- Left Sidebar (Servers / Groups) -->
+    <nav id="sidebar-servers" aria-label="Servers">
+      <!-- example servers/groups -->
+      <div class="server-icon active" tabindex="0" title="General">K</div>
+      <div class="server-icon" tabindex="0" title="Project A">A</div>
+      <div class="server-icon" tabindex="0" title="Sub-Community">S</div>
+      <!-- add dynamically -->
+    </nav>
 
-  <div class="main-container">
-    <div id="chat-area">
-      <div id="chat-container"></div>
-      <div id="input-area">
-        <input type="text" id="message-input" placeholder="Type a message..." />
-        <button id="emoji-btn">😊</button>
-        <button id="send-btn">Send</button>
+    <!-- Secondary Sidebar -->
+    <aside id="sidebar-channels" aria-label="Channels and Groups">
+      <section>
+        <h2>Announcements</h2>
+        <div id="announcements-list">
+          <!-- announcements loaded here -->
+        </div>
+      </section>
+      <section>
+        <h2>Sub-Communities</h2>
+        <div id="subcommunities-list">
+          <!-- loaded dynamically -->
+        </div>
+      </section>
+      <section>
+        <h2>My Projects</h2>
+        <div id="my-projects-list">
+          <!-- loaded dynamically -->
+        </div>
+      </section>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main" aria-label="Chat">
+      <!-- Header -->
+      <header id="header">
+        <div class="title" aria-live="polite">KAMBA Forum - #general</div>
+        <div class="search-container">
+          <input
+            type="search"
+            id="search-input"
+            placeholder="Search users, groups, projects..."
+            aria-label="Search"
+          />
+          <button
+            type="button"
+            id="search-clear-btn"
+            title="Clear search"
+            aria-label="Clear search"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <button
+          id="profile-icon"
+          title="Settings"
+          aria-label="Go to Settings"
+          tabindex="0"
+        >
+          <i class="fas fa-user"></i>
+        </button>
+      </header>
+
+      <!-- No song notification -->
+      <div id="no-song-notification" role="alert" style="display:none;">
+        No song set. <a href="#" id="set-song-link">Click here to set your song in Settings.</a>
+        <button id="dismiss-no-song-btn" aria-label="Dismiss notification">&times;</button>
       </div>
-    </div>
 
-    <div id="groups-sidebar">
-      <div id="profile-section">
-        <span id="profile-username" class="username"></span>
-        <span id="profile-sparks"></span>
-      </div>
-      <button id="create-group-btn" class="hidden">Create Group</button>
-      <div id="groups-list"></div>
-    </div>
+      <!-- Chat Container -->
+      <section id="chat-container">
+        <div id="chat-messages" aria-live="polite" aria-relevant="additions"></div>
+
+        <!-- Input Area -->
+        <div id="input-area">
+          <textarea
+            id="message-input"
+            placeholder="Message #general"
+            rows="1"
+            aria-label="Message input"
+          ></textarea>
+          <button id="emoji-btn" aria-label="Toggle emoji picker">
+            <i class="far fa-smile"></i>
+          </button>
+          <button id="upload-image-btn" aria-label="Upload image(s)">
+            <i class="fas fa-image"></i>
+          </button>
+          <input
+            type="file"
+            id="upload-image-input"
+            accept="image/*"
+            multiple
+            aria-label="Upload images"
+            hidden
+          />
+          <button id="send-btn" aria-label="Send message">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <div id="emoji-picker">
-    <span data-emoji="😊">😊</span>
-    <span data-emoji="👍">👍</span>
-    <span data-emoji="🔥">🔥</span>
-    <span data-emoji="❤️">❤️</span>
-    <span data-emoji="😂">😂</span>
-  </div>
+  <!-- Emoji picker container (dynamic) -->
+  <div class="emoji-picker" style="display:none;"></div>
 
-  <div id="no-song-notification">
-    No song set! Click here to choose one in settings.
+  <!-- Fullscreen Image Viewer -->
+  <div id="fullscreen-image-viewer" tabindex="0" role="dialog" aria-modal="true" aria-label="Fullscreen image viewer">
+    <img src="" alt="Fullscreen Image" />
   </div>
-
-  <div id="music-controls">
-    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" />
-    <span id="volume-label">50%</span>
-  </div>
-
-  <audio id="background-audio" loop></audio>
 
   <script type="module">
+    // Your Firebase SDK initialization here (same as before)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, query, orderBy, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
@@ -391,243 +582,358 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const chatContainer = document.getElementById("chat-container");
-    const messageInput = document.getElementById("message-input");
-    const sendBtn = document.getElementById("send-btn");
-    const emojiBtn = document.getElementById("emoji-btn");
-    const emojiPicker = document.getElementById("emoji-picker");
-    const signOutBtn = document.getElementById("sign-out-btn");
-    const noSongNotification = document.getElementById("no-song-notification");
-    const audioPlayer = document.getElementById("background-audio");
-    const volumeSlider = document.getElementById("volume-slider");
-    const volumeLabel = document.getElementById("volume-label");
-    const groupsList = document.getElementById("groups-list");
-    const createGroupBtn = document.getElementById("create-group-btn");
-    const groupsSidebar = document.getElementById("groups-sidebar");
-    const profileUsername = document.getElementById("profile-username");
-    const profileSparks = document.getElementById("profile-sparks");
+    // DOM elements
+    const chatMessages = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const emojiBtn = document.getElementById('emoji-btn');
+    const emojiPicker = document.querySelector('.emoji-picker');
+    const uploadImageBtn = document.getElementById('upload-image-btn');
+    const uploadImageInput = document.getElementById('upload-image-input');
+    const noSongNotification = document.getElementById('no-song-notification');
+    const dismissNoSongBtn = document.getElementById('dismiss-no-song-btn');
+    const setSongLink = document.getElementById('set-song-link');
+    const profileIcon = document.getElementById('profile-icon');
 
+    // User data
     let currentUser = null;
+    let userData = null;
     let replyToMessageId = null;
-    let username = "";
-    let userStatus = "green";
-    let userSparks = 0;
 
-    // Check auth state and load user data
+    // Emoji list (basic for demo, you add more)
+    const emojis = ['😀','😂','🥰','🤔','😎'];
+
+    // Image upload constraints
+    const MAX_IMAGE_SIZE_MB = 6;
+    const MAX_TOTAL_UPLOAD_MB = 6;
+
+    // Store dismissed notification time key
+    const NO_SONG_DISMISS_KEY = 'noSongDismissedTime';
+
+    // --- AUTH STATE ---
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = "sign.html";
+        // Redirect to login
+        window.location.href = 'sign.html';
         return;
       }
       currentUser = user;
-      username = user.email.split("@")[0];
-      const userDoc = await getDoc(doc(db, "Kamba_users", user.uid));
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        userStatus = data.status || "green";
-        userSparks = data.sparks || 0;
-        profileUsername.textContent = username;
-        profileUsername.classList.add(userStatus);
-        profileSparks.textContent = `${userSparks} Sparks`;
-        if (["blue", "violet", "red"].includes(userStatus)) {
-          createGroupBtn.classList.remove("hidden");
-        }
-        if (data.song) {
-          audioPlayer.src = data.song;
-          audioPlayer.volume = data.volume || 0.5;
-          volumeSlider.value = data.volume || 0.5;
-          volumeLabel.textContent = `${Math.round(data.volume * 100)}%`;
-          audioPlayer.play().catch(() => {});
+      // Load user data from Firestore
+      const userDocRef = doc(db, 'Kamba_users', user.email);
+      const userSnap = await getDoc(userDocRef);
+      if (userSnap.exists()) {
+        userData = userSnap.data();
+        updateProfileIconColor(userData.accountStatus);
+        checkNoSongNotification();
+      } else {
+        // Create default user doc with green status
+        await setDoc(userDocRef, { accountStatus: 'green', sparks: 0, agreedTerms: false });
+        userData = { accountStatus: 'green', sparks: 0, agreedTerms: false };
+        updateProfileIconColor('green');
+        checkNoSongNotification();
+      }
+
+      // If first time, prompt agree terms
+      if (!userData.agreedTerms) {
+        if (confirm('Agree and Continue?')) {
+          await updateDoc(userDocRef, { agreedTerms: true });
+          userData.agreedTerms = true;
         } else {
-          noSongNotification.style.display = "block";
+          auth.signOut();
+          return;
         }
       }
+
+      // Start listening to chat messages
+      listenToMessages();
+
+      // Load sidebars (announcements, subcommunities, projects)
+      loadSidebars();
+
+      // Setup event listeners
+      setupEventListeners();
     });
 
-    // Load messages in real-time
-    const messagesQuery = query(collection(db, "Kamba_messages"), orderBy("timestamp", "asc"));
-    onSnapshot(messagesQuery, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const msg = change.doc.data();
-          const msgId = change.doc.id;
-          displayMessage(msg, msgId);
-        }
-      });
-    });
-
-    // Load groups in real-time
-    const groupsQuery = query(collection(db, "Kamba_groups"), orderBy("createdAt", "asc"));
-    onSnapshot(groupsQuery, (snapshot) => {
-      groupsList.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const group = doc.data();
-        const div = document.createElement("div");
-        div.classList.add("group-item");
-        div.innerHTML = `
-          <img src="${group.imageUrl || 'https://via.placeholder.com/40'}" class="group-image" alt="${group.name}" />
-          <div class="group-details">
-            <div class="group-name">${group.name}</div>
-            <div class="group-description">${group.description}</div>
-          </div>
-        `;
-        groupsList.appendChild(div);
-      });
-      updateGroupDetailsVisibility();
-    });
-
-    // Display a message
-    async function displayMessage(msg, msgId) {
-      const div = document.createElement("div");
-      div.classList.add("message");
-      const senderStatus = msg.status || "green";
-      let replyHtml = "";
-      if (msg.replyTo) {
-        const replyDoc = await getDoc(doc(db, "Kamba_messages", msg.replyTo));
-        if (replyDoc.exists()) {
-          const replyData = replyDoc.data();
-          replyHtml = `<div class="reply-to">${replyData.sender}: ${replyData.message.substring(0, 50)}${replyData.message.length > 50 ? "..." : ""}</div>`;
-        }
+    // Update profile icon color based on account status
+    function updateProfileIconColor(status) {
+      profileIcon.classList.remove('green', 'blue', 'violet', 'red');
+      if (['green','blue','violet','red'].includes(status)) {
+        profileIcon.classList.add(status);
+      } else {
+        profileIcon.classList.add('green');
       }
-      div.innerHTML = `
-        ${replyHtml}
-        <div class="username ${senderStatus}">${msg.sender}</div>
-        <div class="message-text">${msg.message}</div>
-        <div class="reply-btn" data-id="${msgId}">Reply</div>
-      `;
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-      div.querySelector(".reply-btn").addEventListener("click", () => {
-        replyToMessageId = msgId;
-        messageInput.placeholder = `Replying to ${msg.sender}...`;
-        messageInput.focus();
+    // Listen to chat messages realtime
+    function listenToMessages() {
+      const messagesRef = collection(db, 'messages');
+      const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
+      onSnapshot(messagesQuery, (snapshot) => {
+        chatMessages.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const msg = doc.data();
+          const messageEl = createMessageElement(doc.id, msg);
+          chatMessages.appendChild(messageEl);
+        });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
       });
     }
 
-    // Send message
-    sendBtn.addEventListener("click", sendMessage);
-    messageInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") sendMessage();
-    });
+    // Create message DOM element
+    function createMessageElement(id, msg) {
+      const el = document.createElement('div');
+      el.className = 'message ' + (msg.accountStatus || 'green');
+      el.dataset.id = id;
 
-    async function sendMessage() {
-      const message = messageInput.value.trim();
-      if (!message || !currentUser) return;
+      // Username color and text
+      const username = msg.email.split('@')[0];
+      const usernameEl = document.createElement('div');
+      usernameEl.className = 'username';
+      usernameEl.textContent = username;
+      el.appendChild(usernameEl);
 
-      try {
-        const msgData = {
-          sender: username,
-          status: userStatus,
-          message,
-          replyTo: replyToMessageId,
-          timestamp: new Date().getTime()
-        };
-        await addDoc(collection(db, "Kamba_messages"), msgData);
-
-        // Update sparks
-        userSparks += 1;
-        let newStatus = userStatus;
-        if (userStatus !== "red") {
-          if (userSparks >= 1000) newStatus = "violet";
-          else if (userSparks >= 100) newStatus = "blue";
-          else newStatus = "green";
-        }
-        await updateDoc(doc(db, "Kamba_users", currentUser.uid), {
-          sparks: userSparks,
-          status: newStatus
-        });
-        userStatus = newStatus;
-        profileUsername.classList.remove("green", "blue", "violet", "red");
-        profileUsername.classList.add(userStatus);
-        profileSparks.textContent = `${userSparks} Sparks`;
-        if (["blue", "violet", "red"].includes(userStatus)) {
-          createGroupBtn.classList.remove("hidden");
-        } else {
-          createGroupBtn.classList.add("hidden");
-        }
-
-        messageInput.value = "";
-        replyToMessageId = null;
-        messageInput.placeholder = "Type a message...";
-      } catch (error) {
-        console.error("Error sending message:", error);
+      // Reply to (if any)
+      if (msg.replyTo) {
+        const replyEl = document.createElement('div');
+        replyEl.className = 'reply-to';
+        replyEl.textContent = 'Reply to: ' + msg.replyToText;
+        el.appendChild(replyEl);
       }
+
+      // Message text
+      const textEl = document.createElement('div');
+      textEl.className = 'text';
+      textEl.textContent = msg.text || '';
+      el.appendChild(textEl);
+
+      // Images
+      if (msg.images && msg.images.length > 0) {
+        msg.images.forEach((imgUrl) => {
+          const img = document.createElement('img');
+          img.src = imgUrl;
+          img.alt = 'Chat image';
+          img.className = 'chat-image';
+          img.tabIndex = 0;
+          el.appendChild(img);
+
+          // Save icon for each image
+          const saveIcon = document.createElement('button');
+          saveIcon.className = 'img-save-icon';
+          saveIcon.innerHTML = '<i class="fas fa-download"></i>';
+          saveIcon.title = 'View and Save Image';
+          saveIcon.tabIndex = 0;
+          saveIcon.addEventListener('click', () => openFullscreenImage(imgUrl));
+          el.appendChild(saveIcon);
+        });
+      }
+
+      // Reply button
+      const replyBtn = document.createElement('button');
+      replyBtn.className = 'reply-btn';
+      replyBtn.textContent = 'Reply';
+      replyBtn.addEventListener('click', () => {
+        replyToMessageId = id;
+        messageInput.focus();
+        messageInput.value = `@${username} `;
+      });
+      el.appendChild(replyBtn);
+
+      return el;
+    }
+
+    // Open fullscreen image viewer
+    const fullscreenViewer = document.getElementById('fullscreen-image-viewer');
+    const fullscreenImg = fullscreenViewer.querySelector('img');
+    fullscreenViewer.addEventListener('click', () => {
+      fullscreenViewer.style.display = 'none';
+      fullscreenImg.src = '';
+    });
+    fullscreenViewer.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        fullscreenViewer.style.display = 'none';
+        fullscreenImg.src = '';
+      }
+    });
+    function openFullscreenImage(url) {
+      fullscreenImg.src = url;
+      fullscreenViewer.style.display = 'flex';
+      fullscreenViewer.focus();
+    }
+
+    // Send message function
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text && !uploadImageInput.files.length) return;
+
+      // Prepare images uploading
+      let uploadedImageUrls = [];
+      if (uploadImageInput.files.length > 0) {
+        uploadedImageUrls = await uploadImagesToImgbb(uploadImageInput.files);
+        if (uploadedImageUrls.length === 0) {
+          alert('Image upload failed or exceeded size limit.');
+          return;
+        }
+      }
+
+      // Create message doc
+      const newMsg = {
+        email: currentUser.email,
+        text: text,
+        timestamp: Date.now(),
+        accountStatus: userData.accountStatus || 'green',
+        replyTo: replyToMessageId || null,
+        replyToText: null,
+        images: uploadedImageUrls,
+      };
+
+      // If replying, fetch reply message text
+      if (replyToMessageId) {
+        const replyDoc = await getDoc(doc(db, 'messages', replyToMessageId));
+        if (replyDoc.exists()) {
+          newMsg.replyToText = replyDoc.data().text || '';
+        }
+      }
+
+      await addDoc(collection(db, 'messages'), newMsg);
+
+      // Reset input
+      messageInput.value = '';
+      uploadImageInput.value = null;
+      replyToMessageId = null;
+    }
+
+    // Upload images to ImgBB API
+    async function uploadImagesToImgbb(files) {
+      const apiKey = '0f248e70fc4e7dffde307dd772823379';
+      let totalSize = 0;
+      let uploadedUrls = [];
+      for (const file of files) {
+        totalSize += file.size;
+        if (totalSize > MAX_TOTAL_UPLOAD_MB * 1024 * 1024) {
+          alert(`Total images size exceeds ${MAX_TOTAL_UPLOAD_MB} MB limit.`);
+          break;
+        }
+        const formData = new FormData();
+        formData.append('image', file);
+        try {
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await res.json();
+          if (data.success) {
+            uploadedUrls.push(data.data.url);
+          }
+        } catch (err) {
+          console.error('Image upload error:', err);
+          return [];
+        }
+      }
+      return uploadedUrls;
     }
 
     // Emoji picker toggle
-    emojiBtn.addEventListener("click", () => {
-      emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
-    });
-
-    // Add emoji to input
-    emojiPicker.querySelectorAll("span").forEach(span => {
-      span.addEventListener("click", () => {
-        messageInput.value += span.dataset.emoji;
-        emojiPicker.style.display = "none";
-        messageInput.focus();
-      });
-    });
-
-    // Sign out
-    signOutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "sign.html";
-    });
-
-    // No song notification click
-    noSongNotification.addEventListener("click", () => {
-      window.location.href = "settings.html";
-    });
-
-    // Volume control
-    volumeSlider.addEventListener("input", async () => {
-      const volume = parseFloat(volumeSlider.value);
-      audioPlayer.volume = volume;
-      volumeLabel.textContent = `${Math.round(volume * 100)}%`;
-      if (currentUser) {
-        await updateDoc(doc(db, "Kamba_users", currentUser.uid), { volume });
-      }
-    });
-
-    // Create group
-    createGroupBtn.addEventListener("click", async () => {
-      if (!["blue", "violet", "red"].includes(userStatus)) return;
-      const name = prompt("Enter group name:");
-      const description = prompt("Enter group description:");
-      const imageUrl = prompt("Enter group image URL (or leave blank):") || "https://via.placeholder.com/40";
-      if (name && description) {
-        try {
-          await addDoc(collection(db, "Kamba_groups"), {
-            name,
-            description,
-            imageUrl,
-            creatorId: currentUser.uid,
-            createdAt: new Date().getTime()
+    emojiBtn.addEventListener('click', () => {
+      if (emojiPicker.style.display === 'flex') {
+        emojiPicker.style.display = 'none';
+      } else {
+        emojiPicker.style.display = 'flex';
+        if (!emojiPicker.hasChildNodes()) {
+          emojis.forEach((e) => {
+            const btn = document.createElement('button');
+            btn.textContent = e;
+            btn.title = e;
+            btn.addEventListener('click', () => {
+              messageInput.value += e;
+              messageInput.focus();
+            });
+            emojiPicker.appendChild(btn);
           });
-        } catch (error) {
-          console.error("Error creating group:", error);
         }
       }
     });
 
-    // Sidebar resize handling
-    groupsSidebar.addEventListener("resize", updateGroupDetailsVisibility);
-    function updateGroupDetailsVisibility() {
-      const width = groupsSidebar.offsetWidth;
-      if (width > 200) {
-        groupsSidebar.classList.add("wide");
-      } else {
-        groupsSidebar.classList.remove("wide");
-      }
-    }
-
-    // Hide emoji picker when clicking outside
-    document.addEventListener("click", (e) => {
-      if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-        emojiPicker.style.display = "none";
+    // Send message on button click or Enter key
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
       }
     });
+
+    // Upload button triggers hidden file input
+    uploadImageBtn.addEventListener('click', () => uploadImageInput.click());
+
+    // No song notification controls
+    function checkNoSongNotification() {
+      const dismissedTime = localStorage.getItem(NO_SONG_DISMISS_KEY);
+      const now = Date.now();
+      if (!userData.songUrl && (!dismissedTime || now - dismissedTime > 10 * 60 * 60 * 1000)) {
+        noSongNotification.style.display = 'flex';
+      } else {
+        noSongNotification.style.display = 'none';
+      }
+    }
+    dismissNoSongBtn.addEventListener('click', () => {
+      localStorage.setItem(NO_SONG_DISMISS_KEY, Date.now());
+      noSongNotification.style.display = 'none';
+    });
+    setSongLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'settings.html';
+    });
+
+    // Profile icon goes to settings
+    profileIcon.addEventListener('click', () => {
+      window.location.href = 'settings.html';
+    });
+
+    // Load sidebars data (dummy examples)
+    async function loadSidebars() {
+      // Announcements example
+      const annRef = collection(db, 'announcements');
+      onSnapshot(annRef, (snapshot) => {
+        const container = document.getElementById('announcements-list');
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+          const el = document.createElement('div');
+          el.className = 'list-item';
+          el.textContent = doc.data().text || 'Announcement';
+          container.appendChild(el);
+        });
+      });
+
+      // Sub-Communities example
+      const subRef = collection(db, 'subcommunities');
+      onSnapshot(subRef, (snapshot) => {
+        const container = document.getElementById('subcommunities-list');
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+          const el = document.createElement('div');
+          el.className = 'list-item';
+          el.textContent = doc.data().name || 'Sub-community';
+          container.appendChild(el);
+        });
+      });
+
+      // My Projects example: filter projects created by user
+      const projectsRef = collection(db, 'projects');
+      onSnapshot(projectsRef, (snapshot) => {
+        const container = document.getElementById('my-projects-list');
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.creatorEmail === currentUser.email) {
+            const el = document.createElement('div');
+            el.className = 'list-item';
+            el.textContent = data.name || 'Project';
+            container.appendChild(el);
+          }
+        });
+      });
+    }
+
   </script>
 </body>
 </html>
