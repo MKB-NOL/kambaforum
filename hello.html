@@ -3,360 +3,434 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KAMBA Forum - Chat</title>
+<title>KAMBA Forum — Public Chat</title>
 <style>
-  /* Basic reset and Discord style */
+  /* RESET & BASIC */
   * {
     box-sizing: border-box;
   }
   body, html {
     margin: 0; padding: 0;
     height: 100%;
-    background-color: #36393f;
+    background: #36393f; /* Discord dark */
     color: #dcddde;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    display: grid;
+    grid-template-columns: 60px 240px 1fr 320px;
+    grid-template-rows: 100vh;
+  }
+
+  /* LEFT SIDEBAR (Groups) */
+  #sidebar-left {
+    background: #202225;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-  }
-  header {
-    background-color: #2f3136;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
     align-items: center;
+    padding: 10px 0;
+    overflow-y: auto;
+  }
+  .server-icon {
+    background: #36393f;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .server-icon:hover {
+    background: #5865f2;
+  }
+
+  /* SECONDARY SIDEBAR */
+  #sidebar-secondary {
+    background: #2f3136;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  #sidebar-secondary h2 {
+    margin-top: 0;
+    font-weight: 600;
+    font-size: 1.1em;
+    border-bottom: 1px solid #4f545c;
+    padding-bottom: 6px;
+  }
+  .list-item {
+    background: #36393f;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .list-item:hover {
+    background: #5865f2;
     color: white;
   }
-  header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-  #profile-icon {
-    width: 42px; /* Increased size slightly for better visibility */
-    height: 42px;
-    border-radius: 50%;
-    background-color: gray;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    font-size: 1.2rem; /* Adjusted font size */
-    user-select: none;
-    transition: background-color 0.3s ease;
-  }
-  #profile-icon:hover {
-    filter: brightness(1.2);
-  }
-  #chat-container {
-    flex: 1;
+
+  /* MAIN CHAT AREA */
+  #main-chat {
+    background: #36393f;
     display: flex;
     flex-direction: column;
-    padding: 1rem 2rem;
-    overflow-y: auto;
-    gap: 1rem;
-    background-color: #2f3136;
+    height: 100vh;
   }
-  .message {
-    background-color: #202225;
-    padding: 0.7rem 1rem;
+
+  /* HEADER with search */
+  #chat-header {
+    background: #2f3136;
+    padding: 12px 16px;
+    border-bottom: 1px solid #4f545c;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #search-input {
+    flex-grow: 1;
+    padding: 8px 12px;
     border-radius: 6px;
-    max-width: 75%;
-    word-break: break-word;
+    border: none;
+    background: #202225;
+    color: #dcddde;
+    font-size: 1em;
+  }
+  #search-clear-btn {
+    background: transparent;
+    border: none;
+    color: #dcddde;
+    font-size: 1.2em;
+    cursor: pointer;
+    display: none;
+  }
+  #search-results {
+    position: absolute;
+    background: #2f3136;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 300px;
+    margin-top: 4px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px #0008;
+    z-index: 1000;
+  }
+
+  /* CHAT MESSAGES */
+  #chat-messages {
+    flex-grow: 1;
+    padding: 12px 20px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #202225 #2f3136;
+  }
+  #chat-messages::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-messages::-webkit-scrollbar-track {
+    background: #2f3136;
+  }
+  #chat-messages::-webkit-scrollbar-thumb {
+    background-color: #202225;
+    border-radius: 10px;
+  }
+
+  .message {
+    margin-bottom: 15px;
+    max-width: 80%;
+    padding: 10px 12px;
+    border-radius: 8px;
     position: relative;
+    background: #2f3136;
+    word-break: break-word;
+  }
+  .message.green .username {
+    color: #43b581;
+  }
+  .message.blue .username {
+    color: #00a6fb;
+  }
+  .message.violet .username {
+    color: #8a2be2;
+  }
+  .message.red .username {
+    color: #f04747;
   }
   .username {
-    font-weight: 700;
-    margin-bottom: 0.15rem;
-    display: inline-block;
-    cursor: default;
+    font-weight: 600;
+    margin-bottom: 4px;
   }
-  .message-text {
+  .text {
     white-space: pre-wrap;
   }
   .reply-to {
-    font-size: 0.75rem;
+    font-size: 0.85em;
     color: #b9bbbe;
-    margin-bottom: 0.3rem;
-    padding-left: 0.5rem;
-    border-left: 2px solid #5865f2;
+    margin-bottom: 6px;
+    padding-left: 8px;
+    border-left: 2px solid #4f545c;
   }
-  .reply-btn {
-    font-size: 0.7rem;
-    color: #5865f2;
-    cursor: pointer;
-    margin-top: 0.3rem;
-    user-select: none;
-  }
-  .reply-btn:hover {
-    text-decoration: underline;
-  }
-  #message-input-area {
-    background-color: #40444b;
-    padding: 0.8rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    position: relative;
-  }
-  #message-input {
-    flex: 1;
-    padding: 0.6rem 0.8rem;
-    border-radius: 5px;
-    border: none;
-    font-size: 1rem;
-    color: white;
-    background-color: #2f3136;
-    resize: none;
-    min-height: 36px;
-    max-height: 96px;
-    overflow-y: auto;
-  }
-  #message-input:focus {
-    outline: 2px solid #5865f2;
-  }
-  #send-btn {
-    background-color: #5865f2;
-    border: none;
-    color: white;
-    padding: 0.55rem 1.2rem;
-    font-weight: 700;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  #send-btn:hover {
-    background-color: #4752c4;
-  }
-  #emoji-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.4rem;
-    cursor: pointer;
-    color: #b9bbbe;
-    user-select: none;
-  }
-  #emoji-picker {
-    position: absolute;
-    bottom: 3.8rem;
-    right: 3rem;
-    background-color: #202225;
-    border-radius: 8px;
-    padding: 0.5rem;
-    display: none;
-    box-shadow: 0 0 10px rgba(0,0,0,0.7);
-    z-index: 1000;
-  }
-  #emoji-picker span {
-    font-size: 1.6rem;
-    margin: 0 6px;
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.15s ease;
-  }
-  #emoji-picker span:hover {
-    transform: scale(1.3);
-  }
-  #no-song-notification {
-    background-color: #f04747;
-    color: white;
-    text-align: center;
-    padding: 0.7rem 1rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .username.green { color: #43b581; }   /* New user */
-  .username.blue { color: #5865f2; }    /* 100+ sparks */
-  .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
-  .username.red { color: #f04747; }     /* Admin */
-  /* Scrollbar styling */
-  #chat-container::-webkit-scrollbar {
-    width: 8px;
-  }
-  #chat-container::-webkit-scrollbar-thumb {
-    background-color: #5865f2;
-    border-radius: 5px;
-  }
-  /* Image thumbnails in chat */
   .chat-image {
-    max-width: 150px;
-    max-height: 150px;
-    border-radius: 5px;
-    margin-top: 6px;
+    max-width: 240px;
+    border-radius: 8px;
+    margin-top: 8px;
     cursor: pointer;
-    position: relative;
+    display: block;
   }
   .img-save-icon {
     position: absolute;
-    right: 4px;
-    bottom: 4px;
-    background: rgba(0,0,0,0.6);
+    top: 8px;
+    right: 8px;
+    background: #202225cc;
+    color: #dcddde;
     border-radius: 50%;
-    padding: 3px;
+    padding: 4px;
+    font-size: 16px;
     cursor: pointer;
-    color: white;
-    font-size: 14px;
+  }
+  .reply-btn {
+    font-size: 0.85em;
+    color: #72767d;
+    cursor: pointer;
+    margin-top: 6px;
+    width: fit-content;
     user-select: none;
   }
-  /* Fullscreen image viewer */
-  #fullscreen-img-viewer {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0,0,0,0.9);
-    justify-content: center;
+  .reply-btn:hover {
+    color: #5865f2;
+  }
+
+  /* MESSAGE INPUT AREA */
+  #input-area {
+    background: #40444b;
+    padding: 10px 16px;
+    display: flex;
     align-items: center;
-    z-index: 10000;
-    cursor: zoom-out;
+    gap: 8px;
   }
-  #fullscreen-img-viewer img {
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 8px;
+  #message-input {
+    flex-grow: 1;
+    height: 40px;
+    border-radius: 20px;
+    border: none;
+    padding: 8px 14px;
+    background: #2f3136;
+    color: #dcddde;
+    resize: none;
+    font-size: 1em;
   }
-  /* Link preview card */
-  .link-preview {
-    margin-top: 6px;
-    border: 1px solid #5865f2;
+  #message-input:focus {
+    outline: none;
+    background: #40444b;
+  }
+  #emoji-btn, #send-btn {
+    background: #5865f2;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    user-select: none;
+  }
+  #emoji-btn:hover, #send-btn:hover {
+    background: #4752c4;
+  }
+
+  /* EMOJI PICKER */
+  .emoji-picker {
+    position: absolute;
+    bottom: 60px;
+    left: 80px;
+    background: #2f3136;
+    border: 1px solid #202225;
     border-radius: 8px;
     padding: 8px;
     display: flex;
-    gap: 10px;
-    background-color: #2f3136;
+    gap: 8px;
+    z-index: 10000;
   }
-  .link-preview img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 6px;
-  }
-  .link-preview-content {
-    flex: 1;
+  .emoji-picker button {
+    background: none;
+    border: none;
     color: #dcddde;
+    font-size: 22px;
+    cursor: pointer;
   }
-  .link-preview-title {
-    font-weight: 700;
-    margin-bottom: 4px;
+  .emoji-picker button:hover {
+    color: #5865f2;
   }
-  .link-preview-description {
-    font-size: 0.85rem;
-    opacity: 0.7;
-  }
-  /* Modal for Agree & Continue */
-  #agree-modal {
+
+  /* FULLSCREEN IMAGE VIEWER */
+  #fullscreen-img-viewer {
+    display: none;
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.75);
-    display: flex;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.9);
     justify-content: center;
     align-items: center;
     z-index: 20000;
   }
-  #agree-modal .modal-content {
-    background-color: #2f3136;
-    padding: 2rem;
-    max-width: 400px;
-    border-radius: 10px;
-    text-align: center;
-    color: #dcddde;
+  #fullscreen-img-viewer img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #000;
+    outline: none;
   }
-  #agree-modal button {
-    background-color: #5865f2;
-    border: none;
+
+  /* NO SONG NOTIFICATION */
+  #no-song-notification {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: #f04747;
     color: white;
-    padding: 0.8rem 1.5rem;
-    font-weight: 700;
-    font-size: 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 1.5rem;
-    transition: background-color 0.3s ease;
-  }
-  #agree-modal button:hover {
-    background-color: #4752c4;
-  }
-  /* Image upload input */
-  #image-upload {
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #f04747bb;
     display: none;
-  }
-  #image-upload-label {
-    cursor: pointer;
-    background-color: #5865f2;
-    border-radius: 5px;
-    padding: 0.55rem 0.9rem;
-    font-weight: 700;
-    color: white;
+    align-items: center;
+    gap: 15px;
+    font-weight: 600;
     user-select: none;
-    transition: background-color 0.2s ease;
-    font-size: 1rem;
   }
-  #image-upload-label:hover {
-    background-color: #4752c4;
+  #dismiss-no-song-btn {
+    background: transparent;
+    border: 1.5px solid white;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  #dismiss-no-song-btn:hover {
+    background: white;
+    color: #f04747;
+  }
+
+  /* PROFILE ICON */
+  #profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #43b581;
+    color: white;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 40px;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 960px) {
+    body {
+      grid-template-columns: 60px 200px 1fr;
+      grid-template-rows: auto;
+      height: auto;
+    }
+    #sidebar-secondary {
+      display: none;
+    }
+    #main-chat {
+      height: 80vh;
+    }
+  }
+  @media (max-width: 600px) {
+    body {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto 1fr auto;
+      height: auto;
+    }
+    #sidebar-left, #sidebar-secondary {
+      display: none;
+    }
+    #main-chat {
+      height: 70vh;
+      grid-column: 1 / -1;
+    }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>KAMBA Forum</h1>
-  <div id="profile-icon" title="Profile">U</div>
-</header>
-
-<div id="chat-container" aria-live="polite" aria-relevant="additions"></div>
-
-<div id="no-song-notification" style="display:none; cursor:pointer;">
-  No song set. Click here to set your song in Settings.
+<!-- Left sidebar - groups -->
+<div id="sidebar-left" aria-label="Groups sidebar" role="navigation" tabindex="0">
+  <!-- Dynamic server icons here -->
 </div>
 
-<div id="message-input-area">
-  <button id="emoji-btn" title="Emoji picker">😀</button>
-  <textarea id="message-input" placeholder="Send a message..." rows="1" autocomplete="off"></textarea>
-  <button id="send-btn" aria-label="Send message">Send</button>
-  <label id="image-upload-label" for="image-upload" title="Upload images">📷</label>
-  <input type="file" id="image-upload" accept="image/*" multiple />
+<!-- Secondary sidebar - announcements, sub-communities, projects -->
+<div id="sidebar-secondary" aria-label="Sidebar secondary">
+  <section>
+    <h2>Announcements</h2>
+    <div id="announcements-list" role="list"></div>
+  </section>
+  <section>
+    <h2>Sub-Communities</h2>
+    <div id="subcommunities-list" role="list"></div>
+  </section>
+  <section>
+    <h2>My Projects</h2>
+    <div id="my-projects-list" role="list"></div>
+  </section>
 </div>
 
-<div id="emoji-picker" aria-label="Emoji picker" role="list">
-  <span>😊</span>
-  <span>😄</span>
-  <span>😍</span>
-  <span>👍</span>
-  <span>🎉</span>
-</div>
+<!-- Main chat -->
+<div id="main-chat" role="main" aria-label="Chat area" tabindex="0">
+  <!-- Header with search -->
+  <div id="chat-header">
+    <input id="search-input" type="search" placeholder="Search users, groups, projects…" aria-label="Search" autocomplete="off" />
+    <button id="search-clear-btn" aria-label="Clear search input">&times;</button>
+  </div>
+  <div id="search-results" role="listbox" aria-live="polite" tabindex="0"></div>
 
-<div id="fullscreen-img-viewer" role="dialog" aria-modal="true" tabindex="-1">
-  <img src="" alt="Full screen image preview" />
-</div>
+  <!-- Messages -->
+  <div id="chat-messages" tabindex="0" aria-live="polite" aria-relevant="additions"></div>
 
-<div id="agree-modal" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="agree-title" aria-describedby="agree-desc">
-  <div class="modal-content">
-    <h2 id="agree-title">Welcome to KAMBA Forum</h2>
-    <p id="agree-desc">Please agree and continue to use the community chat.</p>
-    <button id="agree-btn">Agree and Continue</button>
+  <!-- Input area -->
+  <div id="input-area">
+    <button id="emoji-btn" aria-label="Toggle emoji picker" title="Emoji picker">😊</button>
+    <textarea id="message-input" placeholder="Message #general" rows="1" aria-multiline="true" aria-label="Message input"></textarea>
+    <input type="file" id="image-upload-input" accept="image/*" multiple style="display:none" aria-hidden="true" />
+    <button id="upload-image-btn" aria-label="Upload images" title="Upload images">📷</button>
+    <button id="send-btn" aria-label="Send message" title="Send message">➡️</button>
   </div>
 </div>
 
-<audio id="background-audio" loop></audio>
+<!-- Profile icon -->
+<div id="profile-icon" tabindex="0" role="button" aria-label="Profile and settings"></div>
+
+<!-- No song notification -->
+<div id="no-song-notification" role="alert" aria-live="assertive">
+  No song set. <button id="set-song-link" aria-label="Go to settings to set song">Click here</button> to set your song in Settings.
+  <button id="dismiss-no-song-btn" aria-label="Dismiss notification for 10 hours">Dismiss</button>
+</div>
+
+<!-- Fullscreen image viewer -->
+<div id="fullscreen-img-viewer" tabindex="0" aria-label="Fullscreen image viewer">
+  <img id="fullscreen-img-tag" alt="Fullscreen image" />
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-    signOut,
-  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-  import {
-    getFirestore,
-    collection,
-    query,
-    orderBy,
-    onSnapshot,
-    addDoc,
-    doc,
-    getDoc,
-    updateDoc,
-  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, onSnapshot, orderBy, query, limit, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
     authDomain: "muah-feed.firebaseapp.com",
@@ -365,292 +439,417 @@
     storageBucket: "muah-feed.firebasestorage.app",
     messagingSenderId: "442314397706",
     appId: "1:442314397706:web:a69e3958257fb13b3667f3",
-    measurementId: "G-S86S229F1T",
+    measurementId: "G-S86S229F1T"
   };
 
+  // ImgBB API key
+  const IMGBB_API_KEY = "0f248e70fc4e7dffde307dd772823379";
+
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const chatContainer = document.getElementById("chat-container");
+  // Elements
+  const chatMessages = document.getElementById("chat-messages");
   const messageInput = document.getElementById("message-input");
   const sendBtn = document.getElementById("send-btn");
   const emojiBtn = document.getElementById("emoji-btn");
-  const emojiPicker = document.getElementById("emoji-picker");
-  const noSongNotification = document.getElementById("no-song-notification");
-  const backgroundAudio = document.getElementById("background-audio");
   const profileIcon = document.getElementById("profile-icon");
-  const fullscreenViewer = document.getElementById("fullscreen-img-viewer");
-  const fullscreenImg = fullscreenViewer.querySelector("img");
-  const agreeModal = document.getElementById("agree-modal");
-  const agreeBtn = document.getElementById("agree-btn");
-  const imageUploadInput = document.getElementById("image-upload");
-  const imageUploadLabel = document.getElementById("image-upload-label");
+  const sidebarLeft = document.getElementById("sidebar-left");
+  const announcementsList = document.getElementById("announcements-list");
+  const subcommunitiesList = document.getElementById("subcommunities-list");
+  const myProjectsList = document.getElementById("my-projects-list");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const dismissNoSongBtn = document.getElementById("dismiss-no-song-btn");
+  const setSongLink = document.getElementById("set-song-link");
+  const fullscreenImgViewer = document.getElementById("fullscreen-img-viewer");
+  const fullscreenImgTag = document.getElementById("fullscreen-img-tag");
+  const searchInput = document.getElementById("search-input");
+  const searchClearBtn = document.getElementById("search-clear-btn");
+  const searchResults = document.getElementById("search-results");
+  const imageUploadInput = document.getElementById("image-upload-input");
+  const uploadImageBtn = document.getElementById("upload-image-btn");
 
   let currentUser = null;
   let currentUserData = null;
+  let audioPlayer = null;
   let replyToMessageId = null;
-  let replyToMessageText = null;
+  let emojiPickerVisible = false;
+  let emojiPickerDiv = null;
+  let uploading = false;
+  let uploadedImages = [];
 
-  // Emoji picker toggle
-  emojiBtn.addEventListener("click", () => {
-    emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
-  });
-
-  // Add emoji to input
-  emojiPicker.querySelectorAll("span").forEach((emojiSpan) => {
-    emojiSpan.addEventListener("click", () => {
-      messageInput.value += emojiSpan.textContent;
-      emojiPicker.style.display = "none";
-      messageInput.focus();
-      resizeTextarea();
-    });
-  });
-
-  // Close emoji picker if clicking outside
-  document.addEventListener("click", (e) => {
-    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
-      emojiPicker.style.display = "none";
-    }
-  });
-
-  // Resize textarea height dynamically
-  function resizeTextarea() {
-    messageInput.style.height = "auto";
-    messageInput.style.height = messageInput.scrollHeight + "px";
-  }
-  messageInput.addEventListener("input", resizeTextarea);
-
-  // Utility to simplify email (for username display)
-  function simplifyEmail(email) {
+  // Helper: extract username from email (before @)
+  function usernameFromEmail(email) {
     return email.split("@")[0];
   }
 
-  // Map status to color class
-  function getStatusClass(status) {
-    switch (status) {
-      case "green": return "green";
-      case "blue": return "blue";
-      case "violet": return "violet";
-      case "red": return "red";
-      default: return "green";
+  // Set profile icon color based on account status
+  function setProfileIconColor(status) {
+    let color = "#43b581"; // green
+    if (status === "blue") color = "#00a6fb";
+    else if (status === "violet") color = "#8a2be2";
+    else if (status === "red") color = "#f04747";
+
+    profileIcon.style.backgroundColor = color;
+    profileIcon.textContent = usernameFromEmail(currentUser.email)[0].toUpperCase();
+  }
+
+  // Show or hide no-song notification based on localStorage and firestore
+  function checkNoSongNotification() {
+    const dismissed = localStorage.getItem("noSongDismissedUntil");
+    if (dismissed && Date.now() < parseInt(dismissed)) {
+      noSongNotification.style.display = "none";
+    } else {
+      if (!currentUserData?.songUrl) {
+        noSongNotification.style.display = "flex";
+      } else {
+        noSongNotification.style.display = "none";
+      }
     }
   }
 
-  // Create a DOM element for a message, including images and link previews
-  function renderMessage(id, msgData) {
-    const div = document.createElement("div");
-    div.className = "message";
-    div.dataset.id = id;
+  // Setup looping audio player for user's song
+  function setupAudioPlayer() {
+    if (audioPlayer) {
+      audioPlayer.pause();
+      audioPlayer = null;
+    }
+    if (currentUserData?.songUrl) {
+      audioPlayer = new Audio(currentUserData.songUrl);
+      audioPlayer.loop = true;
+      audioPlayer.volume = 0.3;
+      audioPlayer.play().catch(() => {
+        // Autoplay might be blocked by browser, ignore
+      });
+    }
+  }
 
-    const usernameSpan = document.createElement("span");
-    usernameSpan.className = "username " + getStatusClass(msgData.status);
-    usernameSpan.textContent = msgData.sender;
-    div.appendChild(usernameSpan);
+  // Listen for auth changes
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // Not logged in, redirect to login
+      window.location.href = "sign.html";
+      return;
+    }
+    currentUser = user;
 
-    if (msgData.replyToText) {
-      const replyDiv = document.createElement("div");
-      replyDiv.className = "reply-to";
-      replyDiv.textContent = "Replying to: " + msgData.replyToText;
-      div.appendChild(replyDiv);
+    // Load user data from Firestore
+    const userDocRef = doc(db, "Kamba_users", currentUser.email);
+    const docSnap = await getDoc(userDocRef);
+    if (docSnap.exists()) {
+      currentUserData = docSnap.data();
+      setProfileIconColor(currentUserData.accountStatus || "green");
+      checkNoSongNotification();
+      setupAudioPlayer();
+    } else {
+      // First time user document creation
+      await setDoc(userDocRef, {
+        accountStatus: "green",
+        sparks: 0,
+        songUrl: null,
+        agreedTerms: false
+      });
+      currentUserData = {
+        accountStatus: "green",
+        sparks: 0,
+        songUrl: null,
+        agreedTerms: false
+      };
+      setProfileIconColor("green");
+      checkNoSongNotification();
     }
 
-    // Message text with URLs parsed for preview
-    const textDiv = document.createElement("div");
-    textDiv.className = "message-text";
-    textDiv.innerHTML = linkifyAndPreview(msgData.message);
-    div.appendChild(textDiv);
+    // If user didn't agree terms, prompt them
+    if (!currentUserData.agreedTerms) {
+      showAgreeBox();
+    }
 
-    // If images attached, show thumbnails
-    if (msgData.images && msgData.images.length) {
-      msgData.images.forEach((imgUrl) => {
+    loadMessages();
+    loadGroups();
+    loadSidebarSections();
+  });
+
+  // AGREE BOX
+  function showAgreeBox() {
+    const agreeDiv = document.createElement("div");
+    agreeDiv.style.position = "fixed";
+    agreeDiv.style.top = "50%";
+    agreeDiv.style.left = "50%";
+    agreeDiv.style.transform = "translate(-50%, -50%)";
+    agreeDiv.style.background = "#202225";
+    agreeDiv.style.color = "#fff";
+    agreeDiv.style.padding = "20px 30px";
+    agreeDiv.style.borderRadius = "12px";
+    agreeDiv.style.boxShadow = "0 0 20px #5865f2";
+    agreeDiv.style.zIndex = "10000";
+    agreeDiv.style.textAlign = "center";
+    agreeDiv.style.maxWidth = "320px";
+    agreeDiv.textContent = "Agree and Continue to use KAMBA Forum";
+
+    const agreeBtn = document.createElement("button");
+    agreeBtn.textContent = "Agree and Continue";
+    agreeBtn.style.marginTop = "20px";
+    agreeBtn.style.padding = "8px 16px";
+    agreeBtn.style.backgroundColor = "#5865f2";
+    agreeBtn.style.border = "none";
+    agreeBtn.style.color = "white";
+    agreeBtn.style.borderRadius = "8px";
+    agreeBtn.style.cursor = "pointer";
+    agreeBtn.addEventListener("click", async () => {
+      agreeDiv.remove();
+      // Update Firestore to mark agreedTerms true
+      const userDocRef = doc(db, "Kamba_users", currentUser.email);
+      await updateDoc(userDocRef, { agreedTerms: true });
+      currentUserData.agreedTerms = true;
+    });
+
+    agreeDiv.appendChild(document.createElement("br"));
+    agreeDiv.appendChild(agreeBtn);
+
+    document.body.appendChild(agreeDiv);
+  }
+
+  // Load chat messages realtime
+  function loadMessages() {
+    const messagesRef = collection(db, "messages");
+    const messagesQuery = query(messagesRef, orderBy("createdAt", "asc"));
+
+    onSnapshot(messagesQuery, (snapshot) => {
+      chatMessages.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const msg = docSnap.data();
+        const messageElem = createMessageElement(docSnap.id, msg);
+        chatMessages.appendChild(messageElem);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  }
+
+  // Create a message DOM element
+  function createMessageElement(id, msg) {
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message");
+
+    // Determine class by accountStatus for username color
+    const statusClass = msg.accountStatus || "green";
+    messageDiv.classList.add(statusClass);
+
+    // Username (email before @)
+    const usernameDiv = document.createElement("div");
+    usernameDiv.className = "username";
+    usernameDiv.textContent = usernameFromEmail(msg.email);
+    messageDiv.appendChild(usernameDiv);
+
+    // Reply to
+    if (msg.replyToText) {
+      const replyDiv = document.createElement("div");
+      replyDiv.className = "reply-to";
+      replyDiv.textContent = "Reply to: " + msg.replyToText;
+      messageDiv.appendChild(replyDiv);
+    }
+
+    // Text content with link previews and emojis
+    const textDiv = document.createElement("div");
+    textDiv.className = "text";
+    textDiv.innerHTML = parseMessageText(msg.text);
+    messageDiv.appendChild(textDiv);
+
+    // Images, if any
+    if (msg.images && msg.images.length) {
+      msg.images.forEach(imgUrl => {
         const imgWrapper = document.createElement("div");
         imgWrapper.style.position = "relative";
-        imgWrapper.style.display = "inline-block";
-
         const img = document.createElement("img");
-        img.src = imgUrl;
-        img.alt = "Shared image";
         img.className = "chat-image";
-        imgWrapper.appendChild(img);
+        img.src = imgUrl;
+        img.alt = "User uploaded image";
+        img.tabIndex = 0;
+        img.style.outline = "none";
 
         // Save icon
-        const saveIcon = document.createElement("div");
+        const saveIcon = document.createElement("span");
         saveIcon.className = "img-save-icon";
-        saveIcon.title = "Open image full screen";
+        saveIcon.title = "Open image fullscreen";
         saveIcon.textContent = "💾";
-        saveIcon.addEventListener("click", (e) => {
-          e.stopPropagation();
-          openFullscreenImage(imgUrl);
+        saveIcon.tabIndex = 0;
+        saveIcon.style.userSelect = "none";
+
+        // Open fullscreen on click
+        function openFullscreen() {
+          fullscreenImgTag.src = imgUrl;
+          fullscreenImgViewer.style.display = "flex";
+          fullscreenImgViewer.focus();
+        }
+        saveIcon.addEventListener("click", openFullscreen);
+        saveIcon.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") openFullscreen();
         });
+        img.addEventListener("click", openFullscreen);
+        img.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") openFullscreen();
+        });
+
+        imgWrapper.appendChild(img);
         imgWrapper.appendChild(saveIcon);
-
-        // Click on image also opens full screen
-        img.addEventListener("click", () => openFullscreenImage(imgUrl));
-
-        div.appendChild(imgWrapper);
+        messageDiv.appendChild(imgWrapper);
       });
     }
 
+    // Reply button
     const replyBtn = document.createElement("div");
     replyBtn.className = "reply-btn";
     replyBtn.textContent = "Reply";
+    replyBtn.tabIndex = 0;
+    replyBtn.setAttribute("role", "button");
+    replyBtn.setAttribute("aria-pressed", "false");
     replyBtn.addEventListener("click", () => {
       replyToMessageId = id;
-      replyToMessageText = msgData.message;
       messageInput.focus();
-      messageInput.placeholder = "Replying: " + replyToMessageText.slice(0, 30) + "... (click send)";
-      resizeTextarea();
+      messageInput.placeholder = `Replying to ${usernameFromEmail(msg.email)}`;
     });
-    div.appendChild(replyBtn);
-
-    return div;
-  }
-
-  // Linkify text and add previews for URLs (images, YouTube, general)
-  function linkifyAndPreview(text) {
-    // Regex to find URLs
-    const urlRegex = /https?:\/\/[^\s]+/g;
-    let result = text.replace(urlRegex, (url) => {
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-    });
-
-    // For preview, detect first URL and try to show preview below text
-    // Note: This is simplified - for real production you'd want a server or API call for rich metadata
-    // Here we'll do very basic checks for images and YouTube
-
-    // Find first URL
-    const urls = text.match(urlRegex);
-    if (!urls) return result;
-
-    let previewHtml = "";
-    const firstUrl = urls[0];
-
-    // Check if URL is an image (common extensions)
-    if (firstUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp)$/i)) {
-      previewHtml = `<div class="link-preview"><img src="${firstUrl}" alt="Image preview"/><div class="link-preview-content"><div class="link-preview-title">Image</div></div></div>`;
-    }
-    // Check if YouTube URL
-    else if (firstUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)) {
-      // Extract video ID
-      const match = firstUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-      const videoId = match[1];
-      previewHtml = `
-      <div class="link-preview">
-        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="YouTube thumbnail"/>
-        <div class="link-preview-content">
-          <div class="link-preview-title">YouTube Video</div>
-          <div class="link-preview-description">Click link to watch video</div>
-        </div>
-      </div>`;
-    }
-    // For other websites, show basic preview with fetch (async not possible here, so skipped)
-
-    if (previewHtml) return result + previewHtml;
-    return result;
-  }
-
-  // Fullscreen image open/close
-  function openFullscreenImage(url) {
-    fullscreenImg.src = url;
-    fullscreenViewer.style.display = "flex";
-    fullscreenViewer.focus();
-  }
-  fullscreenViewer.addEventListener("click", () => {
-    fullscreenViewer.style.display = "none";
-    fullscreenImg.src = "";
-  });
-
-  // Setup Firestore real-time listener for messages
-  function setupMessagesListener() {
-    const messagesQuery = query(
-      collection(db, "Kamba_messages"),
-      orderBy("timestamp", "asc")
-    );
-
-    onSnapshot(messagesQuery, async (querySnapshot) => {
-      chatContainer.innerHTML = ""; // Clear chat on update
-
-      // Collect unique user IDs in messages
-      const userIds = new Set();
-      querySnapshot.forEach((doc) => {
-        userIds.add(doc.data().userId);
-      });
-      // Preload user data for all message senders:
-      const userDataMap = new Map();
-      const userDocsPromises = [];
-      userIds.forEach((uid) => {
-        userDocsPromises.push(getDoc(doc(db, "Kamba_users", uid)));
-      });
-      const userDocs = await Promise.all(userDocsPromises);
-      userDocs.forEach((docSnap) => {
-        if (docSnap.exists()) {
-          userDataMap.set(docSnap.id, docSnap.data());
-        }
-      });
-
-      // Render messages
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const senderUid = data.userId;
-        const userData = userDataMap.get(senderUid);
-        const displayName = simplifyEmail(data.senderEmail || "unknown");
-        const status = userData ? userData.status : "green";
-
-        const messageData = {
-          sender: displayName,
-          status: status,
-          message: data.message,
-          replyToText: data.replyToText || null,
-          images: data.images || [],
-        };
-        const msgDiv = renderMessage(docSnap.id, messageData);
-        chatContainer.appendChild(msgDiv);
-      });
-
-      // Scroll to bottom on new messages
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    });
-  }
-
-  // Upload images via imgbb
-  async function uploadImages(files) {
-    // Check total size <= 6MB
-    let totalSize = 0;
-    for (const file of files) {
-      totalSize += file.size;
-    }
-    if (totalSize > 6 * 1024 * 1024) {
-      alert("Total images size must not exceed 6 MB.");
-      return null;
-    }
-    const uploadedUrls = [];
-
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("image", file);
-      try {
-        const res = await fetch("https://api.imgbb.com/1/upload?key=0f248e70fc4e7dffde307dd772823379", {
-          method: "POST",
-          body: formData,
-        });
-        const json = await res.json();
-        if (json.success) {
-          uploadedUrls.push(json.data.display_url);
-        } else {
-          alert("Image upload failed: " + (json.error?.message || "Unknown error"));
-          return null;
-        }
-      } catch (err) {
-        alert("Image upload error: " + err.message);
-        return null;
+    replyBtn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        replyBtn.click();
       }
-    }
-    return uploadedUrls;
+    });
+    messageDiv.appendChild(replyBtn);
+
+    return messageDiv;
   }
 
-  // Send message with images
-  sendBtn.addEventListener("click", sendMessage);
+  // Parse message text to convert emojis and links with preview
+  function parseMessageText(text) {
+    if (!text) return "";
+
+    // Basic escape HTML
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': "&amp;",
+          '<': "&lt;",
+          '>': "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        })[m];
+      });
+    }
+
+    text = escapeHtml(text);
+
+    // Convert emoji shortcuts (e.g. :smile:) - Here simplified, we only support 5 emojis
+    const emojiMap = {
+      ":smile:": "😄",
+      ":thumbsup:": "👍",
+      ":heart:": "❤️",
+      ":fire:": "🔥",
+      ":rocket:": "🚀"
+    };
+    for (const k in emojiMap) {
+      text = text.split(k).join(emojiMap[k]);
+    }
+
+    // Detect URLs and add clickable links + previews
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    text = text.replace(urlRegex, (url) => {
+      // For YouTube links, embed a player preview
+      const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]+)/);
+      if (ytMatch) {
+        const ytId = ytMatch[1];
+        return `
+          <div style="margin:8px 0;">
+            <a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#7289da;">${url}</a>
+            <iframe width="280" height="158" src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen style="border-radius: 8px; margin-top: 6px;"></iframe>
+          </div>`;
+      }
+
+      // For images
+      if (url.match(/\.(jpeg|jpg|gif|png|bmp|webp)$/i)) {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#7289da;">[Image]</a>`;
+      }
+
+      // Other links
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#7289da;">${url}</a>`;
+    });
+
+    return text;
+  }
+
+  // Send a message handler
+  async function sendMessage() {
+    if (uploading) {
+      alert("Please wait, images are still uploading.");
+      return;
+    }
+
+    let text = messageInput.value.trim();
+    if (!text && uploadedImages.length === 0) return;
+
+    // Prepare message object
+    const msgObj = {
+      email: currentUser.email,
+      accountStatus: currentUserData.accountStatus || "green",
+      text: text,
+      images: uploadedImages,
+      createdAt: new Date(),
+    };
+    if (replyToMessageId) {
+      // Find original message text for reply preview
+      // Ideally should be cached or loaded, here simplified with Firestore getDoc
+      try {
+        const replyDoc = await getDoc(doc(db, "messages", replyToMessageId));
+        if (replyDoc.exists()) {
+          msgObj.replyToText = replyDoc.data().text.slice(0, 100);
+        }
+      } catch (e) {}
+    }
+
+    await addDoc(collection(db, "messages"), msgObj);
+
+    // Reset
+    messageInput.value = "";
+    replyToMessageId = null;
+    messageInput.placeholder = "Message #general";
+    uploadedImages = [];
+    imageUploadInput.value = "";
+  }
+
+  // Emoji picker toggle
+  function toggleEmojiPicker() {
+    if (emojiPickerVisible) {
+      if (emojiPickerDiv) emojiPickerDiv.remove();
+      emojiPickerVisible = false;
+      return;
+    }
+    emojiPickerDiv = document.createElement("div");
+    emojiPickerDiv.className = "emoji-picker";
+    const emojis = ["😄", "👍", "❤️", "🔥", "🚀"];
+    emojis.forEach(e => {
+      const btn = document.createElement("button");
+      btn.textContent = e;
+      btn.setAttribute("aria-label", `Insert emoji ${e}`);
+      btn.addEventListener("click", () => {
+        insertAtCursor(messageInput, e);
+        messageInput.focus();
+      });
+      emojiPickerDiv.appendChild(btn);
+    });
+    document.body.appendChild(emojiPickerDiv);
+    emojiPickerVisible = true;
+  }
+
+  // Insert text at cursor position
+  function insertAtCursor(input, textToInsert) {
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const text = input.value;
+    input.value = text.substring(0, start) + textToInsert + text.substring(end);
+    input.selectionStart = input.selectionEnd = start + textToInsert.length;
+  }
+
+  // Handle Enter key in message input: send message unless Shift is held
   messageInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -658,154 +857,237 @@
     }
   });
 
-  async function sendMessage() {
-    const text = messageInput.value.trim();
-    const files = imageUploadInput.files;
+  sendBtn.addEventListener("click", sendMessage);
+  emojiBtn.addEventListener("click", toggleEmojiPicker);
 
-    if (!text && (!files || files.length === 0)) return; // no content
+  // Clicking outside emoji picker closes it
+  document.body.addEventListener("click", (e) => {
+    if (emojiPickerVisible && emojiPickerDiv && !emojiPickerDiv.contains(e.target) && e.target !== emojiBtn) {
+      emojiPickerDiv.remove();
+      emojiPickerVisible = false;
+    }
+  });
 
-    const senderEmail = currentUser.email;
-    const userId = currentUser.uid;
+  // Image upload
+  uploadImageBtn.addEventListener("click", () => {
+    imageUploadInput.click();
+  });
 
-    // Get user doc ref and data
-    const userDocRef = doc(db, "Kamba_users", userId);
-    const userDocSnap = await getDoc(userDocRef);
-    if (!userDocSnap.exists()) {
-      alert("User data missing. Contact admin.");
+  imageUploadInput.addEventListener("change", async () => {
+    if (uploading) return;
+    const files = Array.from(imageUploadInput.files);
+    if (!files.length) return;
+
+    const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+    if (totalSize > 6 * 1024 * 1024) {
+      alert("Total images size must not exceed 6 MB.");
+      imageUploadInput.value = "";
       return;
     }
-    const userData = userDocSnap.data();
 
-    // Disable input while sending
-    sendBtn.disabled = true;
-    sendBtn.textContent = "Sending...";
-    try {
-      let imageUrls = [];
-      if (files && files.length > 0) {
-        imageUrls = await uploadImages(files);
-        if (imageUrls === null) throw new Error("Image upload failed");
+    uploading = true;
+    const uploadedUrls = [];
+
+    for (const file of files) {
+      const base64 = await fileToBase64(file);
+      try {
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64.split(",")[1] }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          uploadedUrls.push(data.data.url);
+        } else {
+          alert("Image upload failed.");
+        }
+      } catch {
+        alert("Error uploading image.");
       }
-      // Add message doc
-      await addDoc(collection(db, "Kamba_messages"), {
-        userId: userId,
-        senderEmail: senderEmail,
-        sender: simplifyEmail(senderEmail),
-        message: text,
-        replyTo: replyToMessageId || null,
-        replyToText: replyToMessageText || null,
-        timestamp: Date.now(),
-        images: imageUrls,
-      });
-
-      // Reset input & reply & file input
-      messageInput.value = "";
-      imageUploadInput.value = "";
-      messageInput.placeholder = "Send a message...";
-      replyToMessageId = null;
-      replyToMessageText = null;
-      resizeTextarea();
-
-      // Update sparks and status
-      let newSparks = (userData.sparks || 0) + 1;
-      let newStatus = userData.status || "green";
-      if (newSparks >= 1000) newStatus = "violet";
-      else if (newSparks >= 100) newStatus = "blue";
-      else newStatus = "green";
-
-      await updateDoc(userDocRef, {
-        sparks: newSparks,
-        status: newStatus,
-      });
-    } catch (err) {
-      alert("Error sending message: " + err.message);
-    } finally {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Send";
     }
+
+    uploadedImages = uploadedUrls;
+    uploading = false;
+    alert(`Uploaded ${uploadedUrls.length} image(s)`);
+  });
+
+  // Convert file to base64
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
-  // Redirect no-song notification
-  noSongNotification.addEventListener("click", () => {
+  // Fullscreen image viewer close
+  fullscreenImgViewer.addEventListener("click", () => {
+    fullscreenImgViewer.style.display = "none";
+    fullscreenImgTag.src = "";
+  });
+  fullscreenImgViewer.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      fullscreenImgViewer.style.display = "none";
+      fullscreenImgTag.src = "";
+    }
+  });
+
+  // No song notification dismiss
+  dismissNoSongBtn.addEventListener("click", () => {
+    noSongNotification.style.display = "none";
+    const until = Date.now() + 10 * 60 * 60 * 1000; // 10 hours
+    localStorage.setItem("noSongDismissedUntil", until.toString());
+  });
+
+  // Set song link redirects to settings page
+  setSongLink.addEventListener("click", () => {
     window.location.href = "settings.html";
   });
 
-  // Profile icon click opens settings.html
+  // Load groups (left sidebar)
+  function loadGroups() {
+    const groupsRef = collection(db, "groups");
+    onSnapshot(groupsRef, (snapshot) => {
+      sidebarLeft.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const group = docSnap.data();
+        const icon = document.createElement("div");
+        icon.className = "server-icon";
+        icon.title = group.name;
+        icon.textContent = group.icon || group.name.charAt(0).toUpperCase();
+        sidebarLeft.appendChild(icon);
+      });
+    });
+  }
+
+  // Load announcements, subcommunities, projects (secondary sidebar)
+  function loadSidebarSections() {
+    // Announcements
+    const annRef = collection(db, "announcements");
+    onSnapshot(annRef, (snap) => {
+      announcementsList.innerHTML = "";
+      snap.forEach(docSnap => {
+        const ann = docSnap.data();
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.textContent = ann.text;
+        announcementsList.appendChild(item);
+      });
+    });
+
+    // Sub-communities
+    const subRef = collection(db, "subcommunities");
+    onSnapshot(subRef, (snap) => {
+      subcommunitiesList.innerHTML = "";
+      snap.forEach(docSnap => {
+        const sub = docSnap.data();
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.textContent = sub.name;
+        subcommunitiesList.appendChild(item);
+      });
+    });
+
+    // Projects
+    const projRef = collection(db, "projects");
+    onSnapshot(projRef, (snap) => {
+      myProjectsList.innerHTML = "";
+      snap.forEach(docSnap => {
+        const proj = docSnap.data();
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.textContent = proj.name;
+        myProjectsList.appendChild(item);
+      });
+    });
+  }
+
+  // Profile icon click redirects to settings.html
   profileIcon.addEventListener("click", () => {
     window.location.href = "settings.html";
   });
 
-  // On fullscreen image viewer open/close handled above
-
-  // First login agreement modal logic
-  async function checkAgreement(userId) {
-    const userDocRef = doc(db, "Kamba_users", userId);
-    const userDocSnap = await getDoc(userDocRef);
-    if (!userDocSnap.exists()) return false;
-    const data = userDocSnap.data();
-    return data.agreedToTerms === true;
-  }
-  async function setAgreement(userId) {
-    const userDocRef = doc(db, "Kamba_users", userId);
-    await updateDoc(userDocRef, { agreedToTerms: true });
-  }
-
-  // On auth state changed
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "sign.html";
-      return;
-    }
-    currentUser = user;
-
-    // Load user data from Firestore
-    const userDocRef = doc(db, "Kamba_users", user.uid);
-    const userDocSnap = await getDoc(userDocRef);
-    if (!userDocSnap.exists()) {
-      alert("User data not found in database. Please contact admin.");
-      return;
-    }
-    currentUserData = userDocSnap.data();
-
-    // Update profile icon with first letter & color by status
-    const statusColorMap = {
-      green: "#43b581",
-      blue: "#5865f2",
-      violet: "#9b59b6",
-      red: "#f04747",
-    };
-    profileIcon.style.backgroundColor = statusColorMap[currentUserData.status] || "#72767d";
-    profileIcon.textContent = simplifyEmail(currentUser.email).charAt(0).toUpperCase();
-
-    // Check agreement
-    const agreed = await checkAgreement(user.uid);
-    if (!agreed) {
-      agreeModal.style.display = "flex";
-    } else {
-      agreeModal.style.display = "none";
-      initChatAndAudio();
+  profileIcon.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      profileIcon.click();
     }
   });
 
-  // Agree button event
-  agreeBtn.addEventListener("click", async () => {
-    agreeModal.style.display = "none";
-    await setAgreement(currentUser.uid);
-    initChatAndAudio();
+  // Search bar with 300ms debounce
+  let searchTimeout = null;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+    const queryText = searchInput.value.trim().toLowerCase();
+    if (!queryText) {
+      searchResults.innerHTML = "";
+      searchResults.style.display = "none";
+      searchClearBtn.style.display = "none";
+      return;
+    }
+    searchClearBtn.style.display = "inline";
+    searchTimeout = setTimeout(() => {
+      searchUsers(queryText);
+    }, 300);
   });
 
-  async function initChatAndAudio() {
-    // Set background audio source & volume
-    if (currentUserData.song && currentUserData.song.trim() !== "") {
-      backgroundAudio.src = currentUserData.song;
-      backgroundAudio.volume = currentUserData.volume ?? 0.5;
-      backgroundAudio.play().catch(() => {});
-      noSongNotification.style.display = "none";
-    } else {
-      noSongNotification.style.display = "block";
+  searchClearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchResults.innerHTML = "";
+    searchResults.style.display = "none";
+    searchClearBtn.style.display = "none";
+  });
+
+  // Search users by email prefix
+  async function searchUsers(queryText) {
+    searchResults.innerHTML = "";
+    searchResults.style.display = "block";
+    try {
+      // Query Firestore Kamba_users collection for emails starting with queryText
+      // Firestore doesn't support startsWith natively, so workaround with range queries:
+      const start = queryText;
+      const end = queryText.replace(/.$/, c => String.fromCharCode(c.charCodeAt(0) + 1));
+      const usersRef = collection(db, "Kamba_users");
+      const q = query(usersRef, orderBy("email"), 
+        // between start and end
+        // This is a known workaround for prefix search in Firestore
+        // Firestore query function from version 12.x requires import but simplified here
+        // Note: Adapt if needed in your env
+        );
+      const querySnapshot = await getDocs(usersRef);
+      // Filter on client side for demo (better indexing can be done)
+      const matchedUsers = [];
+      querySnapshot.forEach(docSnap => {
+        const email = docSnap.id.toLowerCase();
+        if (email.startsWith(queryText)) {
+          matchedUsers.push({ email: docSnap.id, ...docSnap.data() });
+        }
+      });
+      if (matchedUsers.length === 0) {
+        searchResults.innerHTML = "<div class='list-item'>No results found</div>";
+        return;
+      }
+      matchedUsers.forEach(user => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.textContent = user.email;
+        item.tabIndex = 0;
+        item.addEventListener("click", () => {
+          alert(`User selected: ${user.email}`);
+          // Implement further user profile or action
+          searchResults.innerHTML = "";
+          searchResults.style.display = "none";
+        });
+        searchResults.appendChild(item);
+      });
+    } catch (e) {
+      searchResults.innerHTML = `<div class="list-item">Search error: ${e.message}</div>`;
     }
-    setupMessagesListener();
   }
 
 </script>
+
 </body>
 </html>
