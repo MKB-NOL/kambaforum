@@ -1,1452 +1,482 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KAMBA Forum - Chat</title>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    /* RESET & BASE STYLES */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body, html {
-      height: 100%;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #36393f;
-      color: #dcddde;
-      overflow: hidden;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KAMBA Forum - Chat</title>
+<style>
+  /* Basic reset and Discord style */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    background-color: #36393f;
+    color: #dcddde;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background-color: #2f3136;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  header button {
+    background-color: #f04747;
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  header button:hover {
+    background-color: #c03939;
+  }
+  #chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+    overflow-y: auto;
+    gap: 1rem;
+    background-color: #2f3136;
+  }
+  .message {
+    background-color: #202225;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    max-width: 75%;
+    word-break: break-word;
+    position: relative;
+  }
+  .username {
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+    display: inline-block;
+    cursor: default;
+  }
+  .message-text {
+    white-space: pre-wrap;
+  }
+  .reply-to {
+    font-size: 0.75rem;
+    color: #b9bbbe;
+    margin-bottom: 0.3rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #5865f2;
+  }
+  .reply-btn {
+    font-size: 0.7rem;
+    color: #5865f2;
+    cursor: pointer;
+    margin-top: 0.3rem;
+    user-select: none;
+  }
+  .reply-btn:hover {
+    text-decoration: underline;
+  }
+  #message-input-area {
+    background-color: #40444b;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  #message-input {
+    flex: 1;
+    padding: 0.6rem 0.8rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    color: white;
+    background-color: #2f3136;
+  }
+  #message-input:focus {
+    outline: 2px solid #5865f2;
+  }
+  #send-btn {
+    background-color: #5865f2;
+    border: none;
+    color: white;
+    padding: 0.55rem 1.2rem;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  #send-btn:hover {
+    background-color: #4752c4;
+  }
+  #emoji-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: #b9bbbe;
+    user-select: none;
+  }
+  #emoji-picker {
+    position: absolute;
+    bottom: 3.8rem;
+    right: 2rem;
+    background-color: #202225;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 1000;
+  }
+  #emoji-picker span {
+    font-size: 1.6rem;
+    margin: 0 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease;
+  }
+  #emoji-picker span:hover {
+    transform: scale(1.3);
+  }
+  #no-song-notification {
+    background-color: #f04747;
+    color: white;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .username.green { color: #43b581; }   /* New user */
+  .username.blue { color: #5865f2; }    /* 100+ sparks */
+  .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
+  .username.red { color: #f04747; }     /* Admin */
 
-    /* APP LAYOUT */
-    #app {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-    }
-
-    /* SERVER SIDEBAR */
-    #sidebar-servers {
-      width: 72px;
-      background: #202225;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 12px 0 0;
-      gap: 8px;
-      overflow-y: auto;
-      z-index: 3;
-    }
-    #sidebar-servers .server-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: #36393f;
-      color: #dcddde;
-      font-weight: 500;
-      font-size: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-    #sidebar-servers .server-icon:hover {
-      border-radius: 30%;
-      background: #5865f2;
-    }
-    #sidebar-servers .server-icon.active {
-      background: #5865f2;
-      border-radius: 30%;
-    }
-    #sidebar-servers .server-icon.active::before {
-      content: '';
-      position: absolute;
-      left: -8px;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 20px;
-      width: 4px;
-      background: white;
-      border-radius: 0 4px 4px 0;
-    }
-    #sidebar-servers .divider {
-      width: 32px;
-      height: 2px;
-      background: rgba(79, 84, 92, 0.48);
-      margin: 8px 0;
-    }
-
-    /* CHANNELS SIDEBAR */
-    #sidebar-channels {
-      width: 240px;
-      background: #2f3136;
-      display: flex;
-      flex-direction: column;
-      color: #96989d;
-      overflow: hidden;
-    }
-    #sidebar-channels .server-header {
-      padding: 16px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-      font-weight: 600;
-      font-size: 16px;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    #sidebar-channels .category {
-      margin-top: 16px;
-      padding: 0 8px 0 16px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      color: #96989d;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    #sidebar-channels .category .add-icon {
-      opacity: 0;
-      cursor: pointer;
-    }
-    #sidebar-channels .category:hover .add-icon {
-      opacity: 1;
-    }
-    #sidebar-channels .list-item {
-      padding: 6px 8px 6px 30px;
-      margin: 1px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      user-select: none;
-      transition: background 0.1s, color 0.1s;
-      display: flex;
-      align-items: center;
-      position: relative;
-    }
-    #sidebar-channels .list-item::before {
-      content: '#';
-      position: absolute;
-      left: 10px;
-      opacity: 0.6;
-    }
-    #sidebar-channels .list-item:hover {
-      background: rgba(79, 84, 92, 0.4);
-      color: #dcddde;
-    }
-    #sidebar-channels .list-item.active {
-      background: rgba(79, 84, 92, 0.6);
-      color: white;
-    }
-    #sidebar-channels .list-item.voice::before {
-      content: '\f027';
-      font-family: 'Font Awesome 6 Free';
-      font-weight: 900;
-    }
-    #sidebar-channels .user-section {
-      margin-top: auto;
-      background: #292b2f;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-    }
-    #sidebar-channels .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #5865f2;
-      margin-right: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 600;
-      color: white;
-    }
-    #sidebar-channels .user-info {
-      flex-grow: 1;
-    }
-    #sidebar-channels .user-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: white;
-    }
-    #sidebar-channels .user-status {
-      font-size: 12px;
-      color: #b9bbbe;
-    }
-    #sidebar-channels .user-controls {
-      display: flex;
-      gap: 6px;
-    }
-    #sidebar-channels .user-controls i {
-      color: #b9bbbe;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    /* MAIN CONTENT AREA */
-    #main-content {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      background: #36393f;
-    }
-
-    /* HEADER */
-    #header {
-      height: 48px;
-      background: #36393f;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-      z-index: 2;
-    }
-    #header .channel-info {
-      display: flex;
-      align-items: center;
-    }
-    #header .channel-name {
-      font-weight: 700;
-      font-size: 16px;
-      color: white;
-    }
-    #header .channel-topic {
-      margin-left: 8px;
-      font-size: 12px;
-      color: #b9bbbe;
-    }
-    #header .divider {
-      height: 24px;
-      width: 1px;
-      background: rgba(79, 84, 92, 0.48);
-      margin: 0 16px;
-    }
-    #header .search-container {
-      position: relative;
-      flex-grow: 1;
-      max-width: 144px;
-    }
-    #header input[type="search"] {
-      width: 100%;
-      padding: 6px 26px 6px 8px;
-      border-radius: 4px;
-      border: none;
-      font-size: 14px;
-      outline: none;
-      background: #202225;
-      color: #dcddde;
-    }
-    #header .search-icon {
-      position: absolute;
-      right: 6px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #b9bbbe;
-      font-size: 14px;
-    }
-    #header .header-icons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: 16px;
-    }
-    #header .header-icon {
-      color: #b9bbbe;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    #header .header-icon:hover {
-      color: #dcddde;
-    }
-
-    /* CHAT AREA */
-    #chat-container {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* MESSAGES CONTAINER */
-    #chat-messages {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 20px;
-      scrollbar-width: thin;
-      scrollbar-color: #202225 #2f3136;
-    }
-    #chat-messages::-webkit-scrollbar {
-      width: 8px;
-    }
-    #chat-messages::-webkit-scrollbar-track {
-      background: #2f3136;
-    }
-    #chat-messages::-webkit-scrollbar-thumb {
-      background-color: #202225;
-      border-radius: 4px;
-    }
-
-    /* MESSAGE STYLES */
-    .message-group {
-      margin-bottom: 20px;
-      position: relative;
-    }
-    .message-group:hover .message-timestamp {
-      opacity: 1;
-    }
-    .message {
-      display: flex;
-      padding: 2px 48px 2px 72px;
-      position: relative;
-      min-height: 44px;
-    }
-    .message:hover {
-      background: rgba(4, 4, 5, 0.07);
-    }
-    .message-avatar {
-      position: absolute;
-      left: 16px;
-      top: 2px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      overflow: hidden;
-      cursor: pointer;
-    }
-    .message-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .message-avatar .avatar-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: white;
-    }
-    .message-avatar.green { background: #43b581; }
-    .message-avatar.blue { background: #5865f2; }
-    .message-avatar.violet { background: #8a2be2; }
-    .message-avatar.red { background: #f04747; }
-    .message-content {
-      flex-grow: 1;
-    }
-    .message-header {
-      display: flex;
-      align-items: baseline;
-      margin-bottom: 2px;
-    }
-    .message-username {
-      font-weight: 500;
-      font-size: 16px;
-      color: white;
-      margin-right: 8px;
-      cursor: pointer;
-    }
-    .message-username:hover {
-      text-decoration: underline;
-    }
-    .message-username.green { color: #43b581; }
-    .message-username.blue { color: #5865f2; }
-    .message-username.violet { color: #8a2be2; }
-    .message-username.red { color: #f04747; }
-    .message-timestamp {
-      font-size: 12px;
-      color: #72767d;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .message-bot-tag {
-      background: #5865f2;
-      color: white;
-      font-size: 10px;
-      font-weight: 500;
-      padding: 2px 4px;
-      border-radius: 3px;
-      margin-left: 4px;
-      text-transform: uppercase;
-      line-height: 1;
-    }
-    .message-text {
-      font-size: 16px;
-      line-height: 1.375;
-      word-wrap: break-word;
-      white-space: pre-wrap;
-    }
-    .message-reply {
-      font-size: 14px;
-      color: #b9bbbe;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-    }
-    .message-reply::before {
-      content: '';
-      display: inline-block;
-      width: 36px;
-      height: 12px;
-      border-left: 2px solid #4f545c;
-      border-bottom: 2px solid #4f545c;
-      border-bottom-left-radius: 6px;
-      margin-right: 8px;
-    }
-    .message-reply-username {
-      color: white;
-      font-weight: 500;
-      margin-right: 4px;
-    }
-    .message-reply-content {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .message-actions {
-      position: absolute;
-      right: 16px;
-      top: 2px;
-      display: flex;
-      background: #36393f;
-      border-radius: 4px;
-      box-shadow: 0 0 0 1px rgba(32, 34, 37, 0.6), 0 2px 10px 0 rgba(0, 0, 0, 0.2);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .message:hover .message-actions {
-      opacity: 1;
-    }
-    .message-action {
-      color: #b9bbbe;
-      padding: 4px 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .message-action:hover {
-      color: #dcddde;
-    }
-    .message-edited {
-      font-size: 10px;
-      color: #72767d;
-      margin-left: 4px;
-    }
-    .message-attachments {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .message-attachment {
-      max-width: 400px;
-      border-radius: 4px;
-      overflow: hidden;
-      cursor: pointer;
-    }
-    .message-attachment img {
-      max-width: 100%;
-      max-height: 300px;
-      object-fit: contain;
-    }
-    .message-attachment-download {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .message-attachment:hover .message-attachment-download {
-      opacity: 1;
-    }
-
-    /* INPUT AREA */
-    #input-area {
-      padding: 12px 16px;
-      background: #484b52;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-    }
-    #message-input-container {
-      flex-grow: 1;
-      position: relative;
-      background: #40444b;
-      border-radius: 8px;
-    }
-    #message-input {
-      width: 100%;
-      padding: 10px 12px;
-      border: none;
-      background: transparent;
-      color: #dcddde;
-      font-size: 15px;
-      resize: none;
-      outline: none;
-      min-height: 20px;
-      max-height: 200px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-    }
-    #message-input::placeholder {
-      color: #72767d;
-    }
-    #input-area .input-buttons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 8px;
-    }
-    #input-area .input-button {
-      color: #b9bbbe;
-      font-size: 18px;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    #input-area .input-button:hover {
-      color: #dcddde;
-    }
-    #upload-image-input {
-      display: none;
-    }
-
-    /* EMOJI PICKER */
-    .emoji-picker {
-      position: absolute;
-      bottom: 70px;
-      right: 20px;
-      background: #2f3136;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      padding: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      width: 240px;
-      z-index: 1000;
-    }
-    .emoji-picker button {
-      background: transparent;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #dcddde;
-      transition: transform 0.2s;
-      border-radius: 4px;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .emoji-picker button:hover {
-      transform: scale(1.2);
-      background: #40444b;
-    }
-
-    /* FULLSCREEN IMAGE VIEWER */
-    #fullscreen-image-viewer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
-    #fullscreen-image-viewer img {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 8px;
-    }
-    #fullscreen-image-viewer .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      color: white;
-      font-size: 30px;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.5);
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* NO SONG NOTIFICATION */
-    #no-song-notification {
-      background: #f04747;
-      color: white;
-      padding: 10px 20px;
-      font-weight: 600;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      font-size: 15px;
-    }
-    #no-song-notification a {
-      color: #fff;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    #dismiss-no-song-btn {
-      background: transparent;
-      border: none;
-      font-size: 18px;
-      color: white;
-      cursor: pointer;
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    /* LOADING OVERLAY */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-    }
-    .loading-spinner {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #5865f2;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* ERROR MESSAGE */
-    .error-message {
-      color: #f04747;
-      background: rgba(240, 71, 71, 0.1);
-      padding: 8px;
-      border-radius: 4px;
-      margin: 8px 0;
-      font-size: 14px;
-    }
-
-    /* RESPONSIVE DESIGN */
-    @media (max-width: 768px) {
-      #sidebar-servers {
-        width: 60px;
-      }
-      #sidebar-channels {
-        display: none;
-      }
-      #header .search-container {
-        display: none;
-      }
-      #header .header-icons {
-        display: none;
-      }
-      .message {
-        padding-left: 60px;
-      }
-      .message-avatar {
-        left: 10px;
-        width: 36px;
-        height: 36px;
-      }
-      #input-area {
-        padding: 8px 12px;
-      }
-    }
-  </style>
+  /* Scrollbar styling */
+  #chat-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-container::-webkit-scrollbar-thumb {
+    background-color: #5865f2;
+    border-radius: 5px;
+  }
+</style>
 </head>
 <body>
-  <div id="app">
-    <!-- Left Sidebar (Servers / Groups) -->
-    <nav id="sidebar-servers" aria-label="Servers">
-      <div class="server-icon active" tabindex="0" title="Home">
-        <i class="fas fa-home"></i>
-      </div>
-      <div class="divider"></div>
-      <div class="server-icon" tabindex="0" title="KAMBA">
-        <span>K</span>
-      </div>
-      <div class="server-icon" tabindex="0" title="Gaming">
-        <i class="fas fa-gamepad"></i>
-      </div>
-      <div class="server-icon" tabindex="0" title="Music">
-        <i class="fas fa-music"></i>
-      </div>
-      <div class="server-icon" tabindex="0" title="Study">
-        <i class="fas fa-book"></i>
-      </div>
-      <div class="divider"></div>
-      <div class="server-icon" tabindex="0" title="Add Server">
-        <i class="fas fa-plus"></i>
-      </div>
-    </nav>
 
-    <!-- Secondary Sidebar -->
-    <aside id="sidebar-channels" aria-label="Channels and Groups">
-      <div class="server-header">
-        <span>KAMBA Community</span>
-        <i class="fas fa-chevron-down"></i>
-      </div>
-      
-      <div class="category">
-        <span>Text Channels</span>
-        <i class="fas fa-plus add-icon"></i>
-      </div>
-      <div class="list-item active">general</div>
-      <div class="list-item">announcements</div>
-      <div class="list-item">welcome</div>
-      <div class="list-item">help</div>
-      
-      <div class="category">
-        <span>Voice Channels</span>
-        <i class="fas fa-plus add-icon"></i>
-      </div>
-      <div class="list-item voice">General</div>
-      <div class="list-item voice">Gaming</div>
-      <div class="list-item voice">Music</div>
-      
-      <div class="category">
-        <span>Direct Messages</span>
-        <i class="fas fa-plus add-icon"></i>
-      </div>
-      <div class="list-item">JohnDoe</div>
-      <div class="list-item">JaneSmith</div>
-      <div class="list-item">MikeJohnson</div>
-      
-      <div class="user-section">
-        <div class="user-avatar">
-          <span>U</span>
-        </div>
-        <div class="user-info">
-          <div class="user-name">Username</div>
-          <div class="user-status">Online</div>
-        </div>
-        <div class="user-controls">
-          <i class="fas fa-microphone"></i>
-          <i class="fas fa-headphones"></i>
-          <i class="fas fa-cog"></i>
-        </div>
-      </div>
-    </aside>
+<header>
+  <h1>KAMBA Forum</h1>
+  <button id="signout-btn">Sign Out</button>
+</header>
 
-    <!-- Main Content -->
-    <main id="main-content" role="main" aria-label="Chat">
-      <!-- Header -->
-      <header id="header">
-        <div class="channel-info">
-          <div class="channel-name">#general</div>
-          <div class="channel-topic">Welcome to the general chat!</div>
-        </div>
-        <div class="divider"></div>
-        <div class="search-container">
-          <input
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          />
-          <i class="fas fa-search search-icon"></i>
-        </div>
-        <div class="header-icons">
-          <i class="fas fa-user-friends header-icon"></i>
-          <i class="fas fa-bell header-icon"></i>
-          <i class="fas fa-pin header-icon"></i>
-          <i class="fas fa-inbox header-icon"></i>
-          <i class="fas fa-question-circle header-icon"></i>
-        </div>
-      </header>
+<div id="chat-container"></div>
 
-      <!-- No song notification -->
-      <div id="no-song-notification" role="alert" style="display:none;">
-        No song set. <a href="#" id="set-song-link">Click here to set your song in Settings.</a>
-        <button id="dismiss-no-song-btn" aria-label="Dismiss notification">&times;</button>
-      </div>
+<div id="no-song-notification" style="display:none; cursor:pointer;">
+  No song set. Click here to set your song in Settings.
+</div>
 
-      <!-- Chat Container -->
-      <section id="chat-container">
-        <div id="chat-messages" aria-live="polite" aria-relevant="additions">
-          <!-- Messages will be added here dynamically -->
-        </div>
+<div id="message-input-area">
+  <button id="emoji-btn" title="Emoji picker">😀</button>
+  <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" />
+  <button id="send-btn">Send</button>
+</div>
 
-        <!-- Input Area -->
-        <div id="input-area">
-          <div id="message-input-container">
-            <textarea
-              id="message-input"
-              placeholder="Message #general"
-              rows="1"
-              aria-label="Message input"
-            ></textarea>
-          </div>
-          <div class="input-buttons">
-            <button id="emoji-btn" class="input-button" aria-label="Toggle emoji picker">
-              <i class="far fa-smile"></i>
-            </button>
-            <button id="upload-image-btn" class="input-button" aria-label="Upload image(s)">
-              <i class="fas fa-image"></i>
-            </button>
-            <input
-              type="file"
-              id="upload-image-input"
-              accept="image/*"
-              multiple
-              aria-label="Upload images"
-              hidden
-            />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
+<div id="emoji-picker" aria-label="Emoji picker" role="list">
+  <span>😀</span>
+  <span>😂</span>
+  <span>😎</span>
+  <span>❤️</span>
+  <span>🔥</span>
+</div>
 
-  <!-- Emoji picker container (dynamic) -->
-  <div class="emoji-picker" style="display:none;"></div>
+<audio id="background-audio" loop></audio>
 
-  <!-- Fullscreen Image Viewer -->
-  <div id="fullscreen-image-viewer" tabindex="0" role="dialog" aria-modal="true" aria-label="Fullscreen image viewer">
-    <img src="" alt="Fullscreen Image" />
-    <div class="close-btn">&times;</div>
-  </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import {
+    getAuth,
+    signOut,
+    onAuthStateChanged,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    doc,
+    getDoc,
+    updateDoc,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-  <!-- Loading overlay -->
-  <div id="loading-overlay" class="loading-overlay" style="display: none;">
-    <div class="loading-spinner"></div>
-  </div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+    authDomain: "muah-feed.firebaseapp.com",
+    databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+    projectId: "muah-feed",
+    storageBucket: "muah-feed.firebasestorage.app",
+    messagingSenderId: "442314397706",
+    appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+    measurementId: "G-S86S229F1T",
+  };
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      getDoc, 
-      setDoc, 
-      updateDoc, 
-      collection, 
-      onSnapshot, 
-      query, 
-      orderBy, 
-      addDoc,
-      serverTimestamp,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
-      authDomain: "muah-feed.firebaseapp.com",
-      databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
-      projectId: "muah-feed",
-      storageBucket: "muah-feed.firebasestorage.app",
-      messagingSenderId: "442314397706",
-      appId: "1:442314397706:web:a69e3958257fb13b3667f3",
-      measurementId: "G-S86S229F1T"
-    };
+  const chatContainer = document.getElementById("chat-container");
+  const messageInput = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+  const signoutBtn = document.getElementById("signout-btn");
+  const emojiBtn = document.getElementById("emoji-btn");
+  const emojiPicker = document.getElementById("emoji-picker");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const backgroundAudio = document.getElementById("background-audio");
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  let currentUser = null;
+  let currentUserData = null;
+  let replyToMessageId = null;
+  let replyToMessageText = null;
 
-    // DOM elements
-    const chatMessages = document.getElementById('chat-messages');
-    const messageInput = document.getElementById('message-input');
-    const emojiBtn = document.getElementById('emoji-btn');
-    const emojiPicker = document.querySelector('.emoji-picker');
-    const uploadImageBtn = document.getElementById('upload-image-btn');
-    const uploadImageInput = document.getElementById('upload-image-input');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const fullscreenViewer = document.getElementById('fullscreen-image-viewer');
-    const fullscreenImg = fullscreenViewer.querySelector('img');
-    const fullscreenCloseBtn = fullscreenViewer.querySelector('.close-btn');
-    const noSongNotification = document.getElementById('no-song-notification');
-    const dismissNoSongBtn = document.getElementById('dismiss-no-song-btn');
-    const setSongLink = document.getElementById('set-song-link');
-    const settingsCog = document.querySelector('.fa-cog');
+  // Emoji picker toggle
+  emojiBtn.addEventListener("click", () => {
+    emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
+  });
 
-    // User data
-    let currentUser = null;
-    let userData = null;
-    let replyToMessageId = null;
-
-    // Emoji list
-    const emojis = ['😀','😂','🥰','😎','😢','😡','🤔','🤯','🥳','😴','❤️','👍','👎','🔥','🎉','💯','🤣','😍','😭','🙄'];
-
-    // Image upload constraints
-    const MAX_IMAGE_SIZE_MB = 6;
-    const MAX_TOTAL_UPLOAD_MB = 6;
-
-    // Store dismissed notification time key
-    const NO_SONG_DISMISS_KEY = 'noSongDismissedTime';
-
-    // --- AUTH STATE ---
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'sign.html';
-        return;
-      }
-      
-      currentUser = user;
-      showLoading();
-      
-      try {
-        // Load user data from Firestore
-        const userDocRef = doc(db, 'Kamba_users', user.email);
-        const userSnap = await getDoc(userDocRef);
-        
-        if (userSnap.exists()) {
-          userData = userSnap.data();
-          updateUserUI();
-          checkNoSongNotification();
-        } else {
-          // Create default user doc
-          await setDoc(userDocRef, { 
-            name: user.displayName || user.email.split('@')[0],
-            phone: '',
-            accountStatus: 'green',
-            sparks: 0,
-            songUrl: '',
-            songVolume: 50,
-            agreedTerms: false,
-            lastSeen: serverTimestamp()
-          });
-          userData = { 
-            accountStatus: 'green', 
-            sparks: 0,
-            songUrl: '',
-            songVolume: 50,
-            agreedTerms: false
-          };
-          updateUserUI();
-          checkNoSongNotification();
-        }
-
-        // If first time, prompt agree terms
-        if (!userData.agreedTerms) {
-          if (confirm('Agree and Continue?')) {
-            await updateDoc(userDocRef, { agreedTerms: true });
-            userData.agreedTerms = true;
-          } else {
-            await signOut(auth);
-            return;
-          }
-        }
-
-        // Start listening to chat messages
-        listenToMessages();
-        
-        // Load sample messages if none exist
-        setTimeout(checkForEmptyMessages, 2000);
-        
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        showError('Failed to load user data. Please refresh the page.');
-      } finally {
-        hideLoading();
-      }
-
-      // Setup event listeners
-      setupEventListeners();
+  // Add emoji to input
+  emojiPicker.querySelectorAll("span").forEach((emojiSpan) => {
+    emojiSpan.addEventListener("click", () => {
+      messageInput.value += emojiSpan.textContent;
+      emojiPicker.style.display = "none";
+      messageInput.focus();
     });
+  });
 
-    // Update UI with user data
-    function updateUserUI() {
-      const userSection = document.querySelector('.user-section .user-name');
-      if (userSection && currentUser) {
-        userSection.textContent = currentUser.displayName || currentUser.email.split('@')[0];
-      }
-      
-      const userAvatar = document.querySelector('.user-section .user-avatar');
-      if (userAvatar) {
-        if (currentUser.photoURL) {
-          userAvatar.innerHTML = `<img src="${currentUser.photoURL}" alt="User avatar">`;
-        } else {
-          const initial = (currentUser.displayName || currentUser.email[0]).toUpperCase();
-          userAvatar.innerHTML = `<span>${initial}</span>`;
-          userAvatar.classList.add(userData.accountStatus || 'green');
-        }
-      }
+  // Close emoji picker if clicking outside
+  document.addEventListener("click", (e) => {
+    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+      emojiPicker.style.display = "none";
     }
+  });
 
-    // Check and show no song notification
-    function checkNoSongNotification() {
-      const dismissedTime = localStorage.getItem(NO_SONG_DISMISS_KEY);
-      const now = Date.now();
-      if (!userData.songUrl && (!dismissedTime || now - dismissedTime > 10 * 60 * 60 * 1000)) {
-        noSongNotification.style.display = 'flex';
-      } else {
-        noSongNotification.style.display = 'none';
-      }
+  // Listen for auth state
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // Not logged in, redirect to sign page
+      window.location.href = "sign.html";
+      return;
     }
+    currentUser = user;
 
-    // Listen to chat messages realtime
-    function listenToMessages() {
-      const messagesRef = collection(db, 'messages');
-      const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
-      
-      onSnapshot(messagesQuery, (snapshot) => {
-        chatMessages.innerHTML = '';
-        let lastUserId = null;
-        let messageGroup = null;
-        
-        snapshot.forEach((doc) => {
-          const msg = doc.data();
-          const isSameUser = msg.userId === lastUserId;
-          lastUserId = msg.userId;
-          
-          if (!isSameUser || !messageGroup) {
-            messageGroup = document.createElement('div');
-            messageGroup.className = 'message-group';
-            chatMessages.appendChild(messageGroup);
-          }
-          
-          const messageEl = createMessageElement(doc.id, msg);
-          messageGroup.appendChild(messageEl);
-        });
-        
-        scrollToBottom();
-      }, (error) => {
-        console.error('Error listening to messages:', error);
-        showError('Failed to load messages. Please refresh the page.');
+    // Load user data from Firestore
+    const userDocRef = doc(db, "Kamba_users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) {
+      alert("User data not found in database. Please contact admin.");
+      return;
+    }
+    currentUserData = userDocSnap.data();
+
+    // Set background audio source & volume
+    if (currentUserData.song && currentUserData.song.trim() !== "") {
+      backgroundAudio.src = currentUserData.song;
+      backgroundAudio.volume = currentUserData.volume ?? 0.5;
+      backgroundAudio.play().catch(() => {
+        // autoplay might be blocked; ignore silently
       });
+      noSongNotification.style.display = "none";
+    } else {
+      noSongNotification.style.display = "block";
     }
 
-    // Check if messages are empty and load sample messages
-    async function checkForEmptyMessages() {
-      const messagesRef = collection(db, 'messages');
-      const snapshot = await getDocs(messagesRef);
-      
-      if (snapshot.empty) {
-        loadSampleMessages();
-      }
+    // Load messages realtime
+    setupMessagesListener();
+
+  });
+
+  // Redirect user to settings on notification click
+  noSongNotification.addEventListener("click", () => {
+    window.location.href = "settings.html";
+  });
+
+  // Sign out button
+  signoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "sign.html";
+    });
+  });
+
+  // Helper: remove @gmail.com and similar domains
+  function simplifyEmail(email) {
+    return email.split("@")[0];
+  }
+
+  // Load user status color
+  function getStatusClass(status) {
+    switch (status) {
+      case "green": return "green";
+      case "blue": return "blue";
+      case "violet": return "violet";
+      case "red": return "red";
+      default: return "green";
+    }
+  }
+
+  // Render a message
+  function renderMessage(id, msgData) {
+    const div = document.createElement("div");
+    div.className = "message";
+    div.dataset.id = id;
+
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "username " + getStatusClass(msgData.status);
+    usernameSpan.textContent = msgData.sender;
+    div.appendChild(usernameSpan);
+
+    if (msgData.replyToText) {
+      const replyDiv = document.createElement("div");
+      replyDiv.className = "reply-to";
+      replyDiv.textContent = "Replying to: " + msgData.replyToText;
+      div.appendChild(replyDiv);
     }
 
-    // Load sample messages (for demo purposes)
-    async function loadSampleMessages() {
-      const sampleMessages = [
-        {
-          userId: 'system',
-          text: 'Welcome to KAMBA Community! 👋',
-          timestamp: serverTimestamp(),
-          isBot: true,
-          accountStatus: 'green'
-        },
-        {
-          userId: 'user1@example.com',
-          text: 'Hey everyone! Glad to be here.',
-          timestamp: serverTimestamp(),
-          accountStatus: 'blue'
-        },
-        {
-          userId: 'user2@example.com',
-          text: 'Welcome! How are you doing today?',
-          timestamp: serverTimestamp(),
-          accountStatus: 'violet'
-        },
-        {
-          userId: 'user1@example.com',
-          text: "I'm doing great! Just setting up my profile.",
-          timestamp: serverTimestamp(),
-          accountStatus: 'blue'
-        },
-        {
-          userId: 'user3@example.com',
-          text: 'Anyone want to play some games later?',
-          timestamp: serverTimestamp(),
-          accountStatus: 'red'
-        }
-      ];
-      
-      try {
-        showLoading();
-        for (const msg of sampleMessages) {
-          await addDoc(collection(db, 'messages'), msg);
-        }
-      } catch (error) {
-        console.error('Error loading sample messages:', error);
-      } finally {
-        hideLoading();
-      }
-    }
+    const textDiv = document.createElement("div");
+    textDiv.className = "message-text";
+    textDiv.textContent = msgData.message;
+    div.appendChild(textDiv);
 
-    // Create message DOM element
-    function createMessageElement(id, msg) {
-      const username = msg.userId ? msg.userId.split('@')[0] : 'Unknown';
-      const status = msg.accountStatus || 'green';
-      
-      const el = document.createElement('div');
-      el.className = 'message';
-      el.dataset.id = id;
+    const replyBtn = document.createElement("div");
+    replyBtn.className = "reply-btn";
+    replyBtn.textContent = "Reply";
+    replyBtn.addEventListener("click", () => {
+      replyToMessageId = id;
+      replyToMessageText = msgData.message;
+      messageInput.focus();
+      messageInput.placeholder = "Replying: " + replyToMessageText.slice(0, 30) + "... (click send)";
+    });
+    div.appendChild(replyBtn);
 
-      // Avatar
-      const avatarEl = document.createElement('div');
-      avatarEl.className = `message-avatar ${status}`;
-      const initial = username[0].toUpperCase();
-      avatarEl.innerHTML = `<div class="avatar-placeholder">${initial}</div>`;
-      el.appendChild(avatarEl);
+    return div;
+  }
 
-      // Message content
-      const contentEl = document.createElement('div');
-      contentEl.className = 'message-content';
-      
-      // Message header (username, timestamp)
-      const headerEl = document.createElement('div');
-      headerEl.className = 'message-header';
-      
-      const usernameEl = document.createElement('span');
-      usernameEl.className = `message-username ${status}`;
-      usernameEl.textContent = username;
-      headerEl.appendChild(usernameEl);
-      
-      if (msg.isBot) {
-        const botTag = document.createElement('span');
-        botTag.className = 'message-bot-tag';
-        botTag.textContent = 'BOT';
-        headerEl.appendChild(botTag);
-      }
-      
-      const timestampEl = document.createElement('span');
-      timestampEl.className = 'message-timestamp';
-      timestampEl.textContent = formatTimestamp(msg.timestamp);
-      headerEl.appendChild(timestampEl);
-      
-      contentEl.appendChild(headerEl);
+  // Setup Firestore real-time listener for messages
+  function setupMessagesListener() {
+    const messagesQuery = query(
+      collection(db, "Kamba_messages"),
+      orderBy("timestamp", "asc")
+    );
 
-      // Reply to (if any)
-      if (msg.replyTo) {
-        const replyEl = document.createElement('div');
-        replyEl.className = 'message-reply';
-        
-        const replyUsername = document.createElement('span');
-        replyUsername.className = 'message-reply-username';
-        replyUsername.textContent = msg.replyToName || 'Unknown';
-        replyEl.appendChild(replyUsername);
-        
-        const replyContent = document.createElement('span');
-        replyContent.className = 'message-reply-content';
-        replyContent.textContent = msg.replyToText || '';
-        replyEl.appendChild(replyContent);
-        
-        contentEl.appendChild(replyEl);
-      }
+    onSnapshot(messagesQuery, async (querySnapshot) => {
+      chatContainer.innerHTML = ""; // Clear chat on update
 
-      // Message text
-      const textEl = document.createElement('div');
-      textEl.className = 'message-text';
-      textEl.textContent = msg.text || '';
-      contentEl.appendChild(textEl);
-
-      // Images
-      if (msg.images && msg.images.length > 0) {
-        const attachmentsEl = document.createElement('div');
-        attachmentsEl.className = 'message-attachments';
-        
-        msg.images.forEach((imgUrl) => {
-          const attachmentEl = document.createElement('div');
-          attachmentEl.className = 'message-attachment';
-          
-          const img = document.createElement('img');
-          img.src = imgUrl;
-          img.alt = 'Chat image';
-          img.addEventListener('click', () => openFullscreenImage(imgUrl));
-          attachmentEl.appendChild(img);
-          
-          const downloadEl = document.createElement('div');
-          downloadEl.className = 'message-attachment-download';
-          downloadEl.innerHTML = '<i class="fas fa-download"></i>';
-          downloadEl.addEventListener('click', (e) => {
-            e.stopPropagation();
-            downloadImage(imgUrl);
-          });
-          attachmentEl.appendChild(downloadEl);
-          
-          attachmentsEl.appendChild(attachmentEl);
-        });
-        
-        contentEl.appendChild(attachmentsEl);
-      }
-
-      // Message actions
-      const actionsEl = document.createElement('div');
-      actionsEl.className = 'message-actions';
-      
-      const replyBtn = document.createElement('i');
-      replyBtn.className = 'message-action fas fa-reply';
-      replyBtn.title = 'Reply';
-      replyBtn.addEventListener('click', () => {
-        replyToMessageId = id;
-        messageInput.focus();
-        messageInput.value = `@${username} `;
+      // We want to show username colored by status, so fetch user statuses:
+      const userIds = new Set();
+      querySnapshot.forEach((doc) => {
+        userIds.add(doc.data().userId);
       });
-      actionsEl.appendChild(replyBtn);
-      
-      el.appendChild(contentEl);
-      el.appendChild(actionsEl);
-
-      return el;
-    }
-
-    // Format timestamp
-    function formatTimestamp(timestamp) {
-      if (!timestamp) return 'Just now';
-      
-      const date = timestamp.toDate();
-      const now = new Date();
-      const diff = now - date;
-      
-      if (diff < 60000) return 'Just now';
-      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-      if (diff < 86400000) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    }
-
-    // Open fullscreen image viewer
-    function openFullscreenImage(url) {
-      fullscreenImg.src = url;
-      fullscreenViewer.style.display = 'flex';
-    }
-
-    // Download image
-    function downloadImage(url) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = url.split('/').pop() || 'image';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    // Send message function
-    async function sendMessage() {
-      const text = sanitizeInput(messageInput.value.trim());
-      if (!text && !uploadImageInput.files.length) return;
-
-      showLoading();
-      
-      try {
-        // Prepare images uploading
-        let uploadedImageUrls = [];
-        if (uploadImageInput.files.length > 0) {
-          uploadedImageUrls = await uploadImagesToImgbb(uploadImageInput.files);
-          if (uploadedImageUrls.length === 0 && !text) {
-            showError('Please enter a message or select valid images.');
-            return;
-          }
+      // Preload user data for all message senders:
+      const userDataMap = new Map();
+      const userDocsPromises = [];
+      userIds.forEach((uid) => {
+        userDocsPromises.push(getDoc(doc(db, "Kamba_users", uid)));
+      });
+      const userDocs = await Promise.all(userDocsPromises);
+      userDocs.forEach((docSnap) => {
+        if (docSnap.exists()) {
+          userDataMap.set(docSnap.id, docSnap.data());
         }
+      });
 
-        // Create message doc
-        const newMsg = {
-          userId: currentUser.email,
-          text: text,
-          timestamp: serverTimestamp(),
-          accountStatus: userData.accountStatus || 'green',
-          replyTo: replyToMessageId || null,
-          replyToName: null,
-          replyToText: null,
-          images: uploadedImageUrls,
+      // Render messages
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const senderUid = data.userId;
+        const userData = userDataMap.get(senderUid);
+        const displayName = simplifyEmail(data.senderEmail || "unknown");
+        const status = userData ? userData.status : "green";
+
+        const messageData = {
+          sender: displayName,
+          status: status,
+          message: data.message,
+          replyToText: data.replyToText || null,
         };
-
-        // If replying, fetch reply message info
-        if (replyToMessageId) {
-          const replyDoc = await getDoc(doc(db, 'messages', replyToMessageId));
-          if (replyDoc.exists()) {
-            const replyData = replyDoc.data();
-            const replyUsername = replyData.userId ? replyData.userId.split('@')[0] : 'Unknown';
-            newMsg.replyToName = replyUsername;
-            newMsg.replyToText = replyData.text || '';
-          }
-        }
-
-        await addDoc(collection(db, 'messages'), newMsg);
-
-        // Reset input
-        messageInput.value = '';
-        uploadImageInput.value = null;
-        replyToMessageId = null;
-        
-        // Scroll to bottom
-        scrollToBottom();
-      } catch (error) {
-        console.error('Error sending message:', error);
-        showError('Failed to send message. Please try again.');
-      } finally {
-        hideLoading();
-      }
-    }
-
-    // Upload images to ImgBB API
-    async function uploadImagesToImgbb(files) {
-      const apiKey = '0f248e70fc4e7dffde307dd772823379';
-      let totalSize = 0;
-      let uploadedUrls = [];
-      
-      try {
-        for (const file of files) {
-          totalSize += file.size;
-          if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-            showError(`Image "${file.name}" exceeds ${MAX_IMAGE_SIZE_MB}MB size limit.`);
-            continue;
-          }
-          if (totalSize > MAX_TOTAL_UPLOAD_MB * 1024 * 1024) {
-            showError(`Total images size exceeds ${MAX_TOTAL_UPLOAD_MB}MB limit.`);
-            break;
-          }
-          
-          const formData = new FormData();
-          formData.append('image', file);
-          
-          const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-            method: 'POST',
-            body: formData,
-          });
-          
-          if (!res.ok) throw new Error('Image upload failed');
-          
-          const data = await res.json();
-          if (data.success) {
-            uploadedUrls.push(data.data.url);
-          }
-        }
-        return uploadedUrls;
-      } catch (err) {
-        console.error('Image upload error:', err);
-        showError('Image upload failed. Please try again.');
-        return [];
-      }
-    }
-
-    // Sanitize input to prevent XSS
-    function sanitizeInput(input) {
-      const div = document.createElement('div');
-      div.textContent = input;
-      return div.innerHTML;
-    }
-
-    // Show error message
-    function showError(message) {
-      const errorEl = document.createElement('div');
-      errorEl.className = 'error-message';
-      errorEl.textContent = message;
-      chatMessages.appendChild(errorEl);
-      setTimeout(() => errorEl.remove(), 5000);
-    }
-
-    // Show loading overlay
-    function showLoading() {
-      loadingOverlay.style.display = 'flex';
-    }
-
-    // Hide loading overlay
-    function hideLoading() {
-      loadingOverlay.style.display = 'none';
-    }
-
-    // Scroll chat to bottom
-    function scrollToBottom() {
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Setup event listeners
-    function setupEventListeners() {
-      // Send message on Enter key
-      messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
-        }
-        
-        // Auto-resize textarea
-        messageInput.style.height = 'auto';
-        messageInput.style.height = (messageInput.scrollHeight) + 'px';
+        const msgDiv = renderMessage(docSnap.id, messageData);
+        chatContainer.appendChild(msgDiv);
       });
 
-      // Upload button triggers hidden file input
-      uploadImageBtn.addEventListener('click', () => uploadImageInput.click());
+      // Scroll to bottom on new messages
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+  }
 
-      // Emoji picker toggle
-      emojiBtn.addEventListener('click', toggleEmojiPicker);
-      document.addEventListener('click', (e) => {
-        if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
-          emojiPicker.style.display = 'none';
-        }
-      });
-
-      // Fullscreen image viewer
-      fullscreenCloseBtn.addEventListener('click', () => {
-        fullscreenViewer.style.display = 'none';
-      });
-      fullscreenViewer.addEventListener('click', (e) => {
-        if (e.target === fullscreenViewer) {
-          fullscreenViewer.style.display = 'none';
-        }
-      });
-
-      // No song notification
-      dismissNoSongBtn.addEventListener('click', () => {
-        localStorage.setItem(NO_SONG_DISMISS_KEY, Date.now());
-        noSongNotification.style.display = 'none';
-      });
-      setSongLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'settings.html';
-      });
-
-      // Settings cog
-      settingsCog.addEventListener('click', () => {
-        window.location.href = 'settings.html';
-      });
+  // Send message handler
+  sendBtn.addEventListener("click", sendMessage);
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
+  });
 
-    // Toggle emoji picker
-    function toggleEmojiPicker() {
-      if (emojiPicker.style.display === 'flex') {
-        emojiPicker.style.display = 'none';
-      } else {
-        emojiPicker.style.display = 'flex';
-        if (!emojiPicker.hasChildNodes()) {
-          emojis.forEach((e) => {
-            const btn = document.createElement('button');
-            btn.textContent = e;
-            btn.title = e;
-            btn.addEventListener('click', () => {
-              messageInput.value += e;
-              messageInput.focus();
-            });
-            emojiPicker.appendChild(btn);
-          });
-        }
-      }
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text) return;
+
+    const senderEmail = currentUser.email;
+    const userId = currentUser.uid;
+
+    // Get user doc ref and data
+    const userDocRef = doc(db, "Kamba_users", userId);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) {
+      alert("User data missing. Contact admin.");
+      return;
     }
-  </script>
+    const userData = userDocSnap.data();
+
+    try {
+      // Add message doc
+      await addDoc(collection(db, "Kamba_messages"), {
+        userId: userId,
+        senderEmail: senderEmail,
+        sender: simplifyEmail(senderEmail),
+        message: text,
+        replyTo: replyToMessageId || null,
+        replyToText: replyToMessageText || null,
+        timestamp: Date.now(),
+      });
+
+      // Reset input & reply
+      messageInput.value = "";
+      messageInput.placeholder = "Type a message...";
+      replyToMessageId = null;
+      replyToMessageText = null;
+
+      // Update sparks and status
+      let newSparks = (userData.sparks || 0) + 1;
+      let newStatus = userData.status || "green";
+      if (newSparks >= 1000) newStatus = "violet";
+      else if (newSparks >= 100) newStatus = "blue";
+      else newStatus = "green";
+
+      await updateDoc(userDocRef, {
+        sparks: newSparks,
+        status: newStatus,
+      });
+    } catch (err) {
+      alert("Error sending message: " + err.message);
+    }
+  }
+</script>
 </body>
 </html>
