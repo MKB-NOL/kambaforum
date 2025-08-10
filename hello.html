@@ -5,11 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KAMBA Forum - Chat</title>
 
-<!-- Discord-like fonts and icons -->
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Whitney:wght@300;500;600&display=swap');
 
-  /* Reset & base */
   * {
     box-sizing: border-box;
   }
@@ -29,20 +27,19 @@
     text-decoration: underline;
   }
 
-  /* Layout grid: Left sidebar, second sidebar, main chat */
   #app {
     display: grid;
     grid-template-columns: 72px 240px 1fr;
     grid-template-rows: 100vh;
   }
 
-  /* Left sidebar (groups) */
   #sidebar-left {
     background-color: #202225;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding-top: 12px;
+    overflow-y: auto;
   }
   #sidebar-left .server-icon {
     width: 48px;
@@ -64,12 +61,12 @@
     background-color: #4752c4;
   }
 
-  /* Middle sidebar */
   #sidebar-main {
     background-color: #2f3136;
     display: flex;
     flex-direction: column;
     padding: 12px 0;
+    overflow-y: auto;
   }
   #sidebar-main header {
     font-weight: 600;
@@ -102,7 +99,6 @@
     background-color: #393c43;
   }
 
-  /* Search bar */
   #sidebar-main #search-bar {
     margin: 0 12px 12px 12px;
     position: relative;
@@ -144,23 +140,40 @@
     color: #b9bbbe;
   }
 
-  /* Main chat area */
   #chat-area {
     display: flex;
     flex-direction: column;
     background-color: #36393f;
   }
 
-  /* Chat header */
   #chat-header {
     padding: 16px 20px;
     border-bottom: 1px solid #2f3136;
     font-weight: 600;
     font-size: 18px;
     color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #43b581;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  #profile-icon:focus {
+    outline: 2px solid #00b0f4;
   }
 
-  /* Messages container */
   #chat-messages {
     flex: 1;
     padding: 20px;
@@ -170,7 +183,6 @@
     gap: 12px;
   }
 
-  /* Individual message bubble */
   .message {
     max-width: 75%;
     background-color: #2f3136;
@@ -180,6 +192,7 @@
     font-size: 14px;
     line-height: 1.4;
     position: relative;
+    word-break: break-word;
   }
   .message .username {
     font-weight: 600;
@@ -207,7 +220,6 @@
     padding-left: 6px;
   }
 
-  /* Images inside messages */
   .message img.chat-image {
     max-width: 100%;
     border-radius: 6px;
@@ -231,7 +243,6 @@
     user-select: none;
   }
 
-  /* Reply button */
   .reply-btn {
     margin-top: 6px;
     font-size: 13px;
@@ -244,7 +255,6 @@
     text-decoration: underline;
   }
 
-  /* Message input area */
   #chat-input-area {
     background-color: #40444b;
     padding: 10px 20px;
@@ -284,7 +294,6 @@
     background-color: #40444b;
   }
 
-  /* Fullscreen image viewer */
   #fullscreen-img-viewer {
     display: none;
     position: fixed;
@@ -300,7 +309,6 @@
     border-radius: 8px;
   }
 
-  /* No-song notification */
   #no-song-notification {
     position: fixed;
     bottom: 80px;
@@ -332,7 +340,6 @@
     background: rgba(255 255 255 / 0.5);
   }
 
-  /* Scrollbars - consistent dark style */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -345,7 +352,6 @@
     background-color: #2f3136;
   }
 
-  /* Responsive */
   @media (max-width: 768px) {
     #app {
       grid-template-columns: 56px 180px 1fr;
@@ -364,18 +370,15 @@
 <body>
 <div id="app" role="main" aria-label="KAMBA Forum chat application">
 
-  <!-- Left sidebar (servers/groups) -->
-  <nav id="sidebar-left" aria-label="Groups sidebar">
-    <div class="server-icon" title="General Group">G</div>
-    <!-- Add dynamic group icons here -->
+  <nav id="sidebar-left" aria-label="Groups sidebar" tabindex="0" aria-live="polite">
+    <!-- Dynamic groups here -->
   </nav>
 
-  <!-- Main sidebar -->
-  <aside id="sidebar-main" aria-label="Main sidebar">
+  <aside id="sidebar-main" aria-label="Main sidebar" tabindex="0" aria-live="polite">
     <header>KAMBA Forum</header>
 
     <div id="search-bar">
-      <input id="search-input" type="search" placeholder="Search users, projects, groups..." aria-label="Search" />
+      <input id="search-input" type="search" placeholder="Search users, projects, groups..." aria-label="Search" autocomplete="off" />
       <button id="search-clear-btn" aria-label="Clear search">✕</button>
       <div id="search-results" role="listbox" aria-live="polite" aria-relevant="additions"></div>
     </div>
@@ -396,16 +399,14 @@
     </section>
   </aside>
 
-  <!-- Chat area -->
   <main id="chat-area">
     <header id="chat-header" aria-live="polite" aria-atomic="true">
-      Welcome to KAMBA Forum
-      <div id="profile-icon" role="button" aria-label="User Profile" tabindex="0" title="Go to Settings"></div>
+      <span>Welcome to KAMBA Forum</span>
+      <div id="profile-icon" role="button" aria-label="User Profile - go to settings" tabindex="0" title="Go to Settings"></div>
     </header>
 
-    <div id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <div id="chat-messages" role="log" aria-live="polite" aria-relevant="additions" tabindex="0"></div>
 
-    <!-- No song notification -->
     <div id="no-song-notification" role="alert" aria-live="assertive" style="display:none;">
       No song set. Click here to set your song in <strong>Settings</strong>.
       <button id="dismiss-no-song-btn" aria-label="Dismiss notification for 10 hours">Dismiss</button>
@@ -414,23 +415,575 @@
     <div id="chat-input-area">
       <button id="emoji-btn" title="Show emojis" aria-label="Show emojis">😊</button>
       <textarea id="message-input" placeholder="Message #general" rows="1" aria-multiline="true"></textarea>
-      <label for="image-upload-input" id="image-upload-label" title="Upload images" aria-label="Upload images">📷</label>
+      <label for="image-upload-input" id="image-upload-label" title="Upload images" aria-label="Upload images" tabindex="0" role="button">📷</label>
       <input type="file" id="image-upload-input" accept="image/*" multiple style="display:none" aria-hidden="true" />
       <button id="send-btn" aria-label="Send message">Send</button>
     </div>
   </main>
 </div>
 
-<!-- Fullscreen image viewer -->
-<div id="fullscreen-img-viewer" role="dialog" aria-modal="true" tabindex="-1">
+<div id="fullscreen-img-viewer" role="dialog" aria-modal="true" tabindex="-1" style="display:none;">
   <img src="" alt="Full screen preview image" />
 </div>
 
+<!-- Firebase & app scripts -->
 <script type="module">
-// Your Firebase config and JS here (reuse the logic from the previous complete script for auth, chat, messages, image upload, emojis, etc.)
-// The UI logic stays the same, just styling changed above.
-// For brevity, I omitted the entire JS here, but you should include the previous functional script with minor adjustments
-// to match new IDs and structure if needed.
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import { getFirestore, collection, doc, getDoc, onSnapshot, query, orderBy, addDoc, updateDoc, limit, startAt, endAt, where } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+  // Your Firebase config here:
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+    authDomain: "muah-feed.firebaseapp.com",
+    databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+    projectId: "muah-feed",
+    storageBucket: "muah-feed.firebasestorage.app",
+    messagingSenderId: "442314397706",
+    appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+    measurementId: "G-S86S229F1T"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Globals
+  let currentUser = null;
+  let currentUserData = null;
+  let audioPlayer = null;
+  let replyToMessageId = null;
+
+  // DOM elements
+  const sidebarLeft = document.getElementById("sidebar-left");
+  const announcementsList = document.getElementById("announcements-list");
+  const subcommunitiesList = document.getElementById("subcommunities-list");
+  const myProjectsList = document.getElementById("my-projects-list");
+  const chatMessages = document.getElementById("chat-messages");
+  const profileIcon = document.getElementById("profile-icon");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const dismissNoSongBtn = document.getElementById("dismiss-no-song-btn");
+  const messageInput = document.getElementById("message-input");
+  const emojiBtn = document.getElementById("emoji-btn");
+  const sendBtn = document.getElementById("send-btn");
+  const imageUploadInput = document.getElementById("image-upload-input");
+  const imageUploadLabel = document.getElementById("image-upload-label");
+  const fullscreenImgViewer = document.getElementById("fullscreen-img-viewer");
+  const fullscreenImgTag = fullscreenImgViewer.querySelector("img");
+
+  // ImgBB API key
+  const IMGBB_API_KEY = "0f248e70fc4e7dffde307dd772823379";
+
+  // --- Helper functions ---
+
+  function usernameFromEmail(email) {
+    return email.split("@")[0];
+  }
+
+  // Set profile icon color based on status
+  function setProfileIconColor(status) {
+    let color = "#43b581"; // green default
+    switch(status) {
+      case "red": color = "#f04747"; break;
+      case "violet": color = "#9b59b6"; break;
+      case "blue": color = "#5865f2"; break;
+      case "green": color = "#43b581"; break;
+    }
+    profileIcon.style.backgroundColor = color;
+    profileIcon.textContent = usernameFromEmail(currentUser.email)[0].toUpperCase();
+  }
+
+  // Account status priority order
+  // spark count >=1000 violet, >=100 blue, else green; red set by admin
+
+  // Show or hide no-song notification based on localStorage
+  function checkNoSongNotification() {
+    const dismissed = localStorage.getItem("noSongDismissedUntil");
+    if (dismissed && Date.now() < parseInt(dismissed)) {
+      noSongNotification.style.display = "none";
+    } else {
+      if (!currentUserData?.songUrl) {
+        noSongNotification.style.display = "flex";
+      } else {
+        noSongNotification.style.display = "none";
+      }
+    }
+  }
+
+  // Show a message bubble in chat
+  function addMessageToChat(msgData, id) {
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message");
+
+    // Determine user status color
+    let status = "green";
+    if(msgData.accountStatus) status = msgData.accountStatus;
+    msgDiv.classList.add(status);
+
+    // Username
+    const usernameDiv = document.createElement("div");
+    usernameDiv.classList.add("username");
+    usernameDiv.textContent = usernameFromEmail(msgData.email);
+    msgDiv.appendChild(usernameDiv);
+
+    // If reply, show reply text
+    if(msgData.replyTo) {
+      // We'll get the replied message's username text
+      getDoc(doc(db, "Kamba_messages", msgData.replyTo)).then(replyDoc => {
+        if(replyDoc.exists()) {
+          const replyData = replyDoc.data();
+          const replyUser = usernameFromEmail(replyData.email);
+          const replyDiv = document.createElement("div");
+          replyDiv.classList.add("reply-to");
+          replyDiv.textContent = `Replying to: ${replyUser}: ${replyData.text || "[image]"}`;
+          msgDiv.insertBefore(replyDiv, usernameDiv.nextSibling);
+        }
+      });
+    }
+
+    // Text message
+    if(msgData.text) {
+      const textDiv = document.createElement("div");
+      textDiv.classList.add("text");
+      // Simple emoji replacement
+      let textContent = msgData.text;
+      textContent = textContent.replace(/:smile:/g, "😄")
+        .replace(/:sad:/g, "😢")
+        .replace(/:thumbsup:/g, "👍")
+        .replace(/:heart:/g, "❤️")
+        .replace(/:fire:/g, "🔥");
+      textDiv.innerHTML = linkify(textContent);
+      msgDiv.appendChild(textDiv);
+    }
+
+    // Images
+    if(msgData.images && msgData.images.length > 0) {
+      msgData.images.forEach(imgUrl => {
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        img.alt = "User uploaded image";
+        img.classList.add("chat-image");
+        img.tabIndex = 0;
+
+        // Save icon overlay
+        const saveIcon = document.createElement("span");
+        saveIcon.classList.add("img-save-icon");
+        saveIcon.title = "View / Save Image";
+        saveIcon.textContent = "💾";
+        saveIcon.tabIndex = 0;
+
+        saveIcon.addEventListener("click", e => {
+          e.stopPropagation();
+          showFullscreenImage(imgUrl);
+        });
+        saveIcon.addEventListener("keypress", e => {
+          if(e.key === "Enter") {
+            e.preventDefault();
+            showFullscreenImage(imgUrl);
+          }
+        });
+
+        img.addEventListener("click", () => showFullscreenImage(imgUrl));
+        img.addEventListener("keypress", e => {
+          if(e.key === "Enter") showFullscreenImage(imgUrl);
+        });
+
+        const container = document.createElement("div");
+        container.style.position = "relative";
+        container.appendChild(img);
+        container.appendChild(saveIcon);
+
+        msgDiv.appendChild(container);
+      });
+    }
+
+    // Reply button
+    const replyBtn = document.createElement("div");
+    replyBtn.classList.add("reply-btn");
+    replyBtn.textContent = "Reply";
+    replyBtn.tabIndex = 0;
+    replyBtn.setAttribute("role", "button");
+    replyBtn.setAttribute("aria-label", "Reply to this message");
+
+    replyBtn.addEventListener("click", () => {
+      replyToMessageId = id;
+      messageInput.focus();
+      messageInput.placeholder = "Replying... (press ESC to cancel)";
+    });
+    replyBtn.addEventListener("keypress", e => {
+      if(e.key === "Enter") {
+        replyBtn.click();
+      }
+    });
+
+    msgDiv.appendChild(replyBtn);
+
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Linkify URLs into clickable links with preview
+  function linkify(text) {
+    const urlRegex = /https?:\/\/[^\s]+/g;
+    return text.replace(urlRegex, url => {
+      const lower = url.toLowerCase();
+      let preview = "";
+      if(lower.includes("youtube.com") || lower.includes("youtu.be")) {
+        // Embed YouTube preview iframe
+        let videoId = null;
+        const ytMatch = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
+        if(ytMatch) videoId = ytMatch[1];
+        else {
+          // Short link case youtu.be
+          const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+          if(shortMatch) videoId = shortMatch[1];
+        }
+        if(videoId) {
+          preview = `<br><iframe width="300" height="170" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        }
+      } else if(lower.match(/\.(jpeg|jpg|gif|png|bmp|webp)$/)) {
+        preview = `<br><img src="${url}" alt="Image preview" style="max-width:300px;border-radius:8px;margin-top:4px;">`;
+      } else {
+        preview = `<br><a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      }
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${preview}`;
+    });
+  }
+
+  // Show fullscreen image viewer
+  function showFullscreenImage(url) {
+    fullscreenImgTag.src = url;
+    fullscreenImgViewer.style.display = "flex";
+    fullscreenImgViewer.focus();
+  }
+  fullscreenImgViewer.addEventListener("click", () => {
+    fullscreenImgViewer.style.display = "none";
+    fullscreenImgTag.src = "";
+  });
+  fullscreenImgViewer.addEventListener("keydown", e => {
+    if(e.key === "Escape") {
+      fullscreenImgViewer.style.display = "none";
+      fullscreenImgTag.src = "";
+    }
+  });
+
+  // Emoji picker basics (five emojis)
+  const emojis = [":smile:", ":sad:", ":thumbsup:", ":heart:", ":fire:"];
+  let emojiPickerVisible = false;
+  let emojiPickerDiv = null;
+
+  function toggleEmojiPicker() {
+    if(emojiPickerVisible) {
+      emojiPickerDiv.remove();
+      emojiPickerVisible = false;
+    } else {
+      emojiPickerDiv = document.createElement("div");
+      emojiPickerDiv.style.position = "absolute";
+      emojiPickerDiv.style.bottom = "60px";
+      emojiPickerDiv.style.left = "20px";
+      emojiPickerDiv.style.background = "#2f3136";
+      emojiPickerDiv.style.border = "1px solid #202225";
+      emojiPickerDiv.style.borderRadius = "8px";
+      emojiPickerDiv.style.padding = "8px";
+      emojiPickerDiv.style.display = "flex";
+      emojiPickerDiv.style.gap = "8px";
+      emojiPickerDiv.style.zIndex = "1000";
+
+      emojis.forEach(e => {
+        const btn = document.createElement("button");
+        btn.textContent = e.replace(/:/g, "");
+        btn.title = e;
+        btn.style.background = "none";
+        btn.style.border = "none";
+        btn.style.color = "#dcddde";
+        btn.style.fontSize = "18px";
+        btn.style.cursor = "pointer";
+        btn.style.userSelect = "none";
+        btn.addEventListener("click", () => {
+          const start = messageInput.selectionStart;
+          const end = messageInput.selectionEnd;
+          const text = messageInput.value;
+          messageInput.value = text.slice(0, start) + e + text.slice(end);
+          messageInput.focus();
+          messageInput.selectionStart = messageInput.selectionEnd = start + e.length;
+          toggleEmojiPicker();
+        });
+        emojiPickerDiv.appendChild(btn);
+      });
+
+      document.body.appendChild(emojiPickerDiv);
+      emojiPickerVisible = true;
+    }
+  }
+
+  emojiBtn.addEventListener("click", toggleEmojiPicker);
+
+  // Image upload handling
+  let uploading = false;
+  let uploadedImages = [];
+
+  imageUploadInput.addEventListener("change", async (e) => {
+    if(uploading) return;
+    uploading = true;
+
+    const files = Array.from(e.target.files);
+    let totalSize = files.reduce((a,b) => a + b.size, 0);
+    if(totalSize > 6 * 1024 * 1024) {
+      alert("Total images size must not exceed 6MB");
+      uploading = false;
+      return;
+    }
+
+    for(const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+        const json = await res.json();
+        if(json.success) {
+          uploadedImages.push(json.data.url);
+        } else {
+          alert("Image upload failed: " + json.error.message);
+        }
+      } catch(err) {
+        alert("Image upload error: " + err.message);
+      }
+    }
+    uploading = false;
+    imageUploadInput.value = "";
+  });
+
+  // Send message handler
+  sendBtn.addEventListener("click", sendMessage);
+  messageInput.addEventListener("keydown", e => {
+    if(e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+    if(e.key === "Escape" && replyToMessageId) {
+      replyToMessageId = null;
+      messageInput.placeholder = "Message #general";
+    }
+  });
+
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    if(!text && uploadedImages.length === 0) return;
+
+    // Add message to Firestore
+    try {
+      await addDoc(collection(db, "Kamba_messages"), {
+        email: currentUser.email,
+        text: text || null,
+        images: uploadedImages.length ? uploadedImages : null,
+        replyTo: replyToMessageId || null,
+        timestamp: Date.now(),
+        accountStatus: currentUserData.accountStatus || "green"
+      });
+      messageInput.value = "";
+      uploadedImages = [];
+      replyToMessageId = null;
+      messageInput.placeholder = "Message #general";
+    } catch(err) {
+      alert("Error sending message: " + err.message);
+    }
+  }
+
+  // Profile icon click redirects to settings
+  profileIcon.addEventListener("click", () => {
+    window.location.href = "settings.html";
+  });
+  profileIcon.addEventListener("keypress", e => {
+    if(e.key === "Enter") profileIcon.click();
+  });
+
+  // Load and listen for chat messages
+  function loadMessages() {
+    const messagesQuery = query(collection(db, "Kamba_messages"), orderBy("timestamp", "asc"), limit(1000));
+    onSnapshot(messagesQuery, snapshot => {
+      chatMessages.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        addMessageToChat(docSnap.data(), docSnap.id);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  }
+
+  // Load groups (for sidebar-left)
+  function loadGroups() {
+    const groupsCol = collection(db, "Kamba_groups");
+    onSnapshot(groupsCol, snapshot => {
+      sidebarLeft.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const group = docSnap.data();
+        const div = document.createElement("div");
+        div.classList.add("server-icon");
+        div.title = group.name;
+        div.textContent = group.name[0].toUpperCase();
+        sidebarLeft.appendChild(div);
+      });
+    });
+  }
+
+  // Load announcements, subcommunities, and projects
+  function loadSidebarSections() {
+    const announcementsCol = collection(db, "Kamba_announcements");
+    onSnapshot(announcementsCol, snapshot => {
+      announcementsList.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const ann = docSnap.data();
+        const div = document.createElement("div");
+        div.classList.add("list-item");
+        div.textContent = ann.text;
+        announcementsList.appendChild(div);
+      });
+    });
+
+    const subcommunitiesCol = collection(db, "Kamba_subcommunities");
+    onSnapshot(subcommunitiesCol, snapshot => {
+      subcommunitiesList.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const sub = docSnap.data();
+        const div = document.createElement("div");
+        div.classList.add("list-item");
+        div.textContent = sub.name;
+        subcommunitiesList.appendChild(div);
+      });
+    });
+
+    const projectsCol = collection(db, "Kamba_projects");
+    onSnapshot(projectsCol, snapshot => {
+      myProjectsList.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const proj = docSnap.data();
+        const div = document.createElement("div");
+        div.classList.add("list-item");
+        div.textContent = proj.name;
+        myProjectsList.appendChild(div);
+      });
+    });
+  }
+
+  // Search with debounce 300ms
+  const searchInput = document.getElementById("search-input");
+  const searchClearBtn = document.getElementById("search-clear-btn");
+  const searchResults = document.getElementById("search-results");
+  let searchTimeout = null;
+
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+    const q = searchInput.value.trim();
+    if(!q) {
+      searchResults.innerHTML = "";
+      searchClearBtn.style.display = "none";
+      return;
+    }
+    searchClearBtn.style.display = "inline";
+    searchTimeout = setTimeout(() => {
+      performSearch(q.toLowerCase());
+    }, 300);
+  });
+
+  searchClearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchResults.innerHTML = "";
+    searchClearBtn.style.display = "none";
+  });
+
+  async function performSearch(queryText) {
+    searchResults.innerHTML = "";
+    if(!queryText) return;
+
+    // Search users by email prefix (username)
+    const usersCol = collection(db, "Kamba_users");
+    const usersQuery = query(usersCol, orderBy("email"), startAt(queryText), endAt(queryText + "\uf8ff"), limit(5));
+    const usersSnap = await getDocs(usersQuery);
+    usersSnap.forEach(docSnap => {
+      const u = docSnap.data();
+      const item = document.createElement("div");
+      item.classList.add("list-item");
+      item.textContent = u.email;
+      searchResults.appendChild(item);
+    });
+
+    // For simplicity, similar search can be done for projects, groups, subcommunities if needed
+  }
+
+  // Account status determination (firestore: admin sets the accountStatus string: red, violet, blue, green)
+  // Sparks system left for backend or admin interface
+
+  // Load user data from firestore document Kamba_users/email_doc
+  async function loadCurrentUserData() {
+    const docRef = doc(db, "Kamba_users", currentUser.email);
+    const docSnap = await getDoc(docRef);
+    if(docSnap.exists()) {
+      currentUserData = docSnap.data();
+      setProfileIconColor(currentUserData.accountStatus || "green");
+      checkNoSongNotification();
+      setupAudioPlayer();
+    } else {
+      // First time user? Create document with defaults
+      await updateDoc(docRef, {
+        accountStatus: "green",
+        sparks: 0,
+        songUrl: null
+      }).catch(async () => {
+        // Create document if doesn't exist
+        await setDoc(docRef, {
+          accountStatus: "green",
+          sparks: 0,
+          songUrl: null
+        });
+      });
+      currentUserData = {
+        accountStatus: "green",
+        sparks: 0,
+        songUrl: null
+      };
+      setProfileIconColor("green");
+      checkNoSongNotification();
+    }
+  }
+
+  // Setup audio player for user song (loop)
+  function setupAudioPlayer() {
+    if(audioPlayer) {
+      audioPlayer.pause();
+      audioPlayer = null;
+    }
+    if(currentUserData?.songUrl) {
+      audioPlayer = new Audio(currentUserData.songUrl);
+      audioPlayer.loop = true;
+      audioPlayer.volume = 0.3;
+      audioPlayer.play().catch(() => {
+        // Autoplay blocked maybe
+      });
+    }
+  }
+
+  // Dismiss no-song notification for 10 hours
+  dismissNoSongBtn.addEventListener("click", () => {
+    noSongNotification.style.display = "none";
+    const dismissUntil = Date.now() + (10 * 60 * 60 * 1000);
+    localStorage.setItem("noSongDismissedUntil", dismissUntil.toString());
+  });
+
+  // Auth state observer
+  onAuthStateChanged(auth, async (user) => {
+    if(user) {
+      currentUser = user;
+      await loadCurrentUserData();
+      loadMessages();
+      loadGroups();
+      loadSidebarSections();
+    } else {
+      // Not logged in: redirect to sign.html
+      window.location.href = "sign.html";
+    }
+  });
 
 </script>
 </body>
