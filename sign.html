@@ -40,19 +40,9 @@
         max-width: 400px;
         box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    .auth-box h2 {
-        text-align: center;
-        color: white;
-        margin-bottom: 1.5rem;
-        font-weight: bold;
-    }
+    .auth-box h2 { text-align: center; color: white; margin-bottom: 1.5rem; font-weight: bold; }
     .form-group { margin-bottom: 1rem; }
-    label {
-        font-size: 0.75rem;
-        color: #b9bbbe;
-        display: block;
-        margin-bottom: 0.4rem;
-    }
+    label { font-size: 0.75rem; color: #b9bbbe; display: block; margin-bottom: 0.4rem; }
     input, select {
         width: 100%;
         padding: 0.8rem;
@@ -62,18 +52,9 @@
         color: white;
         font-size: 1rem;
     }
+    select { width: 35%; display: inline-block; margin-right: 5%; }
+    .phone-input { width: 60%; display: inline-block; }
     input:focus, select:focus { outline: 2px solid #5865f2; }
-    .phone-row {
-        display: flex;
-        gap: 5px;
-    }
-    .phone-row select {
-        width: 35%;
-        min-width: 90px;
-    }
-    .phone-row input {
-        width: 65%;
-    }
     button {
         width: 100%;
         padding: 0.8rem;
@@ -87,27 +68,37 @@
         margin-top: 0.5rem;
     }
     button:hover { background-color: #4752c4; }
-    .switch {
-        text-align: center;
-        margin-top: 1rem;
-        color: #b9bbbe;
-        font-size: 0.9rem;
-    }
-    .switch a {
-        color: #5865f2;
-        text-decoration: none;
-        font-weight: bold;
-    }
+    .switch { text-align: center; margin-top: 1rem; color: #b9bbbe; font-size: 0.9rem; }
+    .switch a { color: #5865f2; text-decoration: none; font-weight: bold; }
     .switch a:hover { text-decoration: underline; }
-    .error-message {
-        background: #ff4f4f;
+    .error-msg {
+        background-color: #ff4f4f;
         color: white;
         padding: 0.5rem;
-        margin-bottom: 1rem;
         border-radius: 3px;
-        display: none;
         font-size: 0.85rem;
+        margin-bottom: 1rem;
+        display: none;
     }
+    /* Loading overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+    }
+    .spinner {
+        border: 6px solid #ccc;
+        border-top: 6px solid #5865f2;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
     @media (max-width: 768px) {
         body { flex-direction: column; }
         .left-panel { display: none; }
@@ -125,32 +116,30 @@
 <div class="right-panel">
     <div class="auth-box">
         <h2 id="form-title">Welcome Back!</h2>
-        <div id="error-box" class="error-message"></div>
-        
+        <div id="error-box" class="error-msg"></div>
+
         <div class="form-group">
             <label>Email</label>
             <input type="email" id="email" placeholder="Enter your email" />
         </div>
+
+        <div id="phone-group" class="form-group" style="display: none;">
+            <label>Phone Number</label>
+            <select id="country-code">
+                <option value="+250">🇷🇼 Rwanda</option>
+                <option value="+257">🇧🇮 Burundi</option>
+                <option value="+255">🇹🇿 Tanzania</option>
+                <option value="+27">🇿🇦 South Africa</option>
+                <option value="+254">🇰🇪 Kenya</option>
+                <option value="+224">🇬🇳 Guinea</option>
+                <option value="+1">🇺🇸 USA</option>
+            </select>
+            <input type="tel" id="phone" class="phone-input" placeholder="Phone number" />
+        </div>
+
         <div class="form-group">
             <label>Password</label>
             <input type="password" id="password" placeholder="Enter your password" />
-        </div>
-
-        <!-- Phone only visible in Sign-up -->
-        <div class="form-group" id="phone-group" style="display:none;">
-            <label>Phone Number</label>
-            <div class="phone-row">
-                <select id="country-code">
-                    <option value="+250">🇷🇼 +250</option>
-                    <option value="+257">🇧🇮 +257</option>
-                    <option value="+255">🇹🇿 +255</option>
-                    <option value="+27">🇿🇦 +27</option>
-                    <option value="+254">🇰🇪 +254</option>
-                    <option value="+224">🇬🇳 +224</option>
-                    <option value="+1">🇺🇸 +1</option>
-                </select>
-                <input type="tel" id="phone" placeholder="Phone number" />
-            </div>
         </div>
 
         <button id="auth-btn">Login</button>
@@ -160,10 +149,15 @@
     </div>
 </div>
 
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
@@ -180,25 +174,32 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    await setPersistence(auth, browserLocalPersistence);
+    setPersistence(auth, browserLocalPersistence);
 
     const formTitle = document.getElementById("form-title");
     const authBtn = document.getElementById("auth-btn");
+    const switchLink = document.getElementById("switch-link");
     const phoneGroup = document.getElementById("phone-group");
     const errorBox = document.getElementById("error-box");
-
+    const loading = document.getElementById("loading");
     let isLogin = true;
 
-    function showError(msg) {
+    function showError(message) {
         errorBox.style.display = "block";
-        errorBox.textContent = msg;
+        errorBox.textContent = message;
     }
+
     function clearError() {
         errorBox.style.display = "none";
         errorBox.textContent = "";
     }
-    function validateEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    function showLoading() {
+        loading.style.display = "flex";
+    }
+
+    function hideLoading() {
+        loading.style.display = "none";
     }
 
     function switchMode() {
@@ -215,9 +216,15 @@
         });
     }
 
-    document.getElementById("switch-link").addEventListener("click", (e) => {
+    switchLink.addEventListener("click", (e) => {
         e.preventDefault();
         switchMode();
+    });
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = "hello.html";
+        }
     });
 
     authBtn.addEventListener("click", async () => {
@@ -225,55 +232,55 @@
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value.trim();
 
-        if (!validateEmail(email)) {
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
             showError("Please enter a valid email address.");
             return;
         }
-        if (!email || !password) {
-            showError("Please fill out all fields.");
+        if (password.length < 6) {
+            showError("Password must be at least 6 characters.");
             return;
         }
 
+        showLoading();
         try {
             if (isLogin) {
                 await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = "forum.html";
             } else {
                 const phoneCode = document.getElementById("country-code").value;
-                const phoneNumber = document.getElementById("phone").value.trim();
-                if (!phoneNumber) {
-                    showError("Please enter your phone number.");
+                const phone = document.getElementById("phone").value.trim();
+                if (!phone.match(/^\d{6,15}$/)) {
+                    hideLoading();
+                    showError("Please enter a valid phone number.");
                     return;
                 }
 
-                // Check if phone number already exists
-                const q = query(collection(db, "Kamba_users"), where("phone", "==", phoneCode + phoneNumber));
-                const snap = await getDocs(q);
-                if (!snap.empty) {
-                    showError("Phone number already registered.");
+                // Check uniqueness
+                const q = query(collection(db, "Kamba_users"), where("phone", "==", phoneCode + phone));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    hideLoading();
+                    showError("Phone number already in use.");
                     return;
                 }
 
-                // Check if email already exists
-                const existingUser = await getDoc(doc(db, "Kamba_users", email));
-                if (existingUser.exists()) {
-                    showError("Email already registered.");
+                const emailQuery = query(collection(db, "Kamba_users"), where("email", "==", email));
+                const emailSnapshot = await getDocs(emailQuery);
+                if (!emailSnapshot.empty) {
+                    hideLoading();
+                    showError("Email already in use.");
                     return;
                 }
 
-                // Create auth account
-                await createUserWithEmailAndPassword(auth, email, password);
-
-                // Store phone in Firestore
-                await setDoc(doc(db, "Kamba_users", email), {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "Kamba_users", cred.user.uid), {
                     email: email,
-                    phone: phoneCode + phoneNumber
+                    phone: phoneCode + phone
                 });
-
-                window.location.href = "forum.html";
             }
         } catch (error) {
             showError(error.message);
+        } finally {
+            hideLoading();
         }
     });
 </script>
