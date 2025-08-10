@@ -1778,14 +1778,7 @@
     }
   }
 
-  // Listen for auth state
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      // Not logged in, redirect to sign page
-      window.location.href = "sign.html";
-      return;
-    }
-    currentUser = user;
+ 
 
     // Load user data from Firestore
     const userDocRef = doc(db, "Kamba_users", user.uid);
