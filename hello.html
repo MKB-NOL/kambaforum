@@ -3,21 +3,359 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KAMBA Forum Firebase Test</title>
+<title>KAMBA Forum - Chat</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #1e1e2f; color: #eee; padding: 20px; }
-  #status { margin-top: 20px; font-size: 1.2em; }
+  /* Basic reset and Discord style */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    background-color: #36393f;
+    color: #dcddde;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    background-color: #2f3136;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  #profile-icon {
+    width: 42px; /* Increased size slightly for better visibility */
+    height: 42px;
+    border-radius: 50%;
+    background-color: gray;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.2rem; /* Adjusted font size */
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #profile-icon:hover {
+    filter: brightness(1.2);
+  }
+  #chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+    overflow-y: auto;
+    gap: 1rem;
+    background-color: #2f3136;
+  }
+  .message {
+    background-color: #202225;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    max-width: 75%;
+    word-break: break-word;
+    position: relative;
+  }
+  .username {
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+    display: inline-block;
+    cursor: default;
+  }
+  .message-text {
+    white-space: pre-wrap;
+  }
+  .reply-to {
+    font-size: 0.75rem;
+    color: #b9bbbe;
+    margin-bottom: 0.3rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #5865f2;
+  }
+  .reply-btn {
+    font-size: 0.7rem;
+    color: #5865f2;
+    cursor: pointer;
+    margin-top: 0.3rem;
+    user-select: none;
+  }
+  .reply-btn:hover {
+    text-decoration: underline;
+  }
+  #message-input-area {
+    background-color: #40444b;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+  }
+  #message-input {
+    flex: 1;
+    padding: 0.6rem 0.8rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    color: white;
+    background-color: #2f3136;
+    resize: none;
+    min-height: 36px;
+    max-height: 96px;
+    overflow-y: auto;
+  }
+  #message-input:focus {
+    outline: 2px solid #5865f2;
+  }
+  #send-btn {
+    background-color: #5865f2;
+    border: none;
+    color: white;
+    padding: 0.55rem 1.2rem;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  #send-btn:hover {
+    background-color: #4752c4;
+  }
+  #emoji-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: #b9bbbe;
+    user-select: none;
+  }
+  #emoji-picker {
+    position: absolute;
+    bottom: 3.8rem;
+    right: 3rem;
+    background-color: #202225;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 1000;
+  }
+  #emoji-picker span {
+    font-size: 1.6rem;
+    margin: 0 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease;
+  }
+  #emoji-picker span:hover {
+    transform: scale(1.3);
+  }
+  #no-song-notification {
+    background-color: #f04747;
+    color: white;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .username.green { color: #43b581; }   /* New user */
+  .username.blue { color: #5865f2; }    /* 100+ sparks */
+  .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
+  .username.red { color: #f04747; }     /* Admin */
+  /* Scrollbar styling */
+  #chat-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-container::-webkit-scrollbar-thumb {
+    background-color: #5865f2;
+    border-radius: 5px;
+  }
+  /* Image thumbnails in chat */
+  .chat-image {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 5px;
+    margin-top: 6px;
+    cursor: pointer;
+    position: relative;
+  }
+  .img-save-icon {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    padding: 3px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    user-select: none;
+  }
+  /* Fullscreen image viewer */
+  #fullscreen-img-viewer {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    cursor: zoom-out;
+  }
+  #fullscreen-img-viewer img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+  }
+  /* Link preview card */
+  .link-preview {
+    margin-top: 6px;
+    border: 1px solid #5865f2;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    gap: 10px;
+    background-color: #2f3136;
+  }
+  .link-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+  .link-preview-content {
+    flex: 1;
+    color: #dcddde;
+  }
+  .link-preview-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .link-preview-description {
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+  /* Modal for Agree & Continue */
+  #agree-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+  }
+  #agree-modal .modal-content {
+    background-color: #2f3136;
+    padding: 2rem;
+    max-width: 400px;
+    border-radius: 10px;
+    text-align: center;
+    color: #dcddde;
+  }
+  #agree-modal button {
+    background-color: #5865f2;
+    border: none;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: background-color 0.3s ease;
+  }
+  #agree-modal button:hover {
+    background-color: #4752c4;
+  }
+  /* Image upload input */
+  #image-upload {
+    display: none;
+  }
+  #image-upload-label {
+    cursor: pointer;
+    background-color: #5865f2;
+    border-radius: 5px;
+    padding: 0.55rem 0.9rem;
+    font-weight: 700;
+    color: white;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    font-size: 1rem;
+  }
+  #image-upload-label:hover {
+    background-color: #4752c4;
+  }
 </style>
 </head>
 <body>
 
-<h1>KAMBA Forum Firebase Initialization Test</h1>
-<div id="status">Initializing...</div>
+<header>
+  <h1>KAMBA Forum</h1>
+  <div id="profile-icon" title="Profile">U</div>
+</header>
+
+<div id="chat-container" aria-live="polite" aria-relevant="additions"></div>
+
+<div id="no-song-notification" style="display:none; cursor:pointer;">
+  No song set. Click here to set your song in Settings.
+</div>
+
+<div id="message-input-area">
+  <button id="emoji-btn" title="Emoji picker">😀</button>
+  <textarea id="message-input" placeholder="Send a message..." rows="1" autocomplete="off"></textarea>
+  <button id="send-btn" aria-label="Send message">Send</button>
+  <label id="image-upload-label" for="image-upload" title="Upload images">📷</label>
+  <input type="file" id="image-upload" accept="image/*" multiple />
+</div>
+
+<div id="emoji-picker" aria-label="Emoji picker" role="list">
+  <span>😊</span>
+  <span>😄</span>
+  <span>😍</span>
+  <span>👍</span>
+  <span>🎉</span>
+</div>
+
+<div id="fullscreen-img-viewer" role="dialog" aria-modal="true" tabindex="-1">
+  <img src="" alt="Full screen image preview" />
+</div>
+
+<div id="agree-modal" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="agree-title" aria-describedby="agree-desc">
+  <div class="modal-content">
+    <h2 id="agree-title">Welcome to KAMBA Forum</h2>
+    <p id="agree-desc">Please agree and continue to use the community chat.</p>
+    <button id="agree-btn">Agree and Continue</button>
+  </div>
+</div>
+
+<audio id="background-audio" loop></audio>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    doc,
+    getDoc,
+    updateDoc,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
@@ -27,23 +365,447 @@
     storageBucket: "muah-feed.firebasestorage.app",
     messagingSenderId: "442314397706",
     appId: "1:442314397706:web:a69e3958257fb13b3667f3",
-    measurementId: "G-S86S229F1T"
+    measurementId: "G-S86S229F1T",
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const statusDiv = document.getElementById("status");
+  const chatContainer = document.getElementById("chat-container");
+  const messageInput = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+  const emojiBtn = document.getElementById("emoji-btn");
+  const emojiPicker = document.getElementById("emoji-picker");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const backgroundAudio = document.getElementById("background-audio");
+  const profileIcon = document.getElementById("profile-icon");
+  const fullscreenViewer = document.getElementById("fullscreen-img-viewer");
+  const fullscreenImg = fullscreenViewer.querySelector("img");
+  const agreeModal = document.getElementById("agree-modal");
+  const agreeBtn = document.getElementById("agree-btn");
+  const imageUploadInput = document.getElementById("image-upload");
+  const imageUploadLabel = document.getElementById("image-upload-label");
 
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      statusDiv.textContent = `User logged in: ${user.email}`;
-    } else {
-      statusDiv.textContent = "No user logged in.";
+  let currentUser = null;
+  let currentUserData = null;
+  let replyToMessageId = null;
+  let replyToMessageText = null;
+
+  // Emoji picker toggle
+  emojiBtn.addEventListener("click", () => {
+    emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
+  });
+
+  // Add emoji to input
+  emojiPicker.querySelectorAll("span").forEach((emojiSpan) => {
+    emojiSpan.addEventListener("click", () => {
+      messageInput.value += emojiSpan.textContent;
+      emojiPicker.style.display = "none";
+      messageInput.focus();
+      resizeTextarea();
+    });
+  });
+
+  // Close emoji picker if clicking outside
+  document.addEventListener("click", (e) => {
+    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+      emojiPicker.style.display = "none";
     }
   });
-</script>
 
+  // Resize textarea height dynamically
+  function resizeTextarea() {
+    messageInput.style.height = "auto";
+    messageInput.style.height = messageInput.scrollHeight + "px";
+  }
+  messageInput.addEventListener("input", resizeTextarea);
+
+  // Utility to simplify email (for username display)
+  function simplifyEmail(email) {
+    return email.split("@")[0];
+  }
+
+  // Map status to color class
+  function getStatusClass(status) {
+    switch (status) {
+      case "green": return "green";
+      case "blue": return "blue";
+      case "violet": return "violet";
+      case "red": return "red";
+      default: return "green";
+    }
+  }
+
+  // Create a DOM element for a message, including images and link previews
+  function renderMessage(id, msgData) {
+    const div = document.createElement("div");
+    div.className = "message";
+    div.dataset.id = id;
+
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "username " + getStatusClass(msgData.status);
+    usernameSpan.textContent = msgData.sender;
+    div.appendChild(usernameSpan);
+
+    if (msgData.replyToText) {
+      const replyDiv = document.createElement("div");
+      replyDiv.className = "reply-to";
+      replyDiv.textContent = "Replying to: " + msgData.replyToText;
+      div.appendChild(replyDiv);
+    }
+
+    // Message text with URLs parsed for preview
+    const textDiv = document.createElement("div");
+    textDiv.className = "message-text";
+    textDiv.innerHTML = linkifyAndPreview(msgData.message);
+    div.appendChild(textDiv);
+
+    // If images attached, show thumbnails
+    if (msgData.images && msgData.images.length) {
+      msgData.images.forEach((imgUrl) => {
+        const imgWrapper = document.createElement("div");
+        imgWrapper.style.position = "relative";
+        imgWrapper.style.display = "inline-block";
+
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        img.alt = "Shared image";
+        img.className = "chat-image";
+        imgWrapper.appendChild(img);
+
+        // Save icon
+        const saveIcon = document.createElement("div");
+        saveIcon.className = "img-save-icon";
+        saveIcon.title = "Open image full screen";
+        saveIcon.textContent = "💾";
+        saveIcon.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openFullscreenImage(imgUrl);
+        });
+        imgWrapper.appendChild(saveIcon);
+
+        // Click on image also opens full screen
+        img.addEventListener("click", () => openFullscreenImage(imgUrl));
+
+        div.appendChild(imgWrapper);
+      });
+    }
+
+    const replyBtn = document.createElement("div");
+    replyBtn.className = "reply-btn";
+    replyBtn.textContent = "Reply";
+    replyBtn.addEventListener("click", () => {
+      replyToMessageId = id;
+      replyToMessageText = msgData.message;
+      messageInput.focus();
+      messageInput.placeholder = "Replying: " + replyToMessageText.slice(0, 30) + "... (click send)";
+      resizeTextarea();
+    });
+    div.appendChild(replyBtn);
+
+    return div;
+  }
+
+  // Linkify text and add previews for URLs (images, YouTube, general)
+  function linkifyAndPreview(text) {
+    // Regex to find URLs
+    const urlRegex = /https?:\/\/[^\s]+/g;
+    let result = text.replace(urlRegex, (url) => {
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+    });
+
+    // For preview, detect first URL and try to show preview below text
+    // Note: This is simplified - for real production you'd want a server or API call for rich metadata
+    // Here we'll do very basic checks for images and YouTube
+
+    // Find first URL
+    const urls = text.match(urlRegex);
+    if (!urls) return result;
+
+    let previewHtml = "";
+    const firstUrl = urls[0];
+
+    // Check if URL is an image (common extensions)
+    if (firstUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp)$/i)) {
+      previewHtml = `<div class="link-preview"><img src="${firstUrl}" alt="Image preview"/><div class="link-preview-content"><div class="link-preview-title">Image</div></div></div>`;
+    }
+    // Check if YouTube URL
+    else if (firstUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)) {
+      // Extract video ID
+      const match = firstUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+      const videoId = match[1];
+      previewHtml = `
+      <div class="link-preview">
+        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="YouTube thumbnail"/>
+        <div class="link-preview-content">
+          <div class="link-preview-title">YouTube Video</div>
+          <div class="link-preview-description">Click link to watch video</div>
+        </div>
+      </div>`;
+    }
+    // For other websites, show basic preview with fetch (async not possible here, so skipped)
+
+    if (previewHtml) return result + previewHtml;
+    return result;
+  }
+
+  // Fullscreen image open/close
+  function openFullscreenImage(url) {
+    fullscreenImg.src = url;
+    fullscreenViewer.style.display = "flex";
+    fullscreenViewer.focus();
+  }
+  fullscreenViewer.addEventListener("click", () => {
+    fullscreenViewer.style.display = "none";
+    fullscreenImg.src = "";
+  });
+
+  // Setup Firestore real-time listener for messages
+  function setupMessagesListener() {
+    const messagesQuery = query(
+      collection(db, "Kamba_messages"),
+      orderBy("timestamp", "asc")
+    );
+
+    onSnapshot(messagesQuery, async (querySnapshot) => {
+      chatContainer.innerHTML = ""; // Clear chat on update
+
+      // Collect unique user IDs in messages
+      const userIds = new Set();
+      querySnapshot.forEach((doc) => {
+        userIds.add(doc.data().userId);
+      });
+      // Preload user data for all message senders:
+      const userDataMap = new Map();
+      const userDocsPromises = [];
+      userIds.forEach((uid) => {
+        userDocsPromises.push(getDoc(doc(db, "Kamba_users", uid)));
+      });
+      const userDocs = await Promise.all(userDocsPromises);
+      userDocs.forEach((docSnap) => {
+        if (docSnap.exists()) {
+          userDataMap.set(docSnap.id, docSnap.data());
+        }
+      });
+
+      // Render messages
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const senderUid = data.userId;
+        const userData = userDataMap.get(senderUid);
+        const displayName = simplifyEmail(data.senderEmail || "unknown");
+        const status = userData ? userData.status : "green";
+
+        const messageData = {
+          sender: displayName,
+          status: status,
+          message: data.message,
+          replyToText: data.replyToText || null,
+          images: data.images || [],
+        };
+        const msgDiv = renderMessage(docSnap.id, messageData);
+        chatContainer.appendChild(msgDiv);
+      });
+
+      // Scroll to bottom on new messages
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+  }
+
+  // Upload images via imgbb
+  async function uploadImages(files) {
+    // Check total size <= 6MB
+    let totalSize = 0;
+    for (const file of files) {
+      totalSize += file.size;
+    }
+    if (totalSize > 6 * 1024 * 1024) {
+      alert("Total images size must not exceed 6 MB.");
+      return null;
+    }
+    const uploadedUrls = [];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("image", file);
+      try {
+        const res = await fetch("https://api.imgbb.com/1/upload?key=0f248e70fc4e7dffde307dd772823379", {
+          method: "POST",
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.success) {
+          uploadedUrls.push(json.data.display_url);
+        } else {
+          alert("Image upload failed: " + (json.error?.message || "Unknown error"));
+          return null;
+        }
+      } catch (err) {
+        alert("Image upload error: " + err.message);
+        return null;
+      }
+    }
+    return uploadedUrls;
+  }
+
+  // Send message with images
+  sendBtn.addEventListener("click", sendMessage);
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    const files = imageUploadInput.files;
+
+    if (!text && (!files || files.length === 0)) return; // no content
+
+    const senderEmail = currentUser.email;
+    const userId = currentUser.uid;
+
+    // Get user doc ref and data
+    const userDocRef = doc(db, "Kamba_users", userId);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) {
+      alert("User data missing. Contact admin.");
+      return;
+    }
+    const userData = userDocSnap.data();
+
+    // Disable input while sending
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Sending...";
+    try {
+      let imageUrls = [];
+      if (files && files.length > 0) {
+        imageUrls = await uploadImages(files);
+        if (imageUrls === null) throw new Error("Image upload failed");
+      }
+      // Add message doc
+      await addDoc(collection(db, "Kamba_messages"), {
+        userId: userId,
+        senderEmail: senderEmail,
+        sender: simplifyEmail(senderEmail),
+        message: text,
+        replyTo: replyToMessageId || null,
+        replyToText: replyToMessageText || null,
+        timestamp: Date.now(),
+        images: imageUrls,
+      });
+
+      // Reset input & reply & file input
+      messageInput.value = "";
+      imageUploadInput.value = "";
+      messageInput.placeholder = "Send a message...";
+      replyToMessageId = null;
+      replyToMessageText = null;
+      resizeTextarea();
+
+      // Update sparks and status
+      let newSparks = (userData.sparks || 0) + 1;
+      let newStatus = userData.status || "green";
+      if (newSparks >= 1000) newStatus = "violet";
+      else if (newSparks >= 100) newStatus = "blue";
+      else newStatus = "green";
+
+      await updateDoc(userDocRef, {
+        sparks: newSparks,
+        status: newStatus,
+      });
+    } catch (err) {
+      alert("Error sending message: " + err.message);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send";
+    }
+  }
+
+  // Redirect no-song notification
+  noSongNotification.addEventListener("click", () => {
+    window.location.href = "settings.html";
+  });
+
+  // Profile icon click opens settings.html
+  profileIcon.addEventListener("click", () => {
+    window.location.href = "settings.html";
+  });
+
+  // On fullscreen image viewer open/close handled above
+
+  // First login agreement modal logic
+  async function checkAgreement(userId) {
+    const userDocRef = doc(db, "Kamba_users", userId);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) return false;
+    const data = userDocSnap.data();
+    return data.agreedToTerms === true;
+  }
+  async function setAgreement(userId) {
+    const userDocRef = doc(db, "Kamba_users", userId);
+    await updateDoc(userDocRef, { agreedToTerms: true });
+  }
+
+  // On auth state changed
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "sign.html";
+      return;
+    }
+    currentUser = user;
+
+    // Load user data from Firestore
+    const userDocRef = doc(db, "Kamba_users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) {
+      alert("User data not found in database. Please contact admin.");
+      return;
+    }
+    currentUserData = userDocSnap.data();
+
+    // Update profile icon with first letter & color by status
+    const statusColorMap = {
+      green: "#43b581",
+      blue: "#5865f2",
+      violet: "#9b59b6",
+      red: "#f04747",
+    };
+    profileIcon.style.backgroundColor = statusColorMap[currentUserData.status] || "#72767d";
+    profileIcon.textContent = simplifyEmail(currentUser.email).charAt(0).toUpperCase();
+
+    // Check agreement
+    const agreed = await checkAgreement(user.uid);
+    if (!agreed) {
+      agreeModal.style.display = "flex";
+    } else {
+      agreeModal.style.display = "none";
+      initChatAndAudio();
+    }
+  });
+
+  // Agree button event
+  agreeBtn.addEventListener("click", async () => {
+    agreeModal.style.display = "none";
+    await setAgreement(currentUser.uid);
+    initChatAndAudio();
+  });
+
+  async function initChatAndAudio() {
+    // Set background audio source & volume
+    if (currentUserData.song && currentUserData.song.trim() !== "") {
+      backgroundAudio.src = currentUserData.song;
+      backgroundAudio.volume = currentUserData.volume ?? 0.5;
+      backgroundAudio.play().catch(() => {});
+      noSongNotification.style.display = "none";
+    } else {
+      noSongNotification.style.display = "block";
+    }
+    setupMessagesListener();
+  }
+
+</script>
 </body>
 </html>
