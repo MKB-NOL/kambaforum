@@ -1,983 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KAMBA Forum - Chat</title>
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    integrity="sha512-papO1sAQq+xIs12bWPr3BTmKIkO0n+HQ3xljJ+1wErLhj6X3LK+8Iyy/NChzFUYnqk0xsvOHwxNN4Az4Jr5HbQ=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KAMBA Forum - Chat</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #2f3136;
+        color: #fff;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
     }
-    body, html {
-      height: 100%;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #36393f;
-      color: #dcddde;
-      overflow: hidden;
+    /* Left server bar */
+    .server-bar {
+        width: 70px;
+        background-color: #202225;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 0;
+        gap: 15px;
     }
-    #app {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
+    .server-icon {
+        width: 50px;
+        height: 50px;
+        background-color: #36393f;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 22px;
+        cursor: pointer;
     }
-    #sidebar-servers {
-      width: 72px;
-      background: #2f3136;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 0;
-      gap: 12px;
-      overflow-y: auto;
+    /* Sidebar */
+    .sidebar {
+        width: 220px;
+        background-color: #2f3136;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
     }
-    #sidebar-servers .server-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: #72767d;
-      color: white;
-      font-weight: 700;
-      font-size: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: background 0.3s;
+    .sidebar .search {
+        padding: 5px;
+        background-color: #202225;
+        border: none;
+        border-radius: 5px;
+        color: white;
     }
-    #sidebar-servers .server-icon:hover,
-    #sidebar-servers .server-icon.active {
-      background: #5865f2;
-      box-shadow: 0 0 10px #5865f2;
+    .sidebar h3 {
+        margin: 15px 0 5px;
+        font-size: 14px;
+        color: #b9bbbe;
     }
-    #main-content {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      background: #36393f;
+    /* Chat area */
+    .chat {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
-    #header {
-      height: 60px;
-      background: #2f3136;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      border-bottom: 1px solid #202225;
-      justify-content: space-between;
-    }
-    #header .title {
-      font-weight: 700;
-      font-size: 18px;
-      color: #fff;
-    }
-    #header .search-container {
-      position: relative;
-      flex-grow: 1;
-      max-width: 400px;
-      margin: 0 20px;
-    }
-    #header input[type="search"] {
-      width: 100%;
-      padding: 8px 36px 8px 12px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-      outline: none;
-      background: #202225;
-      color: #dcddde;
-    }
-    #header .search-clear-btn {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: #b9bbbe;
-      font-size: 18px;
-      cursor: pointer;
-      display: none;
-    }
-    #header .search-clear-btn:hover {
-      color: #fff;
-    }
-    #profile-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #5865f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: box-shadow 0.3s;
-    }
-    #profile-icon.green { background: #43b581; }
-    #profile-icon.blue { background: #3b82f6; }
-    #profile-icon.violet { background: #8a2be2; }
-    #profile-icon.red { background: #f04747; }
-    #profile-icon:hover {
-      box-shadow: 0 0 10px #5865f2;
-    }
-    #groups-sidebar {
-      width: 240px;
-      min-width: 72px;
-      max-width: 400px;
-      background: #2f3136;
-      display: flex;
-      flex-direction: column;
-      padding: 16px;
-      border-left: 1px solid #202225;
-      overflow-y: auto;
-      resize: horizontal;
-    }
-    #groups-sidebar::-webkit-scrollbar {
-      width: 6px;
-    }
-    #groups-sidebar::-webkit-scrollbar-track {
-      background: #2f3136;
-    }
-    #groups-sidebar::-webkit-scrollbar-thumb {
-      background: #202225;
-      border-radius: 3px;
-    }
-    #profile-section {
-      padding: 1rem;
-      background: #202225;
-      border-bottom: 1px solid #2f3136;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    #profile-username {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    #profile-sparks {
-      font-size: 0.75rem;
-      color: #b9bbbe;
-    }
-    .group-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-bottom: 0.5rem;
-    }
-    .group-item:hover {
-      background: #40444b;
-    }
-    .group-image {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .group-details {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-    }
-    .group-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: #dcddde;
-    }
-    .group-description {
-      font-size: 0.75rem;
-      color: #b9bbbe;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    #create-group-btn {
-      background: #5865f2;
-      color: white;
-      border: none;
-      padding: 0.5rem;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
-      text-align: center;
-    }
-    #create-group-btn:hover {
-      background: #4752c4;
-    }
-    #create-group-btn.hidden {
-      display: none;
-    }
-    #groups-sidebar.wide .group-details {
-      display: flex;
-    }
-    #chat-container {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 20px;
-      background: #36393f;
-    }
-    #chat-messages {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding-right: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: #5865f2 transparent;
-    }
-    #chat-messages::-webkit-scrollbar {
-      width: 8px;
-    }
-    #chat-messages::-webkit-scrollbar-thumb {
-      background-color: #5865f2;
-      border-radius: 4px;
+    .messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
     }
     .message {
-      margin-bottom: 15px;
-      display: flex;
-      flex-direction: column;
-      max-width: 70%;
-      background: #2f3136;
-      border-radius: 10px;
-      padding: 12px 16px;
-      word-break: break-word;
-      position: relative;
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
     }
-    .message.green .username { color: #43b581; }
-    .message.blue .username { color: #3b82f6; }
-    .message.violet .username { color: #8a2be2; }
-    .message.red .username { color: #f04747; }
-    .message .username {
-      font-weight: 700;
-      margin-bottom: 6px;
-      font-size: 14px;
+    .message .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #7289da;
+        margin-right: 10px;
     }
-    .message .reply-to {
-      font-size: 12px;
-      color: #b9bbbe;
-      margin-bottom: 8px;
-      border-left: 3px solid #5865f2;
-      padding-left: 10px;
-      font-style: italic;
+    .message-content {
+        background-color: #36393f;
+        padding: 10px;
+        border-radius: 5px;
+        max-width: 70%;
     }
-    .message .text {
-      white-space: pre-wrap;
-      font-size: 15px;
-      line-height: 1.4;
+    /* Input area */
+    .input-area {
+        display: flex;
+        padding: 10px;
+        background-color: #40444b;
+        align-items: center;
+        gap: 10px;
     }
-    .message .chat-image {
-      max-width: 200px;
-      margin-top: 8px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.2s;
+    .input-area input[type="text"] {
+        flex: 1;
+        background-color: #2f3136;
+        border: none;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
     }
-    .message .chat-image:hover {
-      transform: scale(1.05);
+    .input-area button {
+        background-color: #5865f2;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
     }
-    .message .img-save-icon {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      color: #b9bbbe;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 4px 6px;
-      border-radius: 4px;
-      opacity: 0.8;
-      transition: opacity 0.2s;
-    }
-    .message .img-save-icon:hover {
-      opacity: 1;
-    }
-    .message .reply-btn {
-      align-self: flex-end;
-      font-size: 12px;
-      color: #5865f2;
-      cursor: pointer;
-      user-select: none;
-      margin-top: 8px;
-      font-weight: 600;
-      background: transparent;
-      border: none;
-      padding: 0;
-      outline: none;
-    }
-    .message .reply-btn:hover,
-    .message .reply-btn:focus {
-      color: #4752c4;
-      text-decoration: underline;
-    }
-    #input-area {
-      padding: 12px 20px;
-      background: #2f3136;
-      border-top: 1px solid #202225;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    #message-input {
-      flex-grow: 1;
-      padding: 10px 14px;
-      border-radius: 20px;
-      border: none;
-      background: #40444b;
-      color: #dcddde;
-      font-size: 15px;
-      resize: none;
-      outline: none;
-      min-height: 36px;
-      max-height: 100px;
-      overflow-y: auto;
-    }
-    #input-area button {
-      background: transparent;
-      border: none;
-      color: #5865f2;
-      font-size: 22px;
-      cursor: pointer;
-      padding: 6px 8px;
-      transition: color 0.3s;
-      border-radius: 50%;
-    }
-    #input-area button:hover {
-      color: #4752c4;
-      background: #40444b;
-    }
-    #upload-image-input {
-      display: none;
-    }
-    .emoji-picker {
-      position: absolute;
-      bottom: 70px;
-      right: 20px;
-      background: #2f3136;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.6);
-      padding: 8px;
-      display: none;
-      gap: 8px;
-      z-index: 1000;
-    }
-    .emoji-picker button {
-      background: transparent;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #dcddde;
-      transition: transform 0.2s;
-      border-radius: 6px;
-    }
-    .emoji-picker button:hover {
-      transform: scale(1.3);
-      color: #5865f2;
-    }
-    #fullscreen-image-viewer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 20000;
-    }
-    #fullscreen-image-viewer img {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 12px;
-      box-shadow: 0 0 20px #5865f2;
-    }
-    #no-song-notification {
-      background: #f04747;
-      color: white;
-      padding: 10px 20px;
-      font-weight: 600;
-      text-align: center;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      font-size: 15px;
-    }
-    #no-song-notification a {
-      color: #fff;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    #dismiss-no-song-btn {
-      background: transparent;
-      border: none;
-      font-size: 18px;
-      color: white;
-      cursor: pointer;
-      font-weight: 700;
-      line-height: 1;
-    }
-    #music-controls {
-      position: fixed;
-      bottom: 5rem;
-      right: 1rem;
-      background: #202225;
-      padding: 0.5rem;
-      border-radius: 5px;
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    #volume-slider {
-      width: 100px;
-    }
-    #volume-label {
-      font-size: 0.85rem;
-      color: #b9bbbe;
-    }
+    /* Responsive */
     @media (max-width: 768px) {
-      #app {
-        flex-direction: column;
-      }
-      #sidebar-servers {
-        width: 100%;
-        flex-direction: row;
-        justify-content: center;
-        padding: 6px;
-        height: auto;
-      }
-      #sidebar-servers .server-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
-      }
-      #groups-sidebar {
-        width: 100%;
-        min-width: 100%;
-        max-width: 100%;
-        resize: none;
-        border-left: none;
-        border-top: 1px solid #202225;
-      }
-      #groups-sidebar.wide .group-details {
-        display: none;
-      }
-      #header .search-container {
-        max-width: 200px;
-        margin: 0 10px;
-      }
-      #profile-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
-      }
-      #input-area {
-        padding: 8px 12px;
-        gap: 8px;
-      }
-      #message-input {
-        font-size: 14px;
-        min-height: 32px;
-        max-height: 80px;
-      }
-      #music-controls {
-        bottom: 4.5rem;
-        right: 0.5rem;
-      }
-      #no-song-notification {
-        right: 0.5rem;
-        top: 0.5rem;
-      }
+        .sidebar {
+            display: none;
+        }
     }
-    @media (min-width: 769px) {
-      #groups-sidebar {
-        width: 240px;
-      }
-      #groups-sidebar.wide {
-        width: 300px;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
-  <div id="app">
-    <nav id="sidebar-servers" aria-label="Servers">
-      <div class="server-icon active" tabindex="0" title="General">K</div>
-      <div class="server-icon" tabindex="0" title="Project A">A</div>
-      <div class="server-icon" tabindex="0" title="Sub-Community">S</div>
-    </nav>
-    <main id="main-content" role="main" aria-label="Chat">
-      <header id="header">
-        <div class="title" aria-live="polite">KAMBA Forum - #general</div>
-        <div class="search-container">
-          <input
-            type="search"
-            id="search-input"
-            placeholder="Search users, groups, projects..."
-            aria-label="Search"
-          />
-          <button
-            type="button"
-            id="search-clear-btn"
-            title="Clear search"
-            aria-label="Clear search"
-          >
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <button
-          id="profile-icon"
-          title="Settings"
-          aria-label="Go to Settings"
-          tabindex="0"
-        >
-          <i class="fas fa-user"></i>
-        </button>
-      </header>
-      <div id="no-song-notification" role="alert">
-        No song set. <a href="#" id="set-song-link">Click here to set your song in Settings.</a>
-        <button id="dismiss-no-song-btn" aria-label="Dismiss notification">&times;</button>
-      </div>
-      <section id="chat-container">
-        <div id="chat-messages" aria-live="polite" aria-relevant="additions"></div>
-        <div id="input-area">
-          <textarea
-            id="message-input"
-            placeholder="Message #general"
-            rows="1"
-            aria-label="Message input"
-          ></textarea>
-          <button id="emoji-btn" aria-label="Toggle emoji picker">
-            <i class="far fa-smile"></i>
-          </button>
-          <button id="upload-image-btn" aria-label="Upload image(s)">
-            <i class="fas fa-image"></i>
-          </button>
-          <input
-            type="file"
-            id="upload-image-input"
-            accept="image/*"
-            multiple
-            aria-label="Upload images"
-            hidden
-          />
-          <button id="send-btn" aria-label="Send message">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-        </div>
-      </section>
-    </main>
-    <aside id="groups-sidebar" aria-label="Groups">
-      <div id="profile-section">
-        <span id="profile-username" class="username"></span>
-        <span id="profile-sparks"></span>
-      </div>
-      <button id="create-group-btn" class="hidden">Create Group</button>
-      <div id="groups-list"></div>
-    </aside>
-  </div>
-  <div class="emoji-picker" style="display:none;">
-    <button title="😀">😀</button>
-    <button title="😂">😂</button>
-    <button title="🥰">🥰</button>
-    <button title="🤔">🤔</button>
-    <button title="😎">😎</button>
-  </div>
-  <div id="fullscreen-image-viewer" tabindex="0" role="dialog" aria-modal="true" aria-label="Fullscreen image viewer">
-    <img src="" alt="Fullscreen Image" />
-  </div>
-  <div id="music-controls">
-    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" />
-    <span id="volume-label">50%</span>
-  </div>
-  <audio id="background-audio" loop></audio>
-  <script type="module">
+
+<!-- Server icons bar -->
+<div class="server-bar">
+    <div class="server-icon"><i class="fa-solid fa-plus"></i></div>
+    <div class="server-icon"><i class="fa-solid fa-bullhorn"></i></div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <input class="search" type="text" placeholder="Search..." id="searchBar">
+    <h3>Announcements</h3>
+    <h3>Sub-Communities</h3>
+    <h3>My Projects</h3>
+</div>
+
+<!-- Chat area -->
+<div class="chat">
+    <div class="messages" id="messages">
+        <!-- Messages appear here -->
+    </div>
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button id="sendMessageBtn"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script type="module">
+    // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, query, orderBy, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
-      authDomain: "muah-feed.firebaseapp.com",
-      databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
-      projectId: "muah-feed",
-      storageBucket: "muah-feed.firebasestorage.app",
-      messagingSenderId: "442314397706",
-      appId: "1:442314397706:web:a69e3958257fb13b3667f3",
-      measurementId: "G-S86S229F1T"
+        apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+        authDomain: "muah-feed.firebaseapp.com",
+        databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+        projectId: "muah-feed",
+        storageBucket: "muah-feed.firebasestorage.app",
+        messagingSenderId: "442314397706",
+        appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+        measurementId: "G-S86S229F1T"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const chatMessages = document.getElementById('chat-messages');
-    const messageInput = document.getElementById('message-input');
-    const sendBtn = document.getElementById('send-btn');
-    const emojiBtn = document.getElementById('emoji-btn');
-    const emojiPicker = document.querySelector('.emoji-picker');
-    const uploadImageBtn = document.getElementById('upload-image-btn');
-    const uploadImageInput = document.getElementById('upload-image-input');
-    const noSongNotification = document.getElementById('no-song-notification');
-    const dismissNoSongBtn = document.getElementById('dismiss-no-song-btn');
-    const setSongLink = document.getElementById('set-song-link');
-    const profileIcon = document.getElementById('profile-icon');
-    const groupsList = document.getElementById('groups-list');
-    const createGroupBtn = document.getElementById('create-group-btn');
-    const groupsSidebar = document.getElementById('groups-sidebar');
-    const profileUsername = document.getElementById('profile-username');
-    const profileSparks = document.getElementById('profile-sparks');
-    const volumeSlider = document.getElementById('volume-slider');
-    const volumeLabel = document.getElementById('volume-label');
-    const audioPlayer = document.getElementById('background-audio');
-
-    let currentUser = null;
-    let userData = null;
-    let replyToMessageId = null;
-    const MAX_IMAGE_SIZE_MB = 6;
-    const MAX_TOTAL_UPLOAD_MB = 6;
-    const NO_SONG_DISMISS_KEY = 'noSongDismissedTime';
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'sign.html';
-        return;
-      }
-      currentUser = user;
-      const userDocRef = doc(db, 'Kamba_users', user.email);
-      const userSnap = await getDoc(userDocRef);
-      if (userSnap.exists()) {
-        userData = userSnap.data();
-        profileUsername.textContent = user.email.split('@')[0];
-        profileUsername.classList.add(userData.accountStatus || 'green');
-        profileSparks.textContent = `${userData.sparks || 0} Sparks`;
-        updateProfileIconColor(userData.accountStatus);
-        if (['blue', 'violet', 'red'].includes(userData.accountStatus)) {
-          createGroupBtn.classList.remove('hidden');
-        }
-        if (userData.songUrl) {
-          audioPlayer.src = userData.songUrl;
-          audioPlayer.volume = userData.volume || 0.5;
-          volumeSlider.value = userData.volume || 0.5;
-          volumeLabel.textContent = `${Math.round((userData.volume || 0.5) * 100)}%`;
-          audioPlayer.play().catch(() => {});
-        } else {
-          checkNoSongNotification();
-        }
-      } else {
-        await setDoc(userDocRef, {
-          email: user.email,
-          accountStatus: 'green',
-          sparks: 0,
-          agreedTerms: false
-        });
-        userData = { accountStatus: 'green', sparks: 0, agreedTerms: false };
-        profileUsername.textContent = user.email.split('@')[0];
-        profileUsername.classList.add('green');
-        profileSparks.textContent = '0 Sparks';
-        updateProfileIconColor('green');
-        checkNoSongNotification();
-      }
-      if (!userData.agreedTerms) {
-        if (confirm('Agree and Continue?')) {
-          await updateDoc(userDocRef, { agreedTerms: true });
-          userData.agreedTerms = true;
-        } else {
-          await signOut(auth);
-          return;
-        }
-      }
-      listenToMessages();
-      loadGroups();
-      setupEventListeners();
-    });
-
-    function updateProfileIconColor(status) {
-      profileIcon.classList.remove('green', 'blue', 'violet', 'red');
-      profileIcon.classList.add(status || 'green');
-    }
-
-    function listenToMessages() {
-      const messagesRef = collection(db, 'messages');
-      const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
-      onSnapshot(messagesQuery, (snapshot) => {
-        chatMessages.innerHTML = '';
-        snapshot.forEach((doc) => {
-          const msg = doc.data();
-          const messageEl = createMessageElement(doc.id, msg);
-          chatMessages.appendChild(messageEl);
-        });
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      });
-    }
-
-    function createMessageElement(id, msg) {
-      const el = document.createElement('div');
-      el.className = 'message ' + (msg.accountStatus || 'green');
-      el.dataset.id = id;
-      const username = msg.email.split('@')[0];
-      const usernameEl = document.createElement('div');
-      usernameEl.className = 'username';
-      usernameEl.textContent = username;
-      el.appendChild(usernameEl);
-      if (msg.replyTo) {
-        const replyEl = document.createElement('div');
-        replyEl.className = 'reply-to';
-        replyEl.textContent = 'Reply to: ' + (msg.replyToText || '').substring(0, 50) + (msg.replyToText.length > 50 ? '...' : '');
-        el.appendChild(replyEl);
-      }
-      const textEl = document.createElement('div');
-      textEl.className = 'text';
-      textEl.textContent = msg.text || '';
-      el.appendChild(textEl);
-      if (msg.images && msg.images.length > 0) {
-        msg.images.forEach((imgUrl) => {
-          const img = document.createElement('img');
-          img.src = imgUrl;
-          img.alt = 'Chat image';
-          img.className = 'chat-image';
-          img.tabIndex = 0;
-          el.appendChild(img);
-          const saveIcon = document.createElement('button');
-          saveIcon.className = 'img-save-icon';
-          saveIcon.innerHTML = '<i class="fas fa-download"></i>';
-          saveIcon.title = 'View and Save Image';
-          saveIcon.tabIndex = 0;
-          saveIcon.addEventListener('click', () => openFullscreenImage(imgUrl));
-          el.appendChild(saveIcon);
-        });
-      }
-      const replyBtn = document.createElement('button');
-      replyBtn.className = 'reply-btn';
-      replyBtn.textContent = 'Reply';
-      replyBtn.addEventListener('click', () => {
-        replyToMessageId = id;
-        messageInput.focus();
-        messageInput.value = `@${username} `;
-      });
-      el.appendChild(replyBtn);
-      return el;
-    }
-
-    function loadGroups() {
-      const groupsQuery = query(collection(db, 'Kamba_groups'), orderBy('createdAt', 'asc'));
-      onSnapshot(groupsQuery, (snapshot) => {
-        groupsList.innerHTML = '';
-        snapshot.forEach((doc) => {
-          const group = doc.data();
-          const div = document.createElement('div');
-          div.classList.add('group-item');
-          div.innerHTML = `
-            <img src="${group.imageUrl || 'https://via.placeholder.com/40'}" class="group-image" alt="${group.name}" />
-            <div class="group-details">
-              <div class="group-name">${group.name}</div>
-              <div class="group-description">${group.description}</div>
-            </div>
-          `;
-          groupsList.appendChild(div);
-        });
-        updateGroupDetailsVisibility();
-      });
-    }
-
-    async function sendMessage() {
-      const text = messageInput.value.trim();
-      if (!text && !uploadImageInput.files.length) return;
-      let uploadedImageUrls = [];
-      if (uploadImageInput.files.length > 0) {
-        uploadedImageUrls = await uploadImagesToImgbb(uploadImageInput.files);
-        if (uploadedImageUrls.length === 0) {
-          alert('Image upload failed or exceeded size limit.');
-          return;
-        }
-      }
-      const newMsg = {
-        email: currentUser.email,
-        text: text,
-        timestamp: Date.now(),
-        accountStatus: userData.accountStatus || 'green',
-        replyTo: replyToMessageId || null,
-        replyToText: null,
-        images: uploadedImageUrls
-      };
-      if (replyToMessageId) {
-        const replyDoc = await getDoc(doc(db, 'messages', replyToMessageId));
-        if (replyDoc.exists()) {
-          newMsg.replyToText = replyDoc.data().text || '';
-        }
-      }
-      await addDoc(collection(db, 'messages'), newMsg);
-      const newSparks = (userData.sparks || 0) + 1;
-      let newStatus = userData.accountStatus || 'green';
-      if (newStatus !== 'red') {
-        if (newSparks >= 1000) newStatus = 'violet';
-        else if (newSparks >= 100) newStatus = 'blue';
-        else newStatus = 'green';
-      }
-      await updateDoc(doc(db, 'Kamba_users', currentUser.email), {
-        sparks: newSparks,
-        accountStatus: newStatus
-      });
-      userData.sparks = newSparks;
-      userData.accountStatus = newStatus;
-      profileUsername.classList.remove('green', 'blue', 'violet', 'red');
-      profileUsername.classList.add(newStatus);
-      profileSparks.textContent = `${newSparks} Sparks`;
-      if (['blue', 'violet', 'red'].includes(newStatus)) {
-        createGroupBtn.classList.remove('hidden');
-      } else {
-        createGroupBtn.classList.add('hidden');
-      }
-      messageInput.value = '';
-      uploadImageInput.value = null;
-      replyToMessageId = null;
-    }
-
-    async function uploadImagesToImgbb(files) {
-      const apiKey = '0f248e70fc4e7dffde307dd772823379';
-      let totalSize = 0;
-      let uploadedUrls = [];
-      for (const file of files) {
-        totalSize += file.size;
-        if (totalSize > MAX_TOTAL_UPLOAD_MB * 1024 * 1024) {
-          alert(`Total images size exceeds ${MAX_TOTAL_UPLOAD_MB} MB limit.`);
-          break;
-        }
-        const formData = new FormData();
-        formData.append('image', file);
-        try {
-          const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-            method: 'POST',
-            body: formData
-          });
-          const data = await res.json();
-          if (data.success) {
-            uploadedUrls.push(data.data.url);
-          }
-        } catch (err) {
-          console.error('Image upload error:', err);
-          return [];
-        }
-      }
-      return uploadedUrls;
-    }
-
-    function checkNoSongNotification() {
-      const dismissedTime = localStorage.getItem(NO_SONG_DISMISS_KEY);
-      const now = Date.now();
-      if (!userData.songUrl && (!dismissedTime || now - dismissedTime > 10 * 60 * 60 * 1000)) {
-        noSongNotification.style.display = 'flex';
-      } else {
-        noSongNotification.style.display = 'none';
-      }
-    }
-
-    function openFullscreenImage(url) {
-      const fullscreenViewer = document.getElementById('fullscreen-image-viewer');
-      const fullscreenImg = fullscreenViewer.querySelector('img');
-      fullscreenImg.src = url;
-      fullscreenViewer.style.display = 'flex';
-      fullscreenViewer.focus();
-    }
-
-    function updateGroupDetailsVisibility() {
-      const width = groupsSidebar.offsetWidth;
-      if (width > 200) {
-        groupsSidebar.classList.add('wide');
-      } else {
-        groupsSidebar.classList.remove('wide');
-      }
-    }
-
     function setupEventListeners() {
-      sendBtn.addEventListener('click', sendMessage);
-      messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
-        }
-      });
-      emojiBtn.addEventListener('click', () => {
-        emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex';
-      });
-      emojiPicker.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          messageInput.value += btn.title;
-          messageInput.focus();
-          emojiPicker.style.display = 'none';
+        const sendBtn = document.getElementById("sendMessageBtn");
+        const messageInput = document.getElementById("messageInput");
+
+        sendBtn.addEventListener("click", async () => {
+            const text = messageInput.value.trim();
+            if (text) {
+                await addDoc(collection(db, "messages"), {
+                    text,
+                    user: auth.currentUser?.email || "Guest",
+                    timestamp: serverTimestamp()
+                });
+                messageInput.value = "";
+            }
         });
-      });
-      uploadImageBtn.addEventListener('click', () => uploadImageInput.click());
-      dismissNoSongBtn.addEventListener('click', () => {
-        localStorage.setItem(NO_SONG_DISMISS_KEY, Date.now());
-        noSongNotification.style.display = 'none';
-      });
-      setSongLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'settings.html';
-      });
-      profileIcon.addEventListener('click', () => {
-        window.location.href = 'settings.html';
-      });
-      createGroupBtn.addEventListener('click', async () => {
-        if (!['blue', 'violet', 'red'].includes(userData.accountStatus)) return;
-        const name = prompt('Enter group name:');
-        const description = prompt('Enter group description:');
-        const imageUrl = prompt('Enter group image URL (or leave blank):') || 'https://via.placeholder.com/40';
-        if (name && description) {
-          try {
-            await addDoc(collection(db, 'Kamba_groups'), {
-              name,
-              description,
-              imageUrl,
-              creatorId: currentUser.uid,
-              createdAt: Date.now()
+
+        // Load messages
+        const q = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+        onSnapshot(q, (snapshot) => {
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML = "";
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const msgDiv = document.createElement("div");
+                msgDiv.classList.add("message");
+                msgDiv.innerHTML = `
+                    <div class="avatar"></div>
+                    <div class="message-content">
+                        <strong>${data.user}</strong><br>${data.text}
+                    </div>
+                `;
+                messagesDiv.appendChild(msgDiv);
             });
-          } catch (error) {
-            console.error('Error creating group:', error);
-          }
-        }
-      });
-      const fullscreenViewer = document.getElementById('fullscreen-image-viewer');
-      fullscreenViewer.addEventListener('click', () => {
-        fullscreenViewer.style.display = 'none';
-        fullscreenViewer.querySelector('img').src = '';
-      });
-      fullscreenViewer.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          fullscreenViewer.style.display = 'none';
-          fullscreenViewer.querySelector('img').src = '';
-        }
-      });
-      volumeSlider.addEventListener('input', async () => {
-        const volume = parseFloat(volumeSlider.value);
-        audioPlayer.volume = volume;
-        volumeLabel.textContent = `${Math.round(volume * 100)}%`;
-        if (currentUser) {
-          await updateDoc(doc(db, 'Kamba_users', currentUser.email), { volume });
-        }
-      });
-      groupsSidebar.addEventListener('resize', updateGroupDetailsVisibility);
-      document.addEventListener('click', (e) => {
-        if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-          emojiPicker.style.display = 'none';
-        }
-      });
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
     }
-  </script>
+
+    document.addEventListener("DOMContentLoaded", setupEventListeners);
+
+    onAuthStateChanged(auth, user => {
+        if (!user) {
+            window.location.href = "sign.html";
+        }
+    });
+</script>
 </body>
 </html>
