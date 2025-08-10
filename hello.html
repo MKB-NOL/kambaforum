@@ -130,6 +130,72 @@
     margin-bottom: 1.5rem;
   }
   
+  /* User profile section */
+  #user-profile {
+    margin-top: auto;
+    padding: 1rem;
+    background-color: #292b2f;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #5865f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+  #profile-name {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  #profile-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #b9bbbe;
+  }
+  #status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  #status-info {
+    position: absolute;
+    bottom: 100px;
+    left: 20px;
+    background-color: #202225;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 100;
+    display: none;
+    width: 200px;
+  }
+  #status-info h4 {
+    margin-bottom: 0.5rem;
+  }
+  .status-level {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+  .status-level-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  
   /* Chat area */
   #chat-area {
     flex: 1;
@@ -143,10 +209,22 @@
     border-bottom: 1px solid #202225;
     display: flex;
     align-items: center;
+    justify-content: space-between;
   }
   #chat-header h2 {
     font-size: 1.2rem;
     margin-left: 0.5rem;
+  }
+  #sparks-count {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    background-color: #2f3136;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+  }
+  #sparks-count span {
+    margin-left: 0.3rem;
   }
   #messages-container {
     flex: 1;
@@ -418,6 +496,11 @@
   .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
   .username.red { color: #f04747; }     /* Admin */
   
+  .status-dot.green { background-color: #43b581; }
+  .status-dot.blue { background-color: #5865f2; }
+  .status-dot.violet { background-color: #9b59b6; }
+  .status-dot.red { background-color: #f04747; }
+  
   /* Scrollbar styling */
   ::-webkit-scrollbar {
     width: 8px;
@@ -550,13 +633,51 @@
         <span>#Mentions</span>
       </div>
     </div>
+    
+    <!-- User Profile Section -->
+    <div id="user-profile">
+      <div id="profile-pic"></div>
+      <div id="profile-name"></div>
+      <div id="profile-status">
+        <div id="status-dot"></div>
+        <span id="status-text"></span>
+        <i class="fas fa-lightbulb" id="status-info-btn" style="margin-left: 5px; cursor: pointer;"></i>
+      </div>
+    </div>
+    
+    <!-- Status Info Tooltip -->
+    <div id="status-info">
+      <h4>Account Status</h4>
+      <div class="status-level">
+        <div class="status-level-dot green"></div>
+        <span>Green: 0-99 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot blue"></div>
+        <span>Blue: 100-999 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot violet"></div>
+        <span>Violet: 1000+ Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot red"></div>
+        <span>Red: Admin (special)</span>
+      </div>
+    </div>
   </div>
   
   <!-- Main Chat Area -->
   <div id="chat-area">
     <div id="chat-header">
-      <i class="fas fa-hashtag"></i>
-      <h2 id="channel-title">General</h2>
+      <div style="display: flex; align-items: center;">
+        <i class="fas fa-hashtag"></i>
+        <h2 id="channel-title">General</h2>
+      </div>
+      <div id="sparks-count">
+        <i class="fas fa-clover"></i>
+        <span id="sparks-value">0</span>
+      </div>
     </div>
     
     <div id="messages-container"></div>
@@ -669,6 +790,13 @@
   const editMessageInput = document.getElementById("edit-message-input");
   const cancelEditBtn = document.getElementById("cancel-edit-btn");
   const saveEditBtn = document.getElementById("save-edit-btn");
+  const profilePic = document.getElementById("profile-pic");
+  const profileName = document.getElementById("profile-name");
+  const statusDot = document.getElementById("status-dot");
+  const statusText = document.getElementById("status-text");
+  const statusInfoBtn = document.getElementById("status-info-btn");
+  const statusInfo = document.getElementById("status-info");
+  const sparksValue = document.getElementById("sparks-value");
 
   // App State
   let currentUser = null;
@@ -678,12 +806,24 @@
   let currentChannel = "general";
   let messageBeingEdited = null;
   let searchTimeout = null;
+  let likedMessages = new Set();
+  let likedPosts = new Set();
+  let likedProjects = new Set();
 
   // Initialize the app
   function init() {
     setupEventListeners();
     loadGroups();
     checkSongNotificationDismissed();
+    checkAuthState();
+  }
+
+  // Check authentication state
+  function checkAuthState() {
+    const user = auth.currentUser;
+    if (!user) {
+      window.location.href = "sign.html";
+    }
   }
 
   // Set up all event listeners
@@ -762,6 +902,59 @@
       editMessageModal.style.display = "none";
     });
     saveEditBtn.addEventListener("click", saveEditedMessage);
+
+    // Status info button
+    statusInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      statusInfo.style.display = statusInfo.style.display === "block" ? "none" : "block";
+    });
+
+    // Close status info when clicking outside
+    document.addEventListener("click", () => {
+      statusInfo.style.display = "none";
+    });
+  }
+
+  // Update user profile section
+  function updateUserProfile(userData) {
+    if (!userData) return;
+    
+    // Set profile picture with first letter of name
+    const displayName = simplifyEmail(userData.email);
+    profilePic.textContent = displayName.charAt(0).toUpperCase();
+    
+    // Set random color for profile pic
+    const colors = ['#5865f2', '#57f287', '#f04747', '#eb459e', '#ed4245', '#faa61a'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    profilePic.style.backgroundColor = randomColor;
+    
+    // Set username
+    profileName.textContent = displayName;
+    
+    // Set status based on sparks
+    let status, statusColor;
+    if (userData.isAdmin) {
+      status = "Admin";
+      statusColor = "red";
+    } else {
+      const sparks = userData.sparks || 0;
+      if (sparks >= 1000) {
+        status = "Violet";
+        statusColor = "violet";
+      } else if (sparks >= 100) {
+        status = "Blue";
+        statusColor = "blue";
+      } else {
+        status = "Green";
+        statusColor = "green";
+      }
+    }
+    
+    statusDot.className = "status-dot " + statusColor;
+    statusText.textContent = status;
+    
+    // Update sparks count
+    sparksValue.textContent = userData.sparks || 0;
   }
 
   // Load random groups into sidebar from Firestore
@@ -836,7 +1029,7 @@
     if (!files || files.length === 0) return;
 
     // Check if user can upload images
-    if (currentUserData.status === "green") {
+    if (getUserStatus(currentUserData) === "green") {
       alert("Your account level (Green) doesn't allow image uploads. Reach Blue status to unlock this feature.");
       fileInput.value = "";
       return;
@@ -1008,15 +1201,18 @@
     return email.split("@")[0];
   }
 
-  // Load user status color
+  // Get user status based on sparks
+  function getUserStatus(userData) {
+    if (userData.isAdmin) return "red";
+    const sparks = userData.sparks || 0;
+    if (sparks >= 1000) return "violet";
+    if (sparks >= 100) return "blue";
+    return "green";
+  }
+
+  // Get status class for styling
   function getStatusClass(status) {
-    switch (status) {
-      case "green": return "green";
-      case "blue": return "blue";
-      case "violet": return "violet";
-      case "red": return "red";
-      default: return "green";
-    }
+    return status.toLowerCase();
   }
 
   // Render a message
@@ -1106,8 +1302,44 @@
     const likeBtn = document.createElement("span");
     likeBtn.className = "message-action";
     likeBtn.textContent = "Like";
-    likeBtn.addEventListener("click", () => likeMessage(id));
+    
+    // Check if user already liked this
+    const hasLiked = likedMessages.has(id) || 
+                    (msgData.isPost && likedPosts.has(id)) || 
+                    (msgData.isProject && likedProjects.has(id));
+    
+    if (hasLiked) {
+      likeBtn.textContent = "Liked";
+      likeBtn.style.color = "#43b581";
+    } else {
+      likeBtn.addEventListener("click", () => {
+        if (msgData.isPost) {
+          likePost(id, msgData.userId);
+        } else if (msgData.isProject) {
+          likeProject(id, msgData.userId);
+        } else {
+          likeMessage(id, msgData.userId);
+        }
+      });
+    }
+    
     actionsDiv.appendChild(likeBtn);
+    
+    // Dislike button (all users)
+    const dislikeBtn = document.createElement("span");
+    dislikeBtn.className = "message-action";
+    dislikeBtn.textContent = "Dislike";
+    dislikeBtn.addEventListener("click", () => {
+      if (msgData.isPost) {
+        dislikePost(id, msgData.userId);
+      } else if (msgData.isProject) {
+        dislikeProject(id, msgData.userId);
+      }
+    });
+    
+    if (msgData.isPost || msgData.isProject) {
+      actionsDiv.appendChild(dislikeBtn);
+    }
     
     // Edit button (only for own messages)
     if (msgData.userId === currentUser?.uid) {
@@ -1119,8 +1351,8 @@
     }
     
     // Delete button (own messages for blue+, any for red)
-    if ((msgData.userId === currentUser?.uid && currentUserData?.status !== "green") || 
-        currentUserData?.status === "red") {
+    if ((msgData.userId === currentUser?.uid && getUserStatus(currentUserData) !== "green") || 
+        getUserStatus(currentUserData) === "red") {
       const deleteBtn = document.createElement("span");
       deleteBtn.className = "message-action";
       deleteBtn.textContent = "Delete";
@@ -1253,7 +1485,7 @@
           const senderUid = data.userId;
           const userData = userDataMap.get(senderUid);
           const displayName = simplifyEmail(data.senderEmail || "unknown");
-          const status = userData ? userData.status : "green";
+          const status = getUserStatus(userData || {});
 
           const messageData = {
             sender: displayName,
@@ -1263,6 +1495,7 @@
             imageUrl: data.imageUrl || null,
             isAnnouncement: data.isAnnouncement || false,
             isPost: data.isPost || false,
+            isProject: data.isProject || false,
             timestamp: data.timestamp,
             userId: data.userId
           };
@@ -1281,40 +1514,143 @@
   }
 
   // Like a message
-  async function likeMessage(messageId) {
+  async function likeMessage(messageId, senderUid) {
+    if (likedMessages.has(messageId)) {
+      alert("You've already liked this message");
+      return;
+    }
+    
     try {
-      const messageRef = doc(db, "Kamba_messages", messageId);
-      const messageSnap = await getDoc(messageRef);
+      likedMessages.add(messageId);
       
-      if (messageSnap.exists()) {
-        const messageData = messageSnap.data();
-        const senderUid = messageData.userId;
+      // Update sender's sparks (2 sparks per like)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      const senderSnap = await getDoc(senderRef);
+      
+      if (senderSnap.exists()) {
+        const senderData = senderSnap.data();
+        let newSparks = (senderData.sparks || 0) + 2;
         
-        // Update sender's sparks (2 sparks per like)
-        const senderRef = doc(db, "Kamba_users", senderUid);
-        const senderSnap = await getDoc(senderRef);
+        await updateDoc(senderRef, {
+          sparks: newSparks
+        });
         
-        if (senderSnap.exists()) {
-          const senderData = senderSnap.data();
-          let newSparks = (senderData.sparks || 0) + 2;
-          let newStatus = senderData.status || "green";
-          
-          // Update status based on sparks
-          if (newSparks >= 1000) newStatus = "violet";
-          else if (newSparks >= 100) newStatus = "blue";
-          else newStatus = "green";
-          
-          await updateDoc(senderRef, {
-            sparks: newSparks,
-            status: newStatus
-          });
-          
-          alert("Liked message! User received 2 Sparks.");
-        }
+        // Reload messages to show updated like status
+        loadChannelMessages();
       }
     } catch (error) {
       console.error("Error liking message:", error);
       alert("Failed to like message");
+    }
+  }
+
+  // Like a post
+  async function likePost(postId, senderUid) {
+    if (likedPosts.has(postId)) {
+      alert("You've already liked this post");
+      return;
+    }
+    
+    try {
+      likedPosts.add(postId);
+      
+      // Update sender's sparks (2 sparks per post like)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      const senderSnap = await getDoc(senderRef);
+      
+      if (senderSnap.exists()) {
+        const senderData = senderSnap.data();
+        let newSparks = (senderData.sparks || 0) + 2;
+        
+        await updateDoc(senderRef, {
+          sparks: newSparks
+        });
+        
+        // Reload messages to show updated like status
+        loadChannelMessages();
+      }
+    } catch (error) {
+      console.error("Error liking post:", error);
+      alert("Failed to like post");
+    }
+  }
+
+  // Dislike a post
+  async function dislikePost(postId, senderUid) {
+    try {
+      // Update sender's sparks (-1 spark per dislike)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      const senderSnap = await getDoc(senderRef);
+      
+      if (senderSnap.exists()) {
+        const senderData = senderSnap.data();
+        let newSparks = Math.max(0, (senderData.sparks || 0) - 1);
+        
+        await updateDoc(senderRef, {
+          sparks: newSparks
+        });
+        
+        // Reload messages to show updated status
+        loadChannelMessages();
+      }
+    } catch (error) {
+      console.error("Error disliking post:", error);
+      alert("Failed to dislike post");
+    }
+  }
+
+  // Like a project
+  async function likeProject(projectId, senderUid) {
+    if (likedProjects.has(projectId)) {
+      alert("You've already liked this project");
+      return;
+    }
+    
+    try {
+      likedProjects.add(projectId);
+      
+      // Update sender's sparks (5 sparks per project like)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      const senderSnap = await getDoc(senderRef);
+      
+      if (senderSnap.exists()) {
+        const senderData = senderSnap.data();
+        let newSparks = (senderData.sparks || 0) + 5;
+        
+        await updateDoc(senderRef, {
+          sparks: newSparks
+        });
+        
+        // Reload messages to show updated like status
+        loadChannelMessages();
+      }
+    } catch (error) {
+      console.error("Error liking project:", error);
+      alert("Failed to like project");
+    }
+  }
+
+  // Dislike a project
+  async function dislikeProject(projectId, senderUid) {
+    try {
+      // Update sender's sparks (-3 sparks per dislike)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      const senderSnap = await getDoc(senderRef);
+      
+      if (senderSnap.exists()) {
+        const senderData = senderSnap.data();
+        let newSparks = Math.max(0, (senderData.sparks || 0) - 3);
+        
+        await updateDoc(senderRef, {
+          sparks: newSparks
+        });
+        
+        // Reload messages to show updated status
+        loadChannelMessages();
+      }
+    } catch (error) {
+      console.error("Error disliking project:", error);
+      alert("Failed to dislike project");
     }
   }
 
@@ -1392,10 +1728,10 @@
     let isPost = false;
     let processedText = messageText;
     
-    if (currentUserData?.status === "red" && messageText.startsWith("#announcement")) {
+    if (getUserStatus(currentUserData) === "red" && messageText.startsWith("#announcement")) {
       isAnnouncement = true;
       processedText = messageText.replace("#announcement", "").trim();
-    } else if ((currentUserData?.status === "violet" || currentUserData?.status === "red") && 
+    } else if ((getUserStatus(currentUserData) === "violet" || getUserStatus(currentUserData) === "red") && 
                messageText.startsWith("&post")) {
       isPost = true;
       processedText = messageText.replace("&post", "").trim();
@@ -1413,7 +1749,6 @@
       alert("User data missing. Contact admin.");
       return;
     }
-    const userData = userDocSnap.data();
 
     try {
       // Add message doc
@@ -1438,20 +1773,6 @@
         replyToMessageId = null;
         replyToMessageText = null;
       }
-
-      // Update sparks and status (only for text messages to prevent spam)
-      if (!imageUrl && !isAnnouncement && !isPost) {
-        let newSparks = (userData.sparks || 0) + 1;
-        let newStatus = userData.status || "green";
-        if (newSparks >= 1000) newStatus = "violet";
-        else if (newSparks >= 100) newStatus = "blue";
-        else newStatus = "green";
-
-        await updateDoc(userDocRef, {
-          sparks: newSparks,
-          status: newStatus,
-        });
-      }
     } catch (err) {
       alert("Error sending message: " + err.message);
     }
@@ -1474,6 +1795,7 @@
       return;
     }
     currentUserData = userDocSnap.data();
+    updateUserProfile(currentUserData);
 
     // Set background audio source & volume
     if (currentUserData.song && currentUserData.song.trim() !== "") {
