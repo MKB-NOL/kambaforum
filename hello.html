@@ -30,24 +30,10 @@
     margin: 0;
     font-size: 1.5rem;
   }
-  header button {
-    background-color: #f04747;
-    border: none;
-    color: white;
-    font-weight: bold;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  header button:hover {
-    background-color: #c03939;
-  }
   #chat-container {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    padding: 1rem 2rem;
+    padding: 1rem 0;
     overflow-y: auto;
     gap: 1rem;
     background-color: #2f3136;
@@ -154,6 +140,17 @@
     padding: 0.7rem 1rem;
     font-weight: 600;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dismiss-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
   }
   .username.green { color: #43b581; }   /* New user */
   .username.blue { color: #5865f2; }    /* 100+ sparks */
@@ -168,25 +165,176 @@
     background-color: #5865f2;
     border-radius: 5px;
   }
+
+  /* Main layout */
+  #main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  #chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  #messages-container {
+    flex: 1;
+    padding: 0 2rem;
+    overflow-y: auto;
+  }
+  
+  /* Right sidebar */
+  #right-sidebar {
+    width: 80px;
+    background-color: #2f3136;
+    border-left: 1px solid #202225;
+    padding: 1rem 0.5rem;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    resize: horizontal;
+    min-width: 80px;
+    max-width: 300px;
+  }
+  #right-sidebar:hover {
+    width: 200px;
+  }
+  #right-sidebar.expanded {
+    width: 200px;
+  }
+  .sidebar-title {
+    color: #b9bbbe;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    display: none;
+  }
+  #right-sidebar:hover .sidebar-title,
+  #right-sidebar.expanded .sidebar-title {
+    display: block;
+  }
+  .group-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 4px;
+  }
+  .group-item:hover {
+    background-color: #3a3d44;
+  }
+  .group-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0;
+  }
+  #right-sidebar:hover .group-avatar,
+  #right-sidebar.expanded .group-avatar {
+    margin-right: 10px;
+  }
+  .group-name {
+    display: none;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #right-sidebar:hover .group-name,
+  #right-sidebar.expanded .group-name {
+    display: block;
+  }
+
+  /* Image in messages */
+  .message-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .message-image:hover {
+    transform: scale(1.02);
+  }
+  .image-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
+  .full-image {
+    max-width: 90%;
+    max-height: 90%;
+  }
+  .close-image {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+  }
+  .download-image {
+    position: absolute;
+    top: 20px;
+    right: 70px;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  /* File upload button */
+  #file-input {
+    display: none;
+  }
+  #upload-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: #b9bbbe;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
 
 <header>
   <h1>KAMBA Forum</h1>
-  <button id="signout-btn">Sign Out</button>
 </header>
 
-<div id="chat-container"></div>
+<div id="main-content">
+  <div id="chat-area">
+    <div id="messages-container"></div>
+    
+    <div id="no-song-notification" style="display:none;">
+      <span>No song set. Click here to set your song in Settings.</span>
+      <button class="dismiss-btn">Dismiss</button>
+    </div>
 
-<div id="no-song-notification" style="display:none; cursor:pointer;">
-  No song set. Click here to set your song in Settings.
-</div>
+    <div id="message-input-area">
+      <button id="upload-btn" title="Upload image">📷</button>
+      <input type="file" id="file-input" accept="image/*" multiple />
+      <button id="emoji-btn" title="Emoji picker">😀</button>
+      <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
 
-<div id="message-input-area">
-  <button id="emoji-btn" title="Emoji picker">😀</button>
-  <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" />
-  <button id="send-btn">Send</button>
+  <div id="right-sidebar">
+    <div class="sidebar-title">GROUPS</div>
+    <!-- Groups will be added dynamically -->
+  </div>
 </div>
 
 <div id="emoji-picker" aria-label="Emoji picker" role="list">
@@ -233,87 +381,162 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const chatContainer = document.getElementById("chat-container");
+  const messagesContainer = document.getElementById("messages-container");
   const messageInput = document.getElementById("message-input");
   const sendBtn = document.getElementById("send-btn");
-  const signoutBtn = document.getElementById("signout-btn");
   const emojiBtn = document.getElementById("emoji-btn");
   const emojiPicker = document.getElementById("emoji-picker");
   const noSongNotification = document.getElementById("no-song-notification");
+  const dismissBtn = noSongNotification.querySelector(".dismiss-btn");
   const backgroundAudio = document.getElementById("background-audio");
+  const rightSidebar = document.getElementById("right-sidebar");
+  const uploadBtn = document.getElementById("upload-btn");
+  const fileInput = document.getElementById("file-input");
 
   let currentUser = null;
   let currentUserData = null;
   let replyToMessageId = null;
   let replyToMessageText = null;
 
-  // Emoji picker toggle
-  emojiBtn.addEventListener("click", () => {
-    emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
-  });
+  // Sample group data (in a real app, this would come from Firestore)
+  const sampleGroups = [
+    { id: '1', name: 'Tech Enthusiasts', image: 'https://i.imgur.com/J6l19aF.png' },
+    { id: '2', name: 'Art & Design', image: 'https://i.imgur.com/7V1TQHd.png' },
+    { id: '3', name: 'Music Lovers', image: 'https://i.imgur.com/5Z3Q2Yj.png' },
+    { id: '4', name: 'Gaming Community', image: 'https://i.imgur.com/9qYQ3ZJ.png' },
+    { id: '5', name: 'Book Club', image: 'https://i.imgur.com/3vQ2Z9J.png' },
+    { id: '6', name: 'Fitness Group', image: 'https://i.imgur.com/2Q3Z9YJ.png' }
+  ];
 
-  // Add emoji to input
-  emojiPicker.querySelectorAll("span").forEach((emojiSpan) => {
-    emojiSpan.addEventListener("click", () => {
-      messageInput.value += emojiSpan.textContent;
-      emojiPicker.style.display = "none";
-      messageInput.focus();
+  // Initialize the app
+  function init() {
+    setupEventListeners();
+    loadGroups();
+    checkSongNotificationDismissed();
+  }
+
+  // Set up all event listeners
+  function setupEventListeners() {
+    // Emoji picker toggle
+    emojiBtn.addEventListener("click", () => {
+      emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
     });
-  });
 
-  // Close emoji picker if clicking outside
-  document.addEventListener("click", (e) => {
-    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
-      emojiPicker.style.display = "none";
-    }
-  });
-
-  // Listen for auth state
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      // Not logged in, redirect to sign page
-      window.location.href = "sign.html";
-      return;
-    }
-    currentUser = user;
-
-    // Load user data from Firestore
-    const userDocRef = doc(db, "Kamba_users", user.uid);
-    const userDocSnap = await getDoc(userDocRef);
-    if (!userDocSnap.exists()) {
-      alert("User data not found in database. Please contact admin.");
-      return;
-    }
-    currentUserData = userDocSnap.data();
-
-    // Set background audio source & volume
-    if (currentUserData.song && currentUserData.song.trim() !== "") {
-      backgroundAudio.src = currentUserData.song;
-      backgroundAudio.volume = currentUserData.volume ?? 0.5;
-      backgroundAudio.play().catch(() => {
-        // autoplay might be blocked; ignore silently
+    // Add emoji to input
+    emojiPicker.querySelectorAll("span").forEach((emojiSpan) => {
+      emojiSpan.addEventListener("click", () => {
+        messageInput.value += emojiSpan.textContent;
+        emojiPicker.style.display = "none";
+        messageInput.focus();
       });
-      noSongNotification.style.display = "none";
-    } else {
-      noSongNotification.style.display = "block";
-    }
-
-    // Load messages realtime
-    setupMessagesListener();
-
-  });
-
-  // Redirect user to settings on notification click
-  noSongNotification.addEventListener("click", () => {
-    window.location.href = "settings.html";
-  });
-
-  // Sign out button
-  signoutBtn.addEventListener("click", () => {
-    signOut(auth).then(() => {
-      window.location.href = "sign.html";
     });
-  });
+
+    // Close emoji picker if clicking outside
+    document.addEventListener("click", (e) => {
+      if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+        emojiPicker.style.display = "none";
+      }
+    });
+
+    // Redirect user to settings on notification click
+    noSongNotification.querySelector("span").addEventListener("click", () => {
+      window.location.href = "settings.html";
+    });
+
+    // Dismiss notification
+    dismissBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissSongNotification();
+    });
+
+    // Image upload
+    uploadBtn.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", handleImageUpload);
+  }
+
+  // Load random groups into sidebar
+  function loadGroups() {
+    rightSidebar.innerHTML = '<div class="sidebar-title">GROUPS</div>';
+    
+    // Shuffle groups and take first 4
+    const shuffledGroups = [...sampleGroups].sort(() => 0.5 - Math.random()).slice(0, 4);
+    
+    shuffledGroups.forEach(group => {
+      const groupItem = document.createElement("div");
+      groupItem.className = "group-item";
+      
+      const avatar = document.createElement("img");
+      avatar.className = "group-avatar";
+      avatar.src = group.image;
+      avatar.alt = group.name;
+      
+      const name = document.createElement("div");
+      name.className = "group-name";
+      name.textContent = group.name;
+      
+      groupItem.appendChild(avatar);
+      groupItem.appendChild(name);
+      rightSidebar.appendChild(groupItem);
+    });
+  }
+
+  // Check if song notification was dismissed
+  function checkSongNotificationDismissed() {
+    const dismissedUntil = localStorage.getItem('songNotificationDismissed');
+    if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) {
+      noSongNotification.style.display = "none";
+    }
+  }
+
+  // Dismiss song notification for 5 hours
+  function dismissSongNotification() {
+    const fiveHours = 5 * 60 * 60 * 1000;
+    const dismissedUntil = Date.now() + fiveHours;
+    localStorage.setItem('songNotificationDismissed', dismissedUntil.toString());
+    noSongNotification.style.display = "none";
+  }
+
+  // Handle image upload to ImgBB
+  async function handleImageUpload(e) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      // For multiple images, we'll upload them one by one
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > 6 * 1024 * 1024) {
+          alert("Image is too large (max 6MB)");
+          continue;
+        }
+
+        const formData = new FormData();
+        formData.append("image", file);
+        
+        // Upload to ImgBB
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=0f248e70fc4e7dffde307dd772823379`, {
+          method: "POST",
+          body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          // Send message with image
+          await sendMessage(null, result.data.url);
+        } else {
+          alert("Failed to upload image");
+        }
+      }
+    } catch (error) {
+      console.error("Image upload error:", error);
+      alert("Error uploading image");
+    } finally {
+      fileInput.value = ""; // Reset file input
+    }
+  }
 
   // Helper: remove @gmail.com and similar domains
   function simplifyEmail(email) {
@@ -354,6 +577,18 @@
     textDiv.textContent = msgData.message;
     div.appendChild(textDiv);
 
+    if (msgData.imageUrl) {
+      const imgContainer = document.createElement("div");
+      const img = document.createElement("img");
+      img.src = msgData.imageUrl;
+      img.className = "message-image";
+      img.alt = "Uploaded image";
+      
+      img.addEventListener("click", () => showFullImage(msgData.imageUrl));
+      imgContainer.appendChild(img);
+      div.appendChild(imgContainer);
+    }
+
     const replyBtn = document.createElement("div");
     replyBtn.className = "reply-btn";
     replyBtn.textContent = "Reply";
@@ -368,6 +603,40 @@
     return div;
   }
 
+  // Show full screen image
+  function showFullImage(url) {
+    const container = document.createElement("div");
+    container.className = "image-container";
+    
+    const img = document.createElement("img");
+    img.src = url;
+    img.className = "full-image";
+    
+    const closeBtn = document.createElement("span");
+    closeBtn.className = "close-image";
+    closeBtn.innerHTML = "&times;";
+    closeBtn.addEventListener("click", () => {
+      document.body.removeChild(container);
+    });
+    
+    const downloadBtn = document.createElement("span");
+    downloadBtn.className = "download-image";
+    downloadBtn.innerHTML = "&#x2193;";
+    downloadBtn.addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "kamba-image-" + Date.now();
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+    
+    container.appendChild(img);
+    container.appendChild(closeBtn);
+    container.appendChild(downloadBtn);
+    document.body.appendChild(container);
+  }
+
   // Setup Firestore real-time listener for messages
   function setupMessagesListener() {
     const messagesQuery = query(
@@ -376,7 +645,7 @@
     );
 
     onSnapshot(messagesQuery, async (querySnapshot) => {
-      chatContainer.innerHTML = ""; // Clear chat on update
+      messagesContainer.innerHTML = ""; // Clear chat on update
 
       // We want to show username colored by status, so fetch user statuses:
       const userIds = new Set();
@@ -409,18 +678,19 @@
           status: status,
           message: data.message,
           replyToText: data.replyToText || null,
+          imageUrl: data.imageUrl || null
         };
         const msgDiv = renderMessage(docSnap.id, messageData);
-        chatContainer.appendChild(msgDiv);
+        messagesContainer.appendChild(msgDiv);
       });
 
       // Scroll to bottom on new messages
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
   }
 
   // Send message handler
-  sendBtn.addEventListener("click", sendMessage);
+  sendBtn.addEventListener("click", () => sendMessage());
   messageInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -428,9 +698,9 @@
     }
   });
 
-  async function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text) return;
+  async function sendMessage(text = null, imageUrl = null) {
+    const messageText = text || messageInput.value.trim();
+    if (!messageText && !imageUrl) return;
 
     const senderEmail = currentUser.email;
     const userId = currentUser.uid;
@@ -450,33 +720,75 @@
         userId: userId,
         senderEmail: senderEmail,
         sender: simplifyEmail(senderEmail),
-        message: text,
+        message: messageText || "",
         replyTo: replyToMessageId || null,
         replyToText: replyToMessageText || null,
+        imageUrl: imageUrl || null,
         timestamp: Date.now(),
       });
 
-      // Reset input & reply
-      messageInput.value = "";
-      messageInput.placeholder = "Type a message...";
-      replyToMessageId = null;
-      replyToMessageText = null;
+      // Reset input & reply if this was a text message
+      if (!text) {
+        messageInput.value = "";
+        messageInput.placeholder = "Type a message...";
+        replyToMessageId = null;
+        replyToMessageText = null;
+      }
 
-      // Update sparks and status
-      let newSparks = (userData.sparks || 0) + 1;
-      let newStatus = userData.status || "green";
-      if (newSparks >= 1000) newStatus = "violet";
-      else if (newSparks >= 100) newStatus = "blue";
-      else newStatus = "green";
+      // Update sparks and status (only for text messages to prevent spam)
+      if (!imageUrl) {
+        let newSparks = (userData.sparks || 0) + 1;
+        let newStatus = userData.status || "green";
+        if (newSparks >= 1000) newStatus = "violet";
+        else if (newSparks >= 100) newStatus = "blue";
+        else newStatus = "green";
 
-      await updateDoc(userDocRef, {
-        sparks: newSparks,
-        status: newStatus,
-      });
+        await updateDoc(userDocRef, {
+          sparks: newSparks,
+          status: newStatus,
+        });
+      }
     } catch (err) {
       alert("Error sending message: " + err.message);
     }
   }
+
+  // Listen for auth state
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // Not logged in, redirect to sign page
+      window.location.href = "sign.html";
+      return;
+    }
+    currentUser = user;
+
+    // Load user data from Firestore
+    const userDocRef = doc(db, "Kamba_users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists()) {
+      alert("User data not found in database. Please contact admin.");
+      return;
+    }
+    currentUserData = userDocSnap.data();
+
+    // Set background audio source & volume
+    if (currentUserData.song && currentUserData.song.trim() !== "") {
+      backgroundAudio.src = currentUserData.song;
+      backgroundAudio.volume = currentUserData.volume ?? 0.5;
+      backgroundAudio.play().catch(() => {
+        // autoplay might be blocked; ignore silently
+      });
+      noSongNotification.style.display = "none";
+    } else {
+      noSongNotification.style.display = "flex";
+    }
+
+    // Load messages realtime
+    setupMessagesListener();
+  });
+
+  // Initialize the app
+  init();
 </script>
 </body>
 </html>
