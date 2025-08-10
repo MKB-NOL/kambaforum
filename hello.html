@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KAMBA Forum - Chat</title>
   <style>
-    /* Basic reset and Discord-like style */
+    /* Reset */
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; padding: 0; }
     body {
@@ -17,6 +17,7 @@
       min-height: 100vh;
     }
 
+    /* Header */
     header {
       background-color: #2f3136;
       padding: 1rem 1.25rem;
@@ -46,16 +47,28 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    button.primary:hover { background-color: #4752c4; }
-    button#signout-btn { background-color:#f04747; color:white; border:none; padding:0.5rem 0.9rem; border-radius:6px; cursor:pointer; }
-    button#signout-btn:hover { background-color:#c03939; }
 
-    /* Chat area */
+    /* Layout: main + sidebar */
+    .app-row {
+      display: flex;
+      flex: 1;
+      min-height: 0; /* allow scroll inside */
+      gap: 12px;
+    }
+
+    /* Chat column */
+    .chat-column {
+      flex: 1 1 auto;
+      display:flex;
+      flex-direction:column;
+      min-width: 0;
+    }
+
     #chat-wrap {
       display:flex;
       flex-direction:column;
       flex:1;
-      min-height:0; /* allow overflow */
+      min-height:0;
     }
 
     #chat-container {
@@ -68,7 +81,6 @@
       background-color: #2f3136;
       scroll-behavior: smooth;
     }
-    #chat-container[aria-live] { /* accessible live region hint */ }
 
     .message {
       background-color: #202225;
@@ -127,13 +139,7 @@
 
     #cancel-reply { display:none; background:transparent; border:none; color:#ffb0b0; cursor:pointer; }
 
-    #emoji-btn {
-      background: transparent;
-      border:none;
-      font-size:1.3rem;
-      color:#b9bbbe;
-      cursor:pointer;
-    }
+    #emoji-btn { background: transparent; border:none; font-size:1.3rem; color:#b9bbbe; cursor:pointer; }
 
     #emoji-picker {
       position: absolute;
@@ -159,6 +165,84 @@
       font-weight:600;
       cursor:pointer;
       display:none;
+      position: relative;
+    }
+    #no-song-notification .dismiss-btn {
+      position: absolute;
+      right: 8px;
+      top: 6px;
+      background: rgba(0,0,0,0.2);
+      border: none;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Sidebar (groups) */
+    #sidebar {
+      width: 88px; /* default small */
+      min-width: 72px;
+      max-width: 420px;
+      resize: horizontal;
+      overflow: auto;
+      background: linear-gradient(180deg, #2b2f33, #232428);
+      border-left: 1px solid rgba(0,0,0,0.5);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    #sidebar.expanded { width: 260px; }
+
+    .groups-title {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      color:#cfd3d6;
+      font-weight:700;
+      font-size:0.95rem;
+    }
+
+    .groups-list {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+    }
+
+    .group-item {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      cursor:pointer;
+      width:100%;
+      padding:6px;
+      border-radius:8px;
+      transition: background 0.12s;
+    }
+    .group-item:hover { background: rgba(255,255,255,0.02); }
+    .group-avatar {
+      width:52px;
+      height:52px;
+      border-radius:50%;
+      object-fit:cover;
+      border: 2px solid rgba(0,0,0,0.2);
+      background: #111;
+      flex-shrink:0;
+    }
+    .group-name { color:#e6e7e8; font-weight:600; display:none; }
+    #sidebar.expanded .group-name { display:block; }
+
+    .create-group-btn {
+      background: linear-gradient(90deg,#5865f2,#6f7efc);
+      border:none;
+      color:white;
+      padding:8px 10px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:700;
     }
 
     /* Status color classes for username */
@@ -167,12 +251,27 @@
     .username.violet { color: #9b59b6; }
     .username.red { color: #f04747; }
 
+    /* image preview in message */
+    .msg-image {
+      max-width: 320px;
+      margin-top: 6px;
+      border-radius: 8px;
+      cursor:pointer;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
     /* small timestamp text */
     .ts { font-size:0.72rem; color:#9aa0a6; margin-left:auto; }
 
     /* scrollbar */
-    #chat-container::-webkit-scrollbar { width:8px; }
-    #chat-container::-webkit-scrollbar-thumb { background-color: #5865f2; border-radius:5px; }
+    #chat-container::-webkit-scrollbar, #sidebar::-webkit-scrollbar { width:8px; height:8px; }
+    #chat-container::-webkit-scrollbar-thumb, #sidebar::-webkit-scrollbar-thumb { background-color: #5865f2; border-radius:5px; }
+
+    /* Responsive (if user shrinks window hide sidebar) */
+    @media (max-width: 860px) {
+      #sidebar { display:none; }
+    }
+
   </style>
 </head>
 <body>
@@ -180,31 +279,60 @@
     <h1>KAMBA Forum</h1>
     <div class="header-actions">
       <button id="open-settings" class="secondary">Settings</button>
-      <button id="signout-btn">Sign Out</button>
+      <!-- Sign out removed as requested -->
     </div>
   </header>
 
-  <div id="chat-wrap">
-    <div id="chat-container" aria-live="polite" aria-atomic="false"></div>
+  <div class="app-row">
+    <div class="chat-column">
+      <div id="chat-wrap">
+        <div id="chat-container" aria-live="polite" aria-atomic="false"></div>
 
-    <div id="no-song-notification" role="button" tabindex="0" title="Set your song in settings">
-      No song set. Click here to set your song in Settings.
+        <div id="no-song-notification" role="region" aria-label="Song notification">
+          <span id="no-song-text">No song set. Click here to set your song in Settings.</span>
+          <button class="dismiss-btn" id="dismiss-song-btn" title="Dismiss for 5 hours">Dismiss</button>
+        </div>
+
+        <div id="message-input-area">
+          <button id="emoji-btn" title="Emoji picker" aria-haspopup="list">😀</button>
+          <div id="emoji-picker" role="list" aria-label="Emoji picker">
+            <span role="listitem" tabindex="0">😀</span>
+            <span role="listitem" tabindex="0">😂</span>
+            <span role="listitem" tabindex="0">😎</span>
+            <span role="listitem" tabindex="0">❤️</span>
+            <span role="listitem" tabindex="0">🔥</span>
+          </div>
+
+          <input id="message-input" type="text" placeholder="Type a message..." autocomplete="off" />
+          <input id="image-input" type="file" accept="image/*" title="Attach image" />
+          <button id="cancel-reply" title="Cancel reply">Cancel</button>
+          <button id="send-btn">Send</button>
+        </div>
+      </div>
     </div>
 
-    <div id="message-input-area">
-      <button id="emoji-btn" title="Emoji picker" aria-haspopup="list">😀</button>
-      <div id="emoji-picker" role="list" aria-label="Emoji picker">
-        <span role="listitem" tabindex="0">😀</span>
-        <span role="listitem" tabindex="0">😂</span>
-        <span role="listitem" tabindex="0">😎</span>
-        <span role="listitem" tabindex="0">❤️</span>
-        <span role="listitem" tabindex="0">🔥</span>
+    <!-- Sidebar: groups -->
+    <aside id="sidebar" title="Groups">
+      <div class="groups-title">
+        <div>GROUPS</div>
+        <div id="groups-actions">
+          <!-- Create button added by JS if allowed -->
+        </div>
       </div>
 
-      <input id="message-input" type="text" placeholder="Type a message..." autocomplete="off" />
-      <button id="cancel-reply" title="Cancel reply">Cancel</button>
-      <button id="send-btn">Send</button>
-    </div>
+      <div class="groups-list" id="groups-list" aria-live="polite"></div>
+
+      <!-- create group modal (hidden) -->
+      <div id="create-group-modal" style="display:none; margin-top:6px;">
+        <input id="group-name-input" placeholder="Group name" style="width:100%; padding:8px; border-radius:6px; border:none; margin-bottom:8px;" />
+        <input id="group-image-input" type="file" accept="image/*" style="width:100%; margin-bottom:8px;" />
+        <div style="display:flex; gap:8px;">
+          <button id="create-group-confirm" class="create-group-btn" style="flex:1;">Create</button>
+          <button id="create-group-cancel" class="secondary" style="flex:1;">Cancel</button>
+        </div>
+      </div>
+
+    </aside>
   </div>
 
   <audio id="background-audio" loop crossorigin="anonymous"></audio>
@@ -213,7 +341,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
     import {
       getAuth,
-      signOut,
       onAuthStateChanged,
     } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
     import {
@@ -226,10 +353,11 @@
       doc,
       getDoc,
       updateDoc,
-      serverTimestamp
+      serverTimestamp,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-    // --------- config - keep your project's config here ----------
+    // ---------- CONFIG ----------
     const firebaseConfig = {
       apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
       authDomain: "muah-feed.firebaseapp.com",
@@ -241,72 +369,43 @@
       measurementId: "G-S86S229F1T",
     };
 
+    // imgbb key (user-provided)
+    const IMGBB_KEY = "0f248e70fc4e7dffde307dd772823379";
+    const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
+
+    // ---------- init ----------
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // DOM
+    // DOM refs
     const chatContainer = document.getElementById("chat-container");
     const messageInput = document.getElementById("message-input");
     const sendBtn = document.getElementById("send-btn");
-    const signoutBtn = document.getElementById("signout-btn");
     const emojiBtn = document.getElementById("emoji-btn");
     const emojiPicker = document.getElementById("emoji-picker");
     const noSongNotification = document.getElementById("no-song-notification");
+    const dismissSongBtn = document.getElementById("dismiss-song-btn");
+    const imageInput = document.getElementById("image-input");
     const cancelReplyBtn = document.getElementById("cancel-reply");
     const openSettingsBtn = document.getElementById("open-settings");
     const backgroundAudio = document.getElementById("background-audio");
+
+    const sidebar = document.getElementById("sidebar");
+    const groupsList = document.getElementById("groups-list");
+    const groupsActions = document.getElementById("groups-actions");
+    const createGroupModal = document.getElementById("create-group-modal");
+    const groupNameInput = document.getElementById("group-name-input");
+    const groupImageInput = document.getElementById("group-image-input");
+    const createGroupConfirm = document.getElementById("create-group-confirm");
+    const createGroupCancel = document.getElementById("create-group-cancel");
 
     let currentUser = null;
     let currentUserData = null;
     let replyToMessageId = null;
     let replyToMessageText = null;
 
-    // Emoji picker toggle and keyboard friendly
-    emojiBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      emojiPicker.style.display = emojiPicker.style.display === "flex" ? "none" : "flex";
-    });
-
-    // Add emoji to input
-    emojiPicker.querySelectorAll("span").forEach(span => {
-      span.addEventListener("click", () => {
-        messageInput.value += span.textContent;
-        messageInput.focus();
-        emojiPicker.style.display = "none";
-      });
-      // keyboard support
-      span.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          span.click();
-        }
-      });
-    });
-
-    // Close emoji picker when clicking outside
-    document.addEventListener("click", (e) => {
-      if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
-        emojiPicker.style.display = "none";
-      }
-    });
-
-    // Open settings
-    openSettingsBtn.addEventListener("click", () => location.href = "settings.html");
-    noSongNotification.addEventListener("click", () => location.href = "settings.html");
-
-    // Sign out
-    signoutBtn.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        location.href = "sign.html";
-      } catch (err) {
-        console.error("Sign out error:", err);
-        alert("Failed to sign out.");
-      }
-    });
-
-    // simplify email -> username
+    // helper: simplify email -> username, safer
     function simplifyEmail(email = "") {
       return (email.split("@")[0] || "unknown").replace(/\.[0-9]+$/,'');
     }
@@ -321,18 +420,12 @@
       }
     }
 
-    // Format firebase timestamp (or number)
     function formatTimestamp(ts) {
       if (!ts) return "";
       let d;
-      // Firestore Timestamp has toDate()
-      if (typeof ts.toDate === "function") {
-        d = ts.toDate();
-      } else if (typeof ts === "number") {
-        d = new Date(ts);
-      } else {
-        d = new Date(ts);
-      }
+      if (typeof ts.toDate === "function") d = ts.toDate();
+      else if (typeof ts === "number") d = new Date(ts);
+      else d = new Date(ts);
       const mm = String(d.getMonth()+1).padStart(2,"0");
       const dd = String(d.getDate()).padStart(2,"0");
       const hh = String(d.getHours()).padStart(2,"0");
@@ -340,23 +433,64 @@
       return `${mm}/${dd} ${hh}:${min}`;
     }
 
-    // Render a single message element
+    // Emoji picker
+    emojiBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      emojiPicker.style.display = emojiPicker.style.display === "flex" ? "none" : "flex";
+    });
+    emojiPicker.querySelectorAll("span").forEach(span => {
+      span.addEventListener("click", () => {
+        messageInput.value += span.textContent;
+        messageInput.focus();
+        emojiPicker.style.display = "none";
+      });
+      span.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); span.click(); }
+      });
+    });
+    document.addEventListener("click", (e) => {
+      if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) emojiPicker.style.display = "none";
+    });
+
+    // settings
+    openSettingsBtn.addEventListener("click", () => location.href = "settings.html");
+
+    // Dismiss no-song notification for 5 hours using localStorage
+    const NO_SONG_KEY = "kamba_no_song_dismiss_until";
+    function isSongDismissed() {
+      const raw = localStorage.getItem(NO_SONG_KEY);
+      if (!raw) return false;
+      const t = parseInt(raw, 10);
+      if (isNaN(t)) return false;
+      return Date.now() < t;
+    }
+    dismissSongBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const until = Date.now() + 5 * 60 * 60 * 1000; // 5 hours
+      localStorage.setItem(NO_SONG_KEY, String(until));
+      noSongNotification.style.display = "none";
+    });
+
+    noSongNotification.addEventListener("click", () => {
+      // if clicking the area (not dismiss) go to settings
+      location.href = "settings.html";
+    });
+
+    // Render a message
     function renderMessage(id, msgData) {
       const div = document.createElement("div");
       div.className = "message";
       if (msgData.isMine) div.classList.add("mine");
       div.dataset.id = id;
 
-      // top meta row: username + time
+      // meta row: username + timestamp
       const meta = document.createElement("div");
       meta.className = "meta-row";
-
       const usernameSpan = document.createElement("span");
       usernameSpan.className = "username " + getStatusClass(msgData.status || "green");
       usernameSpan.textContent = msgData.sender || "unknown";
       meta.appendChild(usernameSpan);
 
-      // timestamp
       const tsSpan = document.createElement("span");
       tsSpan.className = "ts";
       tsSpan.textContent = formatTimestamp(msgData.timestamp) || "";
@@ -364,7 +498,7 @@
 
       div.appendChild(meta);
 
-      // reply block (clickable to jump to message)
+      // reply
       if (msgData.replyToText) {
         const replyDiv = document.createElement("div");
         replyDiv.className = "reply-to";
@@ -379,13 +513,25 @@
         div.appendChild(replyDiv);
       }
 
+      // text
       const textDiv = document.createElement("div");
       textDiv.className = "message-text";
-      // safe rendering (textContent avoids XSS)
       textDiv.textContent = msgData.message || "";
       div.appendChild(textDiv);
 
-      // actions row
+      // image (if present)
+      if (msgData.imageUrl) {
+        const img = document.createElement("img");
+        img.src = msgData.imageUrl;
+        img.alt = "image";
+        img.className = "msg-image";
+        img.addEventListener("click", () => {
+          window.open(msgData.imageUrl, "_blank");
+        });
+        div.appendChild(img);
+      }
+
+      // actions
       const actions = document.createElement("div");
       actions.style.display = "flex";
       actions.style.gap = "0.6rem";
@@ -408,63 +554,24 @@
       return div;
     }
 
-    // Listen for auth changes
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        location.href = "sign.html";
-        return;
-      }
-      currentUser = user;
-
-      // load current user data doc
-      try {
-        const userDocRef = doc(db, "Kamba_users", user.uid);
-        const userSnap = await getDoc(userDocRef);
-        if (!userSnap.exists()) {
-          alert("User data not found. Contact admin.");
-          return;
-        }
-        currentUserData = userSnap.data();
-
-        // background audio
-        if (currentUserData.song && currentUserData.song.trim() !== "") {
-          backgroundAudio.src = currentUserData.song;
-          backgroundAudio.volume = (currentUserData.volume ?? 0.5);
-          backgroundAudio.play().catch(() => { /* autoplay block is fine */ });
-          noSongNotification.style.display = "none";
-        } else {
-          noSongNotification.style.display = "block";
-        }
-
-        // start listening to messages
-        setupMessagesListener();
-      } catch (err) {
-        console.error("Auth state processing error:", err);
-        alert("Error loading user data.");
-      }
-    });
-
-    // Real-time listener
+    // Messages listener
     function setupMessagesListener() {
       const messagesQuery = query(collection(db, "Kamba_messages"), orderBy("timestamp", "asc"));
-
       onSnapshot(messagesQuery, async (querySnapshot) => {
-        // gather userIds to preload statuses/display names
-        const userIds = new Set();
         const messagesArray = [];
-        querySnapshot.forEach(docSnap => {
-          const d = docSnap.data();
-          messagesArray.push({ id: docSnap.id, data: d });
+        const userIds = new Set();
+        querySnapshot.forEach(snap => {
+          const d = snap.data();
+          messagesArray.push({ id: snap.id, data: d });
           if (d && d.userId) userIds.add(d.userId);
         });
 
-        // preload user docs
+        // preload user docs for statuses
         const userDocsPromises = Array.from(userIds).map(uid => getDoc(doc(db, "Kamba_users", uid)));
         const userDocs = await Promise.all(userDocsPromises);
         const userDataMap = new Map();
         userDocs.forEach(snap => { if (snap.exists()) userDataMap.set(snap.id, snap.data()); });
 
-        // render messages (clear then append)
         chatContainer.innerHTML = "";
         for (const msg of messagesArray) {
           const d = msg.data || {};
@@ -475,36 +582,154 @@
 
           const messageData = {
             sender: displayName,
-            status: status,
+            status,
             message: d.message || "",
             replyToText: d.replyToText || null,
             replyToId: d.replyTo || null,
             timestamp: d.timestamp || null,
             isMine: currentUser && (currentUser.uid === senderUid),
+            imageUrl: d.imageUrl || null,
           };
           const el = renderMessage(msg.id, messageData);
           chatContainer.appendChild(el);
         }
 
-        // auto scroll to bottom
+        // scroll to bottom
         chatContainer.scrollTop = chatContainer.scrollHeight;
-      }, (err) => {
-        console.error("Messages snapshot error:", err);
-      });
+      }, (err) => console.error("messages snapshot error", err));
     }
 
-    // send message handler
-    sendBtn.addEventListener("click", sendMessage);
-    messageInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      } else if (e.key === "Escape") {
-        clearReply();
+    // Groups: load and show randomly
+    async function loadAndRenderGroups() {
+      groupsList.innerHTML = "";
+      try {
+        const snaps = await getDocs(collection(db, "Kamba_groups"));
+        const groups = [];
+        snaps.forEach(s => {
+          const d = s.data();
+          groups.push({ id: s.id, ...d });
+        });
+        // shuffle
+        for (let i = groups.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [groups[i], groups[j]] = [groups[j], groups[i]];
+        }
+        // render
+        groups.forEach(g => {
+          const item = document.createElement("div");
+          item.className = "group-item";
+          const img = document.createElement("img");
+          img.className = "group-avatar";
+          img.src = g.imageUrl || "";
+          img.alt = g.name || "group";
+          item.appendChild(img);
+          const nameSpan = document.createElement("div");
+          nameSpan.className = "group-name";
+          nameSpan.textContent = g.name || "Group";
+          item.appendChild(nameSpan);
+          // clicking group: open group (currently just alert; you can expand to group chat)
+          item.addEventListener("click", () => {
+            // placeholder behaviour: go to group page or open group chat
+            alert("Opened group: " + (g.name || "Group"));
+          });
+          groupsList.appendChild(item);
+        });
+      } catch (err) {
+        console.error("Error loading groups", err);
+      }
+    }
+
+    // Resize observer to toggle expanded view (show names when wide)
+    const resizeObs = new ResizeObserver(entries => {
+      for (const ent of entries) {
+        const w = ent.contentRect.width;
+        if (w > 220) sidebar.classList.add("expanded");
+        else sidebar.classList.remove("expanded");
+      }
+    });
+    resizeObs.observe(sidebar);
+
+    // Create group UI: only allowed statuses (blue, violet, red)
+    function setupCreateGroupButtonIfAllowed() {
+      groupsActions.innerHTML = "";
+      const allowed = currentUserData && ["blue","violet","red"].includes(currentUserData.status);
+      if (allowed) {
+        const btn = document.createElement("button");
+        btn.className = "create-group-btn";
+        btn.textContent = "Create Group";
+        btn.addEventListener("click", () => {
+          createGroupModal.style.display = createGroupModal.style.display === "none" ? "block" : "none";
+        });
+        groupsActions.appendChild(btn);
+      } else {
+        // show nothing (green can't create groups)
+        const info = document.createElement("div");
+        info.style.fontSize = "12px";
+        info.style.color = "#aeb3b6";
+        info.textContent = ""; // empty for compactness
+        groupsActions.appendChild(info);
+      }
+    }
+
+    createGroupCancel.addEventListener("click", (e) => {
+      e.preventDefault();
+      createGroupModal.style.display = "none";
+      groupNameInput.value = "";
+      groupImageInput.value = "";
+    });
+
+    createGroupConfirm.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const name = (groupNameInput.value || "").trim();
+      const file = groupImageInput.files && groupImageInput.files[0];
+      if (!name) return alert("Enter a group name.");
+      if (!file) return alert("Choose a group image.");
+
+      try {
+        createGroupConfirm.disabled = true;
+        createGroupConfirm.textContent = "Uploading...";
+        // upload to imgbb
+        const form = new FormData();
+        form.append("key", IMGBB_KEY);
+        form.append("image", file);
+        const resp = await fetch(IMGBB_UPLOAD_URL, {
+          method: "POST",
+          body: form
+        });
+        const json = await resp.json();
+        if (!json || !json.data || !json.data.url) {
+          throw new Error("imgbb upload failed");
+        }
+        const imageUrl = json.data.url;
+
+        // save to Firestore
+        await addDoc(collection(db, "Kamba_groups"), {
+          name,
+          imageUrl,
+          creatorUid: currentUser.uid,
+          createdAt: serverTimestamp()
+        });
+
+        createGroupModal.style.display = "none";
+        groupNameInput.value = "";
+        groupImageInput.value = "";
+        await loadAndRenderGroups();
+      } catch (err) {
+        console.error("create group error", err);
+        alert("Failed to create group: " + (err.message || err));
+      } finally {
+        createGroupConfirm.disabled = false;
+        createGroupConfirm.textContent = "Create";
       }
     });
 
-    cancelReplyBtn.addEventListener("click", () => { clearReply(); });
+    // message sending (with optional image upload to imgbb)
+    sendBtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+      else if (e.key === "Escape") clearReply();
+    });
+    cancelReplyBtn.addEventListener("click", clearReply);
 
     function clearReply() {
       replyToMessageId = null;
@@ -515,73 +740,176 @@
 
     async function sendMessage() {
       const text = messageInput.value.trim();
-      if (!text) return;
+      const file = imageInput.files && imageInput.files[0];
 
-      if (!currentUser) {
-        alert("You must be signed in to send messages.");
-        return;
-      }
+      if (!text && !file) return; // nothing to send
+      if (!currentUser) return alert("Sign in to send messages.");
 
       try {
-        const senderEmail = currentUser.email;
-        const userId = currentUser.uid;
-        const userDocRef = doc(db, "Kamba_users", userId);
+        sendBtn.disabled = true;
+        sendBtn.textContent = "Sending...";
+
+        let imageUrl = null;
+        if (file) {
+          // upload to imgbb
+          const form = new FormData();
+          form.append("key", IMGBB_KEY);
+          form.append("image", file);
+          const resp = await fetch(IMGBB_UPLOAD_URL, { method: "POST", body: form });
+          const json = await resp.json();
+          if (!json || !json.data || !json.data.url) {
+            throw new Error("imgbb upload failed");
+          }
+          imageUrl = json.data.url;
+        }
+
+        // get user doc for sparks
+        const userDocRef = doc(db, "Kamba_users", currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         if (!userDocSnap.exists()) {
-          alert("User profile missing. Contact admin.");
+          alert("User profile missing.");
           return;
         }
         const userData = userDocSnap.data();
 
-        // Add the message with server timestamp for consistent ordering
         await addDoc(collection(db, "Kamba_messages"), {
-          userId: userId,
-          senderEmail: senderEmail,
-          sender: simplifyEmail(senderEmail),
-          message: text,
+          userId: currentUser.uid,
+          senderEmail: currentUser.email,
+          sender: simplifyEmail(currentUser.email),
+          message: text || "",
+          imageUrl: imageUrl,
           replyTo: replyToMessageId || null,
           replyToText: replyToMessageText || null,
           timestamp: serverTimestamp()
         });
 
-        // Reset input & reply state
-        messageInput.value = "";
-        messageInput.placeholder = "Type a message...";
-        clearReply();
-
-        // Update sparks and status
+        // update sparks
         let newSparks = (userData.sparks || 0) + 1;
         let newStatus = userData.status || "green";
         if (newSparks >= 1000) newStatus = "violet";
         else if (newSparks >= 100) newStatus = "blue";
         else newStatus = "green";
-
         await updateDoc(userDocRef, { sparks: newSparks, status: newStatus });
+
+        // reset
+        messageInput.value = "";
+        imageInput.value = "";
+        clearReply();
       } catch (err) {
-        console.error("Error sending message:", err);
+        console.error("send message error", err);
         alert("Error sending message: " + (err.message || err));
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Send";
       }
     }
 
-    // small touch: allow pressing Enter on emoji button to open picker
-    emojiBtn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        emojiBtn.click();
+    // Listen for auth and initialize
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // redirect to sign page
+        location.href = "sign.html";
+        return;
+      }
+      currentUser = user;
+
+      // load user doc
+      try {
+        const userDocRef = doc(db, "Kamba_users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (!userDocSnap.exists()) {
+          alert("User data not found in database. Please contact admin.");
+          return;
+        }
+        currentUserData = userDocSnap.data();
+
+        // background audio
+        if (currentUserData.song && currentUserData.song.trim() !== "") {
+          if (!isSongDismissed()) {
+            backgroundAudio.src = currentUserData.song;
+            backgroundAudio.volume = (currentUserData.volume ?? 0.5);
+            backgroundAudio.play().catch(()=>{/*ignore*/});
+            noSongNotification.style.display = "none";
+          } else {
+            // dismissed: hide notification
+            noSongNotification.style.display = "none";
+          }
+        } else {
+          // show unless dismissed
+          noSongNotification.style.display = isSongDismissed() ? "none" : "block";
+        }
+
+        // setup create group button if allowed
+        setupCreateGroupButtonIfAllowed();
+
+        // load messages & groups
+        setupMessagesListener();
+        await loadAndRenderGroups();
+      } catch (err) {
+        console.error("auth user processing error", err);
       }
     });
 
-    // close emoji picker on escape too
+    // Listen to message collection realtime
+    function setupMessagesListener() {
+      const messagesQuery = query(collection(db, "Kamba_messages"), orderBy("timestamp", "asc"));
+      onSnapshot(messagesQuery, async (querySnapshot) => {
+        const messagesArray = [];
+        const userIds = new Set();
+        querySnapshot.forEach(snap => {
+          messagesArray.push({ id: snap.id, data: snap.data() });
+          const d = snap.data();
+          if (d && d.userId) userIds.add(d.userId);
+        });
+
+        // preload user docs
+        const userDocsPromises = Array.from(userIds).map(uid => getDoc(doc(db, "Kamba_users", uid)));
+        const userDocs = await Promise.all(userDocsPromises);
+        const userDataMap = new Map();
+        userDocs.forEach(snap => { if (snap.exists()) userDataMap.set(snap.id, snap.data()); });
+
+        chatContainer.innerHTML = "";
+        for (const msg of messagesArray) {
+          const d = msg.data || {};
+          const senderUid = d.userId;
+          const userData = userDataMap.get(senderUid);
+          const displayName = (userData && userData.displayName) ? userData.displayName : simplifyEmail(d.senderEmail || d.sender || "unknown");
+          const status = userData ? (userData.status || "green") : "green";
+
+          const messageData = {
+            sender: displayName,
+            status,
+            message: d.message || "",
+            replyToText: d.replyToText || null,
+            replyToId: d.replyTo || null,
+            timestamp: d.timestamp || null,
+            isMine: currentUser && (currentUser.uid === senderUid),
+            imageUrl: d.imageUrl || null,
+          };
+          const el = renderMessage(msg.id, messageData);
+          chatContainer.appendChild(el);
+        }
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, (err) => console.error("messages snapshot error", err));
+    }
+
+    // initial hide/show of no-song based on dismiss
+    if (isSongDismissed()) {
+      noSongNotification.style.display = "none";
+    }
+
+    // Accessibility: close emoji with escape
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         emojiPicker.style.display = "none";
       }
     });
 
-    // Accessibility: ensure audio won't break page if CORS or other issues
-    backgroundAudio.addEventListener("error", (e) => {
-      console.warn("Audio playback error:", e);
-    });
+    // re-load groups periodically when sidebar resized or user toggles
+    // (you can also listen to collection changes in real-time; here we re-load on demand)
+    // e.g. reload after group created:
+    // loadAndRenderGroups() is called after creation.
+
   </script>
 </body>
 </html>
