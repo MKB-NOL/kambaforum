@@ -8,9 +8,10 @@
   /* Basic reset and Discord style */
   * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
   body, html {
-    margin: 0; padding: 0;
     height: 100%;
     background-color: #36393f;
     color: #dcddde;
@@ -25,163 +26,201 @@
     justify-content: space-between;
     align-items: center;
     color: white;
+    border-bottom: 1px solid #202225;
   }
   header h1 {
     margin: 0;
     font-size: 1.5rem;
   }
-  #chat-container {
-    flex: 1;
-    display: flex;
-    padding: 1rem 0;
-    overflow-y: auto;
-    gap: 1rem;
-    background-color: #2f3136;
-  }
-  .message {
-    background-color: #202225;
-    padding: 0.7rem 1rem;
-    border-radius: 6px;
-    max-width: 75%;
-    word-break: break-word;
-    position: relative;
-  }
-  .username {
-    font-weight: 700;
-    margin-bottom: 0.15rem;
-    display: inline-block;
-    cursor: default;
-  }
-  .message-text {
-    white-space: pre-wrap;
-  }
-  .reply-to {
-    font-size: 0.75rem;
-    color: #b9bbbe;
-    margin-bottom: 0.3rem;
-    padding-left: 0.5rem;
-    border-left: 2px solid #5865f2;
-  }
-  .reply-btn {
-    font-size: 0.7rem;
-    color: #5865f2;
-    cursor: pointer;
-    margin-top: 0.3rem;
-    user-select: none;
-  }
-  .reply-btn:hover {
-    text-decoration: underline;
-  }
-  #message-input-area {
-    background-color: #40444b;
-    padding: 0.8rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  #message-input {
-    flex: 1;
-    padding: 0.6rem 0.8rem;
-    border-radius: 5px;
-    border: none;
-    font-size: 1rem;
-    color: white;
-    background-color: #2f3136;
-  }
-  #message-input:focus {
-    outline: 2px solid #5865f2;
-  }
-  #send-btn {
-    background-color: #5865f2;
-    border: none;
-    color: white;
-    padding: 0.55rem 1.2rem;
-    font-weight: 700;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  #send-btn:hover {
-    background-color: #4752c4;
-  }
-  #emoji-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.4rem;
-    cursor: pointer;
-    color: #b9bbbe;
-    user-select: none;
-  }
-  #emoji-picker {
-    position: absolute;
-    bottom: 3.8rem;
-    right: 2rem;
-    background-color: #202225;
-    border-radius: 8px;
-    padding: 0.5rem;
-    display: none;
-    box-shadow: 0 0 10px rgba(0,0,0,0.7);
-    z-index: 1000;
-  }
-  #emoji-picker span {
-    font-size: 1.6rem;
-    margin: 0 6px;
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.15s ease;
-  }
-  #emoji-picker span:hover {
-    transform: scale(1.3);
-  }
-  #no-song-notification {
-    background-color: #f04747;
-    color: white;
-    text-align: center;
-    padding: 0.7rem 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .dismiss-btn {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: white;
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .username.green { color: #43b581; }   /* New user */
-  .username.blue { color: #5865f2; }    /* 100+ sparks */
-  .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
-  .username.red { color: #f04747; }     /* Admin */
-
-  /* Scrollbar styling */
-  #chat-container::-webkit-scrollbar {
-    width: 8px;
-  }
-  #chat-container::-webkit-scrollbar-thumb {
-    background-color: #5865f2;
-    border-radius: 5px;
-  }
-
-  /* Main layout */
   #main-content {
     display: flex;
     flex: 1;
     overflow: hidden;
   }
+  
+  /* Left sidebar */
+  #left-sidebar {
+    width: 250px;
+    background-color: #2f3136;
+    border-right: 1px solid #202225;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-section {
+    margin-bottom: 1.5rem;
+  }
+  .sidebar-title {
+    color: #b9bbbe;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.3rem;
+  }
+  .sidebar-item:hover {
+    background-color: #3a3d44;
+  }
+  .sidebar-item.active {
+    background-color: #40444b;
+  }
+  .sidebar-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.8rem;
+    background-color: #b9bbbe;
+  }
+  .sidebar-item.active .dot {
+    background-color: #5865f2;
+  }
+  .sidebar-item .icon {
+    margin-right: 0.8rem;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+  #search-bar {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #202225;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  #search-bar:focus {
+    outline: 2px solid #5865f2;
+  }
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #2f3136;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 100;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+  }
+  .search-result-item {
+    padding: 0.8rem;
+    border-bottom: 1px solid #40444b;
+    cursor: pointer;
+  }
+  .search-result-item:hover {
+    background-color: #3a3d44;
+  }
+  .search-result-type {
+    font-size: 0.7rem;
+    color: #b9bbbe;
+    margin-top: 0.2rem;
+  }
+  .search-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Chat area */
   #chat-area {
     flex: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
+    background-color: #36393f;
+  }
+  #chat-header {
+    padding: 1rem;
+    border-bottom: 1px solid #202225;
+    display: flex;
+    align-items: center;
+  }
+  #chat-header h2 {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
   }
   #messages-container {
     flex: 1;
-    padding: 0 2rem;
+    padding: 1rem;
     overflow-y: auto;
+  }
+  .message {
+    background-color: #2f3136;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    position: relative;
+    max-width: 80%;
+    word-break: break-word;
+  }
+  .message:hover {
+    background-color: #34373c;
+  }
+  .message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .username {
+    font-weight: 700;
+    cursor: default;
+  }
+  .message-time {
+    font-size: 0.7rem;
+    color: #b9bbbe;
+    margin-left: 0.8rem;
+  }
+  .message-text {
+    white-space: pre-wrap;
+    margin-bottom: 0.5rem;
+  }
+  .message-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .message-action {
+    font-size: 0.8rem;
+    color: #b9bbbe;
+    cursor: pointer;
+  }
+  .message-action:hover {
+    color: white;
+    text-decoration: underline;
+  }
+  .reply-to {
+    font-size: 0.75rem;
+    color: #b9bbbe;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #5865f2;
+  }
+  .mention {
+    color: #5865f2;
+    font-weight: bold;
+  }
+  .announcement-badge, .post-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+  }
+  .announcement-badge {
+    background-color: #f04747;
+    color: white;
+  }
+  .post-badge {
+    background-color: #43b581;
+    color: white;
   }
   
   /* Right sidebar */
@@ -202,7 +241,7 @@
   #right-sidebar.expanded {
     width: 200px;
   }
-  .sidebar-title {
+  .right-sidebar-title {
     color: #b9bbbe;
     font-size: 0.8rem;
     text-transform: uppercase;
@@ -210,8 +249,8 @@
     padding-left: 0.5rem;
     display: none;
   }
-  #right-sidebar:hover .sidebar-title,
-  #right-sidebar.expanded .sidebar-title {
+  #right-sidebar:hover .right-sidebar-title,
+  #right-sidebar.expanded .right-sidebar-title {
     display: block;
   }
   .group-item {
@@ -247,7 +286,74 @@
   #right-sidebar.expanded .group-name {
     display: block;
   }
-
+  
+  /* Message input area */
+  #message-input-area {
+    background-color: #40444b;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  #message-input {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    color: white;
+    background-color: #2f3136;
+    resize: none;
+    height: auto;
+    min-height: 40px;
+    max-height: 150px;
+  }
+  #message-input:focus {
+    outline: 2px solid #5865f2;
+  }
+  #send-btn {
+    background-color: #5865f2;
+    border: none;
+    color: white;
+    padding: 0.55rem 1.2rem;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  #send-btn:hover {
+    background-color: #4752c4;
+  }
+  #emoji-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: #b9bbbe;
+    user-select: none;
+  }
+  #emoji-picker {
+    position: absolute;
+    bottom: 5rem;
+    right: 2rem;
+    background-color: #202225;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 1000;
+  }
+  #emoji-picker span {
+    font-size: 1.6rem;
+    margin: 0 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease;
+  }
+  #emoji-picker span:hover {
+    transform: scale(1.3);
+  }
+  
   /* Image in messages */
   .message-image {
     max-width: 100%;
@@ -292,7 +398,7 @@
     font-size: 1.5rem;
     cursor: pointer;
   }
-
+  
   /* File upload button */
   #file-input {
     display: none;
@@ -305,7 +411,96 @@
     color: #b9bbbe;
     user-select: none;
   }
+  
+  /* Status colors */
+  .username.green { color: #43b581; }   /* New user */
+  .username.blue { color: #5865f2; }    /* 100+ sparks */
+  .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
+  .username.red { color: #f04747; }     /* Admin */
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #5865f2;
+    border-radius: 5px;
+  }
+  
+  /* No song notification */
+  #no-song-notification {
+    background-color: #f04747;
+    color: white;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dismiss-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* Edit message modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background-color: #2f3136;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+  }
+  .modal-title {
+    margin-bottom: 1rem;
+  }
+  .modal-input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #40444b;
+    color: white;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .modal-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  .modal-btn.cancel {
+    background-color: #72767d;
+    color: white;
+  }
+  .modal-btn.save {
+    background-color: #5865f2;
+    color: white;
+  }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -314,7 +509,56 @@
 </header>
 
 <div id="main-content">
+  <!-- Left Sidebar -->
+  <div id="left-sidebar">
+    <div class="sidebar-item" id="refresh-btn">
+      <div class="icon"><i class="fas fa-home"></i></div>
+      <span>Home</span>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search..." autocomplete="off" />
+        <div id="search-results"></div>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-title">Channels</div>
+      <div class="sidebar-item active" data-channel="general">
+        <div class="dot"></div>
+        <span>#General</span>
+      </div>
+      <div class="sidebar-item" data-channel="announcements">
+        <div class="dot"></div>
+        <span>#Announcements</span>
+      </div>
+      <div class="sidebar-item" data-channel="communities">
+        <div class="dot"></div>
+        <span>#Communities</span>
+      </div>
+      <div class="sidebar-item" data-channel="posts">
+        <div class="dot"></div>
+        <span>#Posts</span>
+      </div>
+      <div class="sidebar-item" data-channel="projects">
+        <div class="dot"></div>
+        <span>#Projects</span>
+      </div>
+      <div class="sidebar-item" data-channel="mentions">
+        <div class="dot"></div>
+        <span>#Mentions</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Chat Area -->
   <div id="chat-area">
+    <div id="chat-header">
+      <i class="fas fa-hashtag"></i>
+      <h2 id="channel-title">General</h2>
+    </div>
+    
     <div id="messages-container"></div>
     
     <div id="no-song-notification" style="display:none;">
@@ -323,29 +567,49 @@
     </div>
 
     <div id="message-input-area">
-      <button id="upload-btn" title="Upload image">📷</button>
+      <button id="upload-btn" title="Upload image"><i class="fas fa-image"></i></button>
       <input type="file" id="file-input" accept="image/*" multiple />
       <button id="emoji-btn" title="Emoji picker">😀</button>
-      <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" />
+      <textarea id="message-input" placeholder="Type a message..." autocomplete="off" rows="1"></textarea>
       <button id="send-btn">Send</button>
     </div>
   </div>
 
+  <!-- Right Sidebar -->
   <div id="right-sidebar">
-    <div class="sidebar-title">GROUPS</div>
+    <div class="right-sidebar-title">GROUPS</div>
     <!-- Groups will be added dynamically -->
   </div>
 </div>
 
+<!-- Emoji Picker -->
 <div id="emoji-picker" aria-label="Emoji picker" role="list">
   <span>😀</span>
   <span>😂</span>
   <span>😎</span>
   <span>❤️</span>
   <span>🔥</span>
+  <span>👍</span>
+  <span>👎</span>
+  <span>🎉</span>
+  <span>🤔</span>
+  <span>😢</span>
 </div>
 
+<!-- Background Audio -->
 <audio id="background-audio" loop></audio>
+
+<!-- Edit Message Modal -->
+<div id="edit-message-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Edit Message</h3>
+    <textarea id="edit-message-input" class="modal-input" rows="4"></textarea>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-edit-btn">Cancel</button>
+      <button class="modal-btn save" id="save-edit-btn">Save</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -359,11 +623,14 @@
     collection,
     query,
     orderBy,
+    where,
     onSnapshot,
     addDoc,
     doc,
     getDoc,
     updateDoc,
+    deleteDoc,
+    getDocs,
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -381,6 +648,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // DOM Elements
   const messagesContainer = document.getElementById("messages-container");
   const messageInput = document.getElementById("message-input");
   const sendBtn = document.getElementById("send-btn");
@@ -392,21 +660,24 @@
   const rightSidebar = document.getElementById("right-sidebar");
   const uploadBtn = document.getElementById("upload-btn");
   const fileInput = document.getElementById("file-input");
+  const searchBar = document.getElementById("search-bar");
+  const searchResults = document.getElementById("search-results");
+  const channelItems = document.querySelectorAll(".sidebar-item[data-channel]");
+  const channelTitle = document.getElementById("channel-title");
+  const refreshBtn = document.getElementById("refresh-btn");
+  const editMessageModal = document.getElementById("edit-message-modal");
+  const editMessageInput = document.getElementById("edit-message-input");
+  const cancelEditBtn = document.getElementById("cancel-edit-btn");
+  const saveEditBtn = document.getElementById("save-edit-btn");
 
+  // App State
   let currentUser = null;
   let currentUserData = null;
   let replyToMessageId = null;
   let replyToMessageText = null;
-
-  // Sample group data (in a real app, this would come from Firestore)
-  const sampleGroups = [
-    { id: '1', name: 'Tech Enthusiasts', image: 'https://i.imgur.com/J6l19aF.png' },
-    { id: '2', name: 'Art & Design', image: 'https://i.imgur.com/7V1TQHd.png' },
-    { id: '3', name: 'Music Lovers', image: 'https://i.imgur.com/5Z3Q2Yj.png' },
-    { id: '4', name: 'Gaming Community', image: 'https://i.imgur.com/9qYQ3ZJ.png' },
-    { id: '5', name: 'Book Club', image: 'https://i.imgur.com/3vQ2Z9J.png' },
-    { id: '6', name: 'Fitness Group', image: 'https://i.imgur.com/2Q3Z9YJ.png' }
-  ];
+  let currentChannel = "general";
+  let messageBeingEdited = null;
+  let searchTimeout = null;
 
   // Initialize the app
   function init() {
@@ -418,7 +689,8 @@
   // Set up all event listeners
   function setupEventListeners() {
     // Emoji picker toggle
-    emojiBtn.addEventListener("click", () => {
+    emojiBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
     });
 
@@ -455,32 +727,91 @@
     });
 
     fileInput.addEventListener("change", handleImageUpload);
+
+    // Channel switching
+    channelItems.forEach(item => {
+      item.addEventListener("click", () => {
+        channelItems.forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+        currentChannel = item.dataset.channel;
+        channelTitle.textContent = item.querySelector("span").textContent.slice(1);
+        loadChannelMessages();
+      });
+    });
+
+    // Search functionality
+    searchBar.addEventListener("input", handleSearch);
+    searchBar.addEventListener("focus", () => {
+      if (searchBar.value.trim() !== "") {
+        searchResults.style.display = "block";
+      }
+    });
+    searchBar.addEventListener("blur", () => {
+      setTimeout(() => {
+        searchResults.style.display = "none";
+      }, 200);
+    });
+
+    // Refresh button
+    refreshBtn.addEventListener("click", () => {
+      loadChannelMessages();
+    });
+
+    // Edit message modal
+    cancelEditBtn.addEventListener("click", () => {
+      editMessageModal.style.display = "none";
+    });
+    saveEditBtn.addEventListener("click", saveEditedMessage);
   }
 
-  // Load random groups into sidebar
-  function loadGroups() {
-    rightSidebar.innerHTML = '<div class="sidebar-title">GROUPS</div>';
+  // Load random groups into sidebar from Firestore
+  async function loadGroups() {
+    rightSidebar.innerHTML = '<div class="right-sidebar-title">GROUPS</div>';
     
-    // Shuffle groups and take first 4
-    const shuffledGroups = [...sampleGroups].sort(() => 0.5 - Math.random()).slice(0, 4);
-    
-    shuffledGroups.forEach(group => {
-      const groupItem = document.createElement("div");
-      groupItem.className = "group-item";
+    try {
+      const groupsQuery = query(collection(db, "Kamba_groups"));
+      const querySnapshot = await getDocs(groupsQuery);
       
-      const avatar = document.createElement("img");
-      avatar.className = "group-avatar";
-      avatar.src = group.image;
-      avatar.alt = group.name;
+      if (querySnapshot.empty) {
+        console.log("No groups found");
+        return;
+      }
       
-      const name = document.createElement("div");
-      name.className = "group-name";
-      name.textContent = group.name;
+      // Convert to array and shuffle
+      const groups = [];
+      querySnapshot.forEach(doc => {
+        groups.push({ id: doc.id, ...doc.data() });
+      });
       
-      groupItem.appendChild(avatar);
-      groupItem.appendChild(name);
-      rightSidebar.appendChild(groupItem);
-    });
+      const shuffledGroups = [...groups].sort(() => 0.5 - Math.random()).slice(0, 4);
+      
+      shuffledGroups.forEach(group => {
+        const groupItem = document.createElement("div");
+        groupItem.className = "group-item";
+        groupItem.dataset.groupId = group.id;
+        
+        const avatar = document.createElement("img");
+        avatar.className = "group-avatar";
+        avatar.src = group.image || "https://i.imgur.com/J6l19aF.png";
+        avatar.alt = group.name;
+        
+        const name = document.createElement("div");
+        name.className = "group-name";
+        name.textContent = group.name;
+        
+        groupItem.appendChild(avatar);
+        groupItem.appendChild(name);
+        rightSidebar.appendChild(groupItem);
+        
+        // Add click event to view group
+        groupItem.addEventListener("click", () => {
+          // In a real app, this would navigate to the group
+          alert(`Viewing group: ${group.name}`);
+        });
+      });
+    } catch (error) {
+      console.error("Error loading groups:", error);
+    }
   }
 
   // Check if song notification was dismissed
@@ -503,6 +834,13 @@
   async function handleImageUpload(e) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    // Check if user can upload images
+    if (currentUserData.status === "green") {
+      alert("Your account level (Green) doesn't allow image uploads. Reach Blue status to unlock this feature.");
+      fileInput.value = "";
+      return;
+    }
 
     try {
       // For multiple images, we'll upload them one by one
@@ -538,8 +876,135 @@
     }
   }
 
+  // Handle search with 300ms debounce
+  function handleSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(async () => {
+      const searchTerm = searchBar.value.trim();
+      if (searchTerm === "") {
+        searchResults.innerHTML = "";
+        searchResults.style.display = "none";
+        return;
+      }
+      
+      try {
+        searchResults.innerHTML = "<div style='padding: 1rem; text-align: center;'>Searching...</div>";
+        searchResults.style.display = "block";
+        
+        // Search users
+        const usersQuery = query(
+          collection(db, "Kamba_users"),
+          where("email", ">=", searchTerm),
+          where("email", "<=", searchTerm + "\uf8ff")
+        );
+        const usersSnapshot = await getDocs(usersQuery);
+        
+        // Search groups
+        const groupsQuery = query(
+          collection(db, "Kamba_groups"),
+          where("name", ">=", searchTerm),
+          where("name", "<=", searchTerm + "\uf8ff")
+        );
+        const groupsSnapshot = await getDocs(groupsQuery);
+        
+        // Search announcements
+        const announcementsQuery = query(
+          collection(db, "Kamba_messages"),
+          where("isAnnouncement", "==", true),
+          where("message", ">=", searchTerm),
+          where("message", "<=", searchTerm + "\uf8ff")
+        );
+        const announcementsSnapshot = await getDocs(announcementsQuery);
+        
+        // Search posts
+        const postsQuery = query(
+          collection(db, "Kamba_messages"),
+          where("isPost", "==", true),
+          where("message", ">=", searchTerm),
+          where("message", "<=", searchTerm + "\uf8ff")
+        );
+        const postsSnapshot = await getDocs(postsQuery);
+        
+        // Combine and display results
+        searchResults.innerHTML = "";
+        
+        // Users
+        usersSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${simplifyEmail(data.email)}</div>
+            <div class="search-result-type">User</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would navigate to the user's profile
+            alert(`Viewing user: ${simplifyEmail(data.email)}`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        // Groups
+        groupsSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${data.name}</div>
+            <div class="search-result-type">Group</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would navigate to the group
+            alert(`Viewing group: ${data.name}`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        // Announcements
+        announcementsSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${data.message.slice(0, 50)}${data.message.length > 50 ? '...' : ''}</div>
+            <div class="search-result-type">Announcement by ${simplifyEmail(data.senderEmail)}</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would scroll to the announcement
+            alert(`Viewing announcement: ${data.message.slice(0, 100)}...`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        // Posts
+        postsSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${data.message.slice(0, 50)}${data.message.length > 50 ? '...' : ''}</div>
+            <div class="search-result-type">Post by ${simplifyEmail(data.senderEmail)}</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would scroll to the post
+            alert(`Viewing post: ${data.message.slice(0, 100)}...`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        if (searchResults.children.length === 0) {
+          searchResults.innerHTML = "<div style='padding: 1rem; text-align: center;'>No results found</div>";
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        searchResults.innerHTML = "<div style='padding: 1rem; text-align: center; color: #f04747;'>Error searching</div>";
+      }
+    }, 300);
+  }
+
   // Helper: remove @gmail.com and similar domains
   function simplifyEmail(email) {
+    if (!email) return "unknown";
     return email.split("@")[0];
   }
 
@@ -560,10 +1025,32 @@
     div.className = "message";
     div.dataset.id = id;
 
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "message-header";
+
     const usernameSpan = document.createElement("span");
     usernameSpan.className = "username " + getStatusClass(msgData.status);
     usernameSpan.textContent = msgData.sender;
-    div.appendChild(usernameSpan);
+    headerDiv.appendChild(usernameSpan);
+
+    if (msgData.isAnnouncement) {
+      const badge = document.createElement("span");
+      badge.className = "announcement-badge";
+      badge.textContent = "ANNOUNCEMENT";
+      headerDiv.appendChild(badge);
+    } else if (msgData.isPost) {
+      const badge = document.createElement("span");
+      badge.className = "post-badge";
+      badge.textContent = "POST";
+      headerDiv.appendChild(badge);
+    }
+
+    const timeSpan = document.createElement("span");
+    timeSpan.className = "message-time";
+    timeSpan.textContent = formatTime(msgData.timestamp);
+    headerDiv.appendChild(timeSpan);
+
+    div.appendChild(headerDiv);
 
     if (msgData.replyToText) {
       const replyDiv = document.createElement("div");
@@ -574,7 +1061,17 @@
 
     const textDiv = document.createElement("div");
     textDiv.className = "message-text";
-    textDiv.textContent = msgData.message;
+    
+    // Process mentions and posts/announcements
+    let messageText = msgData.message;
+    if (messageText) {
+      // Replace @mentions with styled spans
+      messageText = messageText.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+      textDiv.innerHTML = messageText;
+    } else {
+      textDiv.textContent = "";
+    }
+    
     div.appendChild(textDiv);
 
     if (msgData.imageUrl) {
@@ -589,8 +1086,13 @@
       div.appendChild(imgContainer);
     }
 
-    const replyBtn = document.createElement("div");
-    replyBtn.className = "reply-btn";
+    // Message actions (like, reply, etc.)
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "message-actions";
+    
+    // Reply button (all users)
+    const replyBtn = document.createElement("span");
+    replyBtn.className = "message-action";
     replyBtn.textContent = "Reply";
     replyBtn.addEventListener("click", () => {
       replyToMessageId = id;
@@ -598,9 +1100,53 @@
       messageInput.focus();
       messageInput.placeholder = "Replying: " + replyToMessageText.slice(0, 30) + "... (click send)";
     });
-    div.appendChild(replyBtn);
+    actionsDiv.appendChild(replyBtn);
+    
+    // Like button (all users)
+    const likeBtn = document.createElement("span");
+    likeBtn.className = "message-action";
+    likeBtn.textContent = "Like";
+    likeBtn.addEventListener("click", () => likeMessage(id));
+    actionsDiv.appendChild(likeBtn);
+    
+    // Edit button (only for own messages)
+    if (msgData.userId === currentUser?.uid) {
+      const editBtn = document.createElement("span");
+      editBtn.className = "message-action";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => editMessage(id, msgData.message));
+      actionsDiv.appendChild(editBtn);
+    }
+    
+    // Delete button (own messages for blue+, any for red)
+    if ((msgData.userId === currentUser?.uid && currentUserData?.status !== "green") || 
+        currentUserData?.status === "red") {
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "message-action";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", () => deleteMessage(id));
+      actionsDiv.appendChild(deleteBtn);
+    }
+    
+    // Report button (for others' messages)
+    if (msgData.userId !== currentUser?.uid) {
+      const reportBtn = document.createElement("span");
+      reportBtn.className = "message-action";
+      reportBtn.textContent = "Report";
+      reportBtn.addEventListener("click", () => reportMessage(id));
+      actionsDiv.appendChild(reportBtn);
+    }
+    
+    div.appendChild(actionsDiv);
 
     return div;
+  }
+
+  // Format timestamp
+  function formatTime(timestamp) {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   // Show full screen image
@@ -637,14 +1183,47 @@
     document.body.appendChild(container);
   }
 
-  // Setup Firestore real-time listener for messages
-  function setupMessagesListener() {
-    const messagesQuery = query(
-      collection(db, "Kamba_messages"),
-      orderBy("timestamp", "asc")
-    );
+  // Load messages for current channel
+  function loadChannelMessages() {
+    // Clear existing messages
+    messagesContainer.innerHTML = "";
+    
+    let messagesQuery;
+    if (currentChannel === "general") {
+      messagesQuery = query(
+        collection(db, "Kamba_messages"),
+        where("isAnnouncement", "==", false),
+        where("isPost", "==", false),
+        orderBy("timestamp", "asc")
+      );
+    } else if (currentChannel === "announcements") {
+      messagesQuery = query(
+        collection(db, "Kamba_messages"),
+        where("isAnnouncement", "==", true),
+        orderBy("timestamp", "asc")
+      );
+    } else if (currentChannel === "posts") {
+      messagesQuery = query(
+        collection(db, "Kamba_messages"),
+        where("isPost", "==", true),
+        orderBy("timestamp", "asc")
+      );
+    } else {
+      // For other channels, show empty state
+      messagesContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: #b9bbbe;">
+        ${currentChannel.charAt(0).toUpperCase() + currentChannel.slice(1)} content will appear here
+      </div>`;
+      return;
+    }
+    
+    if (messagesQuery) {
+      setupMessagesListener(messagesQuery);
+    }
+  }
 
-    onSnapshot(messagesQuery, async (querySnapshot) => {
+  // Setup Firestore real-time listener for messages
+  function setupMessagesListener(messagesQuery) {
+    const unsubscribe = onSnapshot(messagesQuery, async (querySnapshot) => {
       messagesContainer.innerHTML = ""; // Clear chat on update
 
       // We want to show username colored by status, so fetch user statuses:
@@ -652,41 +1231,142 @@
       querySnapshot.forEach((doc) => {
         userIds.add(doc.data().userId);
       });
+      
       // Preload user data for all message senders:
       const userDataMap = new Map();
       const userDocsPromises = [];
       userIds.forEach((uid) => {
         userDocsPromises.push(getDoc(doc(db, "Kamba_users", uid)));
       });
-      const userDocs = await Promise.all(userDocsPromises);
-      userDocs.forEach((docSnap) => {
-        if (docSnap.exists()) {
-          userDataMap.set(docSnap.id, docSnap.data());
-        }
-      });
+      
+      try {
+        const userDocs = await Promise.all(userDocsPromises);
+        userDocs.forEach((docSnap) => {
+          if (docSnap.exists()) {
+            userDataMap.set(docSnap.id, docSnap.data());
+          }
+        });
 
-      // Render messages
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const senderUid = data.userId;
-        const userData = userDataMap.get(senderUid);
-        const displayName = simplifyEmail(data.senderEmail || "unknown");
-        const status = userData ? userData.status : "green";
+        // Render messages
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const senderUid = data.userId;
+          const userData = userDataMap.get(senderUid);
+          const displayName = simplifyEmail(data.senderEmail || "unknown");
+          const status = userData ? userData.status : "green";
 
-        const messageData = {
-          sender: displayName,
-          status: status,
-          message: data.message,
-          replyToText: data.replyToText || null,
-          imageUrl: data.imageUrl || null
-        };
-        const msgDiv = renderMessage(docSnap.id, messageData);
-        messagesContainer.appendChild(msgDiv);
-      });
+          const messageData = {
+            sender: displayName,
+            status: status,
+            message: data.message,
+            replyToText: data.replyToText || null,
+            imageUrl: data.imageUrl || null,
+            isAnnouncement: data.isAnnouncement || false,
+            isPost: data.isPost || false,
+            timestamp: data.timestamp,
+            userId: data.userId
+          };
+          const msgDiv = renderMessage(docSnap.id, messageData);
+          messagesContainer.appendChild(msgDiv);
+        });
 
-      // Scroll to bottom on new messages
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Scroll to bottom on new messages
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      }
     });
+    
+    return unsubscribe;
+  }
+
+  // Like a message
+  async function likeMessage(messageId) {
+    try {
+      const messageRef = doc(db, "Kamba_messages", messageId);
+      const messageSnap = await getDoc(messageRef);
+      
+      if (messageSnap.exists()) {
+        const messageData = messageSnap.data();
+        const senderUid = messageData.userId;
+        
+        // Update sender's sparks (2 sparks per like)
+        const senderRef = doc(db, "Kamba_users", senderUid);
+        const senderSnap = await getDoc(senderRef);
+        
+        if (senderSnap.exists()) {
+          const senderData = senderSnap.data();
+          let newSparks = (senderData.sparks || 0) + 2;
+          let newStatus = senderData.status || "green";
+          
+          // Update status based on sparks
+          if (newSparks >= 1000) newStatus = "violet";
+          else if (newSparks >= 100) newStatus = "blue";
+          else newStatus = "green";
+          
+          await updateDoc(senderRef, {
+            sparks: newSparks,
+            status: newStatus
+          });
+          
+          alert("Liked message! User received 2 Sparks.");
+        }
+      }
+    } catch (error) {
+      console.error("Error liking message:", error);
+      alert("Failed to like message");
+    }
+  }
+
+  // Edit a message
+  function editMessage(messageId, currentText) {
+    messageBeingEdited = messageId;
+    editMessageInput.value = currentText;
+    editMessageModal.style.display = "flex";
+    editMessageInput.focus();
+  }
+
+  // Save edited message
+  async function saveEditedMessage() {
+    if (!messageBeingEdited) return;
+    
+    const newText = editMessageInput.value.trim();
+    if (!newText) {
+      alert("Message cannot be empty");
+      return;
+    }
+    
+    try {
+      const messageRef = doc(db, "Kamba_messages", messageBeingEdited);
+      await updateDoc(messageRef, {
+        message: newText,
+        edited: true
+      });
+      
+      editMessageModal.style.display = "none";
+      messageBeingEdited = null;
+    } catch (error) {
+      console.error("Error editing message:", error);
+      alert("Failed to edit message");
+    }
+  }
+
+  // Delete a message
+  async function deleteMessage(messageId) {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    
+    try {
+      await deleteDoc(doc(db, "Kamba_messages", messageId));
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      alert("Failed to delete message");
+    }
+  }
+
+  // Report a message
+  function reportMessage(messageId) {
+    alert(`Message ${messageId} reported to admins. Thank you!`);
+    // In a real app, this would create a report in Firestore
   }
 
   // Send message handler
@@ -698,9 +1378,30 @@
     }
   });
 
+  // Auto-resize textarea
+  messageInput.addEventListener("input", function() {
+    this.style.height = "auto";
+    this.style.height = (this.scrollHeight) + "px";
+  });
+
   async function sendMessage(text = null, imageUrl = null) {
     const messageText = text || messageInput.value.trim();
-    if (!messageText && !imageUrl) return;
+    
+    // Check if this is a special command (announcement or post)
+    let isAnnouncement = false;
+    let isPost = false;
+    let processedText = messageText;
+    
+    if (currentUserData?.status === "red" && messageText.startsWith("#announcement")) {
+      isAnnouncement = true;
+      processedText = messageText.replace("#announcement", "").trim();
+    } else if ((currentUserData?.status === "violet" || currentUserData?.status === "red") && 
+               messageText.startsWith("&post")) {
+      isPost = true;
+      processedText = messageText.replace("&post", "").trim();
+    }
+    
+    if (!processedText && !imageUrl) return;
 
     const senderEmail = currentUser.email;
     const userId = currentUser.uid;
@@ -720,23 +1421,26 @@
         userId: userId,
         senderEmail: senderEmail,
         sender: simplifyEmail(senderEmail),
-        message: messageText || "",
+        message: processedText || "",
         replyTo: replyToMessageId || null,
         replyToText: replyToMessageText || null,
         imageUrl: imageUrl || null,
+        isAnnouncement: isAnnouncement,
+        isPost: isPost,
         timestamp: Date.now(),
       });
 
       // Reset input & reply if this was a text message
       if (!text) {
         messageInput.value = "";
+        messageInput.style.height = "auto";
         messageInput.placeholder = "Type a message...";
         replyToMessageId = null;
         replyToMessageText = null;
       }
 
       // Update sparks and status (only for text messages to prevent spam)
-      if (!imageUrl) {
+      if (!imageUrl && !isAnnouncement && !isPost) {
         let newSparks = (userData.sparks || 0) + 1;
         let newStatus = userData.status || "green";
         if (newSparks >= 1000) newStatus = "violet";
@@ -783,8 +1487,8 @@
       noSongNotification.style.display = "flex";
     }
 
-    // Load messages realtime
-    setupMessagesListener();
+    // Load messages for current channel
+    loadChannelMessages();
   });
 
   // Initialize the app
