@@ -1,1093 +1,633 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KAMBA Forum — Public Chat</title>
-<style>
-  /* RESET & BASIC */
-  * {
-    box-sizing: border-box;
-  }
-  body, html {
-    margin: 0; padding: 0;
-    height: 100%;
-    background: #36393f; /* Discord dark */
-    color: #dcddde;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    display: grid;
-    grid-template-columns: 60px 240px 1fr 320px;
-    grid-template-rows: 100vh;
-  }
-
-  /* LEFT SIDEBAR (Groups) */
-  #sidebar-left {
-    background: #202225;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 0;
-    overflow-y: auto;
-  }
-  .server-icon {
-    background: #36393f;
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    color: white;
-    font-weight: bold;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.2s;
-  }
-  .server-icon:hover {
-    background: #5865f2;
-  }
-
-  /* SECONDARY SIDEBAR */
-  #sidebar-secondary {
-    background: #2f3136;
-    padding: 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  #sidebar-secondary h2 {
-    margin-top: 0;
-    font-weight: 600;
-    font-size: 1.1em;
-    border-bottom: 1px solid #4f545c;
-    padding-bottom: 6px;
-  }
-  .list-item {
-    background: #36393f;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.2s;
-  }
-  .list-item:hover {
-    background: #5865f2;
-    color: white;
-  }
-
-  /* MAIN CHAT AREA */
-  #main-chat {
-    background: #36393f;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
-
-  /* HEADER with search */
-  #chat-header {
-    background: #2f3136;
-    padding: 12px 16px;
-    border-bottom: 1px solid #4f545c;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  #search-input {
-    flex-grow: 1;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: none;
-    background: #202225;
-    color: #dcddde;
-    font-size: 1em;
-  }
-  #search-clear-btn {
-    background: transparent;
-    border: none;
-    color: #dcddde;
-    font-size: 1.2em;
-    cursor: pointer;
-    display: none;
-  }
-  #search-results {
-    position: absolute;
-    background: #2f3136;
-    max-height: 200px;
-    overflow-y: auto;
-    width: 300px;
-    margin-top: 4px;
-    border-radius: 6px;
-    box-shadow: 0 0 10px #0008;
-    z-index: 1000;
-  }
-
-  /* CHAT MESSAGES */
-  #chat-messages {
-    flex-grow: 1;
-    padding: 12px 20px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #202225 #2f3136;
-  }
-  #chat-messages::-webkit-scrollbar {
-    width: 8px;
-  }
-  #chat-messages::-webkit-scrollbar-track {
-    background: #2f3136;
-  }
-  #chat-messages::-webkit-scrollbar-thumb {
-    background-color: #202225;
-    border-radius: 10px;
-  }
-
-  .message {
-    margin-bottom: 15px;
-    max-width: 80%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    position: relative;
-    background: #2f3136;
-    word-break: break-word;
-  }
-  .message.green .username {
-    color: #43b581;
-  }
-  .message.blue .username {
-    color: #00a6fb;
-  }
-  .message.violet .username {
-    color: #8a2be2;
-  }
-  .message.red .username {
-    color: #f04747;
-  }
-  .username {
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .text {
-    white-space: pre-wrap;
-  }
-  .reply-to {
-    font-size: 0.85em;
-    color: #b9bbbe;
-    margin-bottom: 6px;
-    padding-left: 8px;
-    border-left: 2px solid #4f545c;
-  }
-  .chat-image {
-    max-width: 240px;
-    border-radius: 8px;
-    margin-top: 8px;
-    cursor: pointer;
-    display: block;
-  }
-  .img-save-icon {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: #202225cc;
-    color: #dcddde;
-    border-radius: 50%;
-    padding: 4px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  .reply-btn {
-    font-size: 0.85em;
-    color: #72767d;
-    cursor: pointer;
-    margin-top: 6px;
-    width: fit-content;
-    user-select: none;
-  }
-  .reply-btn:hover {
-    color: #5865f2;
-  }
-
-  /* MESSAGE INPUT AREA */
-  #input-area {
-    background: #40444b;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  #message-input {
-    flex-grow: 1;
-    height: 40px;
-    border-radius: 20px;
-    border: none;
-    padding: 8px 14px;
-    background: #2f3136;
-    color: #dcddde;
-    resize: none;
-    font-size: 1em;
-  }
-  #message-input:focus {
-    outline: none;
-    background: #40444b;
-  }
-  #emoji-btn, #send-btn {
-    background: #5865f2;
-    border: none;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    user-select: none;
-  }
-  #emoji-btn:hover, #send-btn:hover {
-    background: #4752c4;
-  }
-
-  /* EMOJI PICKER */
-  .emoji-picker {
-    position: absolute;
-    bottom: 60px;
-    left: 80px;
-    background: #2f3136;
-    border: 1px solid #202225;
-    border-radius: 8px;
-    padding: 8px;
-    display: flex;
-    gap: 8px;
-    z-index: 10000;
-  }
-  .emoji-picker button {
-    background: none;
-    border: none;
-    color: #dcddde;
-    font-size: 22px;
-    cursor: pointer;
-  }
-  .emoji-picker button:hover {
-    color: #5865f2;
-  }
-
-  /* FULLSCREEN IMAGE VIEWER */
-  #fullscreen-img-viewer {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.9);
-    justify-content: center;
-    align-items: center;
-    z-index: 20000;
-  }
-  #fullscreen-img-viewer img {
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 12px;
-    box-shadow: 0 0 20px #000;
-    outline: none;
-  }
-
-  /* NO SONG NOTIFICATION */
-  #no-song-notification {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    background: #f04747;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px #f04747bb;
-    display: none;
-    align-items: center;
-    gap: 15px;
-    font-weight: 600;
-    user-select: none;
-  }
-  #dismiss-no-song-btn {
-    background: transparent;
-    border: 1.5px solid white;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-  }
-  #dismiss-no-song-btn:hover {
-    background: white;
-    color: #f04747;
-  }
-
-  /* PROFILE ICON */
-  #profile-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #43b581;
-    color: white;
-    font-weight: 700;
-    font-size: 22px;
-    line-height: 40px;
-    text-align: center;
-    user-select: none;
-    cursor: pointer;
-    margin-left: auto;
-    margin-right: 20px;
-    flex-shrink: 0;
-  }
-
-  /* RESPONSIVE */
-  @media (max-width: 960px) {
-    body {
-      grid-template-columns: 60px 200px 1fr;
-      grid-template-rows: auto;
-      height: auto;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KAMBA Forum - Chat</title>
+  <style>
+    * { box-sizing: border-box; }
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%;
+      background-color: #36393f;
+      color: #dcddde;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      overflow: hidden;
     }
-    #sidebar-secondary {
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    header {
+      background-color: #2f3136;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    #sign-out-btn {
+      background-color: #f04747;
+      border: none;
+      color: white;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #sign-out-btn:hover {
+      background-color: #c03939;
+    }
+    #chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow-y: auto;
+      gap: 0.5rem;
+      background-color: #2f3136;
+      scrollbar-width: thin;
+      scrollbar-color: #202225 #2f3136;
+    }
+    #chat-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chat-container::-webkit-scrollbar-track {
+      background: #2f3136;
+    }
+    #chat-container::-webkit-scrollbar-thumb {
+      background: #202225;
+      border-radius: 4px;
+    }
+    .message {
+      background-color: #36393f;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      max-width: 80%;
+      word-break: break-word;
+      position: relative;
+      margin: 0.3rem 0;
+    }
+    .username {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+      display: inline-block;
+    }
+    .username.green { color: #43b581; }
+    .username.blue { color: #5865f2; }
+    .username.violet { color: #9b59b6; }
+    .username.red { color: #ed4245; }
+    .message-text {
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+    }
+    .reply-to {
+      font-size: 0.7rem;
+      color: #b9bbbe;
+      margin-bottom: 0.3rem;
+      padding-left: 0.5rem;
+      border-left: 2px solid #5865f2;
+    }
+    .reply-btn {
+      font-size: 0.7rem;
+      color: #5865f2;
+      cursor: pointer;
+      margin-top: 0.3rem;
+      user-select: none;
+    }
+    .reply-btn:hover {
+      text-decoration: underline;
+    }
+    #input-area {
+      background-color: #40444b;
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #message-input {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border-radius: 5px;
+      border: none;
+      font-size: 0.95rem;
+      color: white;
+      background-color: #2f3136;
+    }
+    #message-input:focus {
+      outline: 2px solid #5865f2;
+    }
+    #send-btn, #emoji-btn {
+      background: #5865f2;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #send-btn:hover, #emoji-btn:hover {
+      background: #4752c4;
+    }
+    #emoji-btn {
+      background: transparent;
+      font-size: 1.3rem;
+      padding: 0.5rem;
+    }
+    #emoji-picker {
+      position: absolute;
+      bottom: 4rem;
+      right: 1rem;
+      background: #202225;
+      border-radius: 6px;
+      padding: 0.5rem;
+      display: none;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+      z-index: 1000;
+    }
+    #emoji-picker span {
+      font-size: 1.5rem;
+      margin: 0 0.3rem;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    #emoji-picker span:hover {
+      transform: scale(1.2);
+    }
+    #no-song-notification {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: #f04747;
+      color: white;
+      padding: 0.8rem;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      display: none;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    #no-song-notification:hover {
+      background: #c03939;
+    }
+    #music-controls {
+      position: fixed;
+      bottom: 5rem;
+      right: 1rem;
+      background: #202225;
+      padding: 0.5rem;
+      border-radius: 5px;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    #volume-slider {
+      width: 100px;
+    }
+    #groups-sidebar {
+      width: 240px;
+      min-width: 72px;
+      background: #2f3136;
+      border-left: 1px solid #202225;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow-y: auto;
+      position: relative;
+      resize: horizontal;
+      max-width: 400px;
+    }
+    #groups-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    #groups-sidebar::-webkit-scrollbar-track {
+      background: #2f3136;
+    }
+    #groups-sidebar::-webkit-scrollbar-thumb {
+      background: #202225;
+      border-radius: 3px;
+    }
+    .group-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    .group-item:hover {
+      background: #40444b;
+    }
+    .group-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .group-details {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+    }
+    .group-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #dcddde;
+    }
+    .group-description {
+      font-size: 0.75rem;
+      color: #b9bbbe;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #create-group-btn {
+      background: #5865f2;
+      color: white;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    #create-group-btn:hover {
+      background: #4752c4;
+    }
+    #create-group-btn.hidden {
       display: none;
     }
-    #main-chat {
-      height: 80vh;
+    #groups-sidebar.wide .group-details {
+      display: flex;
     }
-  }
-  @media (max-width: 600px) {
-    body {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto 1fr auto;
-      height: auto;
+    #profile-section {
+      padding: 1rem;
+      background: #202225;
+      border-bottom: 1px solid #2f3136;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    #sidebar-left, #sidebar-secondary {
-      display: none;
+    #profile-username {
+      font-weight: 600;
+      font-size: 0.9rem;
     }
-    #main-chat {
-      height: 70vh;
-      grid-column: 1 / -1;
+    #profile-sparks {
+      font-size: 0.75rem;
+      color: #b9bbbe;
     }
-  }
-</style>
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      #groups-sidebar {
+        width: 100%;
+        min-width: 100%;
+        resize: none;
+        max-width: none;
+        border-left: none;
+        border-top: 1px solid #202225;
+      }
+      #groups-sidebar.wide .group-details {
+        display: none;
+      }
+      header { padding: 0.8rem 1rem; }
+      header h1 { font-size: 1.2rem; }
+      #chat-container { padding: 0.5rem; }
+      .message { max-width: 90%; }
+      #input-area { padding: 0.5rem; }
+      #music-controls { bottom: 4.5rem; right: 0.5rem; }
+      #no-song-notification { right: 0.5rem; top: 0.5rem; }
+    }
+    @media (min-width: 769px) {
+      #groups-sidebar {
+        width: 240px;
+      }
+      #groups-sidebar.wide {
+        width: 300px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>KAMBA Forum - Public Chat</h1>
+    <button id="sign-out-btn">Sign Out</button>
+  </header>
 
-<!-- Left sidebar - groups -->
-<div id="sidebar-left" aria-label="Groups sidebar" role="navigation" tabindex="0">
-  <!-- Dynamic server icons here -->
-</div>
+  <div class="main-container">
+    <div id="chat-area">
+      <div id="chat-container"></div>
+      <div id="input-area">
+        <input type="text" id="message-input" placeholder="Type a message..." />
+        <button id="emoji-btn">😊</button>
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
 
-<!-- Secondary sidebar - announcements, sub-communities, projects -->
-<div id="sidebar-secondary" aria-label="Sidebar secondary">
-  <section>
-    <h2>Announcements</h2>
-    <div id="announcements-list" role="list"></div>
-  </section>
-  <section>
-    <h2>Sub-Communities</h2>
-    <div id="subcommunities-list" role="list"></div>
-  </section>
-  <section>
-    <h2>My Projects</h2>
-    <div id="my-projects-list" role="list"></div>
-  </section>
-</div>
-
-<!-- Main chat -->
-<div id="main-chat" role="main" aria-label="Chat area" tabindex="0">
-  <!-- Header with search -->
-  <div id="chat-header">
-    <input id="search-input" type="search" placeholder="Search users, groups, projects…" aria-label="Search" autocomplete="off" />
-    <button id="search-clear-btn" aria-label="Clear search input">&times;</button>
+    <div id="groups-sidebar">
+      <div id="profile-section">
+        <span id="profile-username" class="username"></span>
+        <span id="profile-sparks"></span>
+      </div>
+      <button id="create-group-btn" class="hidden">Create Group</button>
+      <div id="groups-list"></div>
+    </div>
   </div>
-  <div id="search-results" role="listbox" aria-live="polite" tabindex="0"></div>
 
-  <!-- Messages -->
-  <div id="chat-messages" tabindex="0" aria-live="polite" aria-relevant="additions"></div>
-
-  <!-- Input area -->
-  <div id="input-area">
-    <button id="emoji-btn" aria-label="Toggle emoji picker" title="Emoji picker">😊</button>
-    <textarea id="message-input" placeholder="Message #general" rows="1" aria-multiline="true" aria-label="Message input"></textarea>
-    <input type="file" id="image-upload-input" accept="image/*" multiple style="display:none" aria-hidden="true" />
-    <button id="upload-image-btn" aria-label="Upload images" title="Upload images">📷</button>
-    <button id="send-btn" aria-label="Send message" title="Send message">➡️</button>
+  <div id="emoji-picker">
+    <span data-emoji="😊">😊</span>
+    <span data-emoji="👍">👍</span>
+    <span data-emoji="🔥">🔥</span>
+    <span data-emoji="❤️">❤️</span>
+    <span data-emoji="😂">😂</span>
   </div>
-</div>
 
-<!-- Profile icon -->
-<div id="profile-icon" tabindex="0" role="button" aria-label="Profile and settings"></div>
+  <div id="no-song-notification">
+    No song set! Click here to choose one in settings.
+  </div>
 
-<!-- No song notification -->
-<div id="no-song-notification" role="alert" aria-live="assertive">
-  No song set. <button id="set-song-link" aria-label="Go to settings to set song">Click here</button> to set your song in Settings.
-  <button id="dismiss-no-song-btn" aria-label="Dismiss notification for 10 hours">Dismiss</button>
-</div>
+  <div id="music-controls">
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" />
+    <span id="volume-label">50%</span>
+  </div>
 
-<!-- Fullscreen image viewer -->
-<div id="fullscreen-img-viewer" tabindex="0" aria-label="Fullscreen image viewer">
-  <img id="fullscreen-img-tag" alt="Fullscreen image" />
-</div>
+  <audio id="background-audio" loop></audio>
 
-<script type="module">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, onSnapshot, orderBy, query, limit, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
-    authDomain: "muah-feed.firebaseapp.com",
-    databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
-    projectId: "muah-feed",
-    storageBucket: "muah-feed.firebasestorage.app",
-    messagingSenderId: "442314397706",
-    appId: "1:442314397706:web:a69e3958257fb13b3667f3",
-    measurementId: "G-S86S229F1T"
-  };
-
-  // ImgBB API key
-  const IMGBB_API_KEY = "0f248e70fc4e7dffde307dd772823379";
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // Elements
-  const chatMessages = document.getElementById("chat-messages");
-  const messageInput = document.getElementById("message-input");
-  const sendBtn = document.getElementById("send-btn");
-  const emojiBtn = document.getElementById("emoji-btn");
-  const profileIcon = document.getElementById("profile-icon");
-  const sidebarLeft = document.getElementById("sidebar-left");
-  const announcementsList = document.getElementById("announcements-list");
-  const subcommunitiesList = document.getElementById("subcommunities-list");
-  const myProjectsList = document.getElementById("my-projects-list");
-  const noSongNotification = document.getElementById("no-song-notification");
-  const dismissNoSongBtn = document.getElementById("dismiss-no-song-btn");
-  const setSongLink = document.getElementById("set-song-link");
-  const fullscreenImgViewer = document.getElementById("fullscreen-img-viewer");
-  const fullscreenImgTag = document.getElementById("fullscreen-img-tag");
-  const searchInput = document.getElementById("search-input");
-  const searchClearBtn = document.getElementById("search-clear-btn");
-  const searchResults = document.getElementById("search-results");
-  const imageUploadInput = document.getElementById("image-upload-input");
-  const uploadImageBtn = document.getElementById("upload-image-btn");
-
-  let currentUser = null;
-  let currentUserData = null;
-  let audioPlayer = null;
-  let replyToMessageId = null;
-  let emojiPickerVisible = false;
-  let emojiPickerDiv = null;
-  let uploading = false;
-  let uploadedImages = [];
-
-  // Helper: extract username from email (before @)
-  function usernameFromEmail(email) {
-    return email.split("@")[0];
-  }
-
-  // Set profile icon color based on account status
-  function setProfileIconColor(status) {
-    let color = "#43b581"; // green
-    if (status === "blue") color = "#00a6fb";
-    else if (status === "violet") color = "#8a2be2";
-    else if (status === "red") color = "#f04747";
-
-    profileIcon.style.backgroundColor = color;
-    profileIcon.textContent = usernameFromEmail(currentUser.email)[0].toUpperCase();
-  }
-
-  // Show or hide no-song notification based on localStorage and firestore
-  function checkNoSongNotification() {
-    const dismissed = localStorage.getItem("noSongDismissedUntil");
-    if (dismissed && Date.now() < parseInt(dismissed)) {
-      noSongNotification.style.display = "none";
-    } else {
-      if (!currentUserData?.songUrl) {
-        noSongNotification.style.display = "flex";
-      } else {
-        noSongNotification.style.display = "none";
-      }
-    }
-  }
-
-  // Setup looping audio player for user's song
-  function setupAudioPlayer() {
-    if (audioPlayer) {
-      audioPlayer.pause();
-      audioPlayer = null;
-    }
-    if (currentUserData?.songUrl) {
-      audioPlayer = new Audio(currentUserData.songUrl);
-      audioPlayer.loop = true;
-      audioPlayer.volume = 0.3;
-      audioPlayer.play().catch(() => {
-        // Autoplay might be blocked by browser, ignore
-      });
-    }
-  }
-
-  // Listen for auth changes
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      // Not logged in, redirect to login
-      window.location.href = "sign.html";
-      return;
-    }
-    currentUser = user;
-
-    // Load user data from Firestore
-    const userDocRef = doc(db, "Kamba_users", currentUser.email);
-    const docSnap = await getDoc(userDocRef);
-    if (docSnap.exists()) {
-      currentUserData = docSnap.data();
-      setProfileIconColor(currentUserData.accountStatus || "green");
-      checkNoSongNotification();
-      setupAudioPlayer();
-    } else {
-      // First time user document creation
-      await setDoc(userDocRef, {
-        accountStatus: "green",
-        sparks: 0,
-        songUrl: null,
-        agreedTerms: false
-      });
-      currentUserData = {
-        accountStatus: "green",
-        sparks: 0,
-        songUrl: null,
-        agreedTerms: false
-      };
-      setProfileIconColor("green");
-      checkNoSongNotification();
-    }
-
-    // If user didn't agree terms, prompt them
-    if (!currentUserData.agreedTerms) {
-      showAgreeBox();
-    }
-
-    loadMessages();
-    loadGroups();
-    loadSidebarSections();
-  });
-
-  // AGREE BOX
-  function showAgreeBox() {
-    const agreeDiv = document.createElement("div");
-    agreeDiv.style.position = "fixed";
-    agreeDiv.style.top = "50%";
-    agreeDiv.style.left = "50%";
-    agreeDiv.style.transform = "translate(-50%, -50%)";
-    agreeDiv.style.background = "#202225";
-    agreeDiv.style.color = "#fff";
-    agreeDiv.style.padding = "20px 30px";
-    agreeDiv.style.borderRadius = "12px";
-    agreeDiv.style.boxShadow = "0 0 20px #5865f2";
-    agreeDiv.style.zIndex = "10000";
-    agreeDiv.style.textAlign = "center";
-    agreeDiv.style.maxWidth = "320px";
-    agreeDiv.textContent = "Agree and Continue to use KAMBA Forum";
-
-    const agreeBtn = document.createElement("button");
-    agreeBtn.textContent = "Agree and Continue";
-    agreeBtn.style.marginTop = "20px";
-    agreeBtn.style.padding = "8px 16px";
-    agreeBtn.style.backgroundColor = "#5865f2";
-    agreeBtn.style.border = "none";
-    agreeBtn.style.color = "white";
-    agreeBtn.style.borderRadius = "8px";
-    agreeBtn.style.cursor = "pointer";
-    agreeBtn.addEventListener("click", async () => {
-      agreeDiv.remove();
-      // Update Firestore to mark agreedTerms true
-      const userDocRef = doc(db, "Kamba_users", currentUser.email);
-      await updateDoc(userDocRef, { agreedTerms: true });
-      currentUserData.agreedTerms = true;
-    });
-
-    agreeDiv.appendChild(document.createElement("br"));
-    agreeDiv.appendChild(agreeBtn);
-
-    document.body.appendChild(agreeDiv);
-  }
-
-  // Load chat messages realtime
-  function loadMessages() {
-    const messagesRef = collection(db, "messages");
-    const messagesQuery = query(messagesRef, orderBy("createdAt", "asc"));
-
-    onSnapshot(messagesQuery, (snapshot) => {
-      chatMessages.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        const msg = docSnap.data();
-        const messageElem = createMessageElement(docSnap.id, msg);
-        chatMessages.appendChild(messageElem);
-      });
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
-  }
-
-  // Create a message DOM element
-  function createMessageElement(id, msg) {
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add("message");
-
-    // Determine class by accountStatus for username color
-    const statusClass = msg.accountStatus || "green";
-    messageDiv.classList.add(statusClass);
-
-    // Username (email before @)
-    const usernameDiv = document.createElement("div");
-    usernameDiv.className = "username";
-    usernameDiv.textContent = usernameFromEmail(msg.email);
-    messageDiv.appendChild(usernameDiv);
-
-    // Reply to
-    if (msg.replyToText) {
-      const replyDiv = document.createElement("div");
-      replyDiv.className = "reply-to";
-      replyDiv.textContent = "Reply to: " + msg.replyToText;
-      messageDiv.appendChild(replyDiv);
-    }
-
-    // Text content with link previews and emojis
-    const textDiv = document.createElement("div");
-    textDiv.className = "text";
-    textDiv.innerHTML = parseMessageText(msg.text);
-    messageDiv.appendChild(textDiv);
-
-    // Images, if any
-    if (msg.images && msg.images.length) {
-      msg.images.forEach(imgUrl => {
-        const imgWrapper = document.createElement("div");
-        imgWrapper.style.position = "relative";
-        const img = document.createElement("img");
-        img.className = "chat-image";
-        img.src = imgUrl;
-        img.alt = "User uploaded image";
-        img.tabIndex = 0;
-        img.style.outline = "none";
-
-        // Save icon
-        const saveIcon = document.createElement("span");
-        saveIcon.className = "img-save-icon";
-        saveIcon.title = "Open image fullscreen";
-        saveIcon.textContent = "💾";
-        saveIcon.tabIndex = 0;
-        saveIcon.style.userSelect = "none";
-
-        // Open fullscreen on click
-        function openFullscreen() {
-          fullscreenImgTag.src = imgUrl;
-          fullscreenImgViewer.style.display = "flex";
-          fullscreenImgViewer.focus();
-        }
-        saveIcon.addEventListener("click", openFullscreen);
-        saveIcon.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") openFullscreen();
-        });
-        img.addEventListener("click", openFullscreen);
-        img.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") openFullscreen();
-        });
-
-        imgWrapper.appendChild(img);
-        imgWrapper.appendChild(saveIcon);
-        messageDiv.appendChild(imgWrapper);
-      });
-    }
-
-    // Reply button
-    const replyBtn = document.createElement("div");
-    replyBtn.className = "reply-btn";
-    replyBtn.textContent = "Reply";
-    replyBtn.tabIndex = 0;
-    replyBtn.setAttribute("role", "button");
-    replyBtn.setAttribute("aria-pressed", "false");
-    replyBtn.addEventListener("click", () => {
-      replyToMessageId = id;
-      messageInput.focus();
-      messageInput.placeholder = `Replying to ${usernameFromEmail(msg.email)}`;
-    });
-    replyBtn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        replyBtn.click();
-      }
-    });
-    messageDiv.appendChild(replyBtn);
-
-    return messageDiv;
-  }
-
-  // Parse message text to convert emojis and links with preview
-  function parseMessageText(text) {
-    if (!text) return "";
-
-    // Basic escape HTML
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, function(m) {
-        return ({
-          '&': "&amp;",
-          '<': "&lt;",
-          '>': "&gt;",
-          '"': "&quot;",
-          "'": "&#39;"
-        })[m];
-      });
-    }
-
-    text = escapeHtml(text);
-
-    // Convert emoji shortcuts (e.g. :smile:) - Here simplified, we only support 5 emojis
-    const emojiMap = {
-      ":smile:": "😄",
-      ":thumbsup:": "👍",
-      ":heart:": "❤️",
-      ":fire:": "🔥",
-      ":rocket:": "🚀"
+    const firebaseConfig = {
+      apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+      authDomain: "muah-feed.firebaseapp.com",
+      databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+      projectId: "muah-feed",
+      storageBucket: "muah-feed.firebasestorage.app",
+      messagingSenderId: "442314397706",
+      appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+      measurementId: "G-S86S229F1T"
     };
-    for (const k in emojiMap) {
-      text = text.split(k).join(emojiMap[k]);
-    }
 
-    // Detect URLs and add clickable links + previews
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    text = text.replace(urlRegex, (url) => {
-      // For YouTube links, embed a player preview
-      const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]+)/);
-      if (ytMatch) {
-        const ytId = ytMatch[1];
-        return `
-          <div style="margin:8px 0;">
-            <a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#7289da;">${url}</a>
-            <iframe width="280" height="158" src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen style="border-radius: 8px; margin-top: 6px;"></iframe>
-          </div>`;
-      }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      // For images
-      if (url.match(/\.(jpeg|jpg|gif|png|bmp|webp)$/i)) {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#7289da;">[Image]</a>`;
-      }
+    const chatContainer = document.getElementById("chat-container");
+    const messageInput = document.getElementById("message-input");
+    const sendBtn = document.getElementById("send-btn");
+    const emojiBtn = document.getElementById("emoji-btn");
+    const emojiPicker = document.getElementById("emoji-picker");
+    const signOutBtn = document.getElementById("sign-out-btn");
+    const noSongNotification = document.getElementById("no-song-notification");
+    const audioPlayer = document.getElementById("background-audio");
+    const volumeSlider = document.getElementById("volume-slider");
+    const volumeLabel = document.getElementById("volume-label");
+    const groupsList = document.getElementById("groups-list");
+    const createGroupBtn = document.getElementById("create-group-btn");
+    const groupsSidebar = document.getElementById("groups-sidebar");
+    const profileUsername = document.getElementById("profile-username");
+    const profileSparks = document.getElementById("profile-sparks");
 
-      // Other links
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#7289da;">${url}</a>`;
-    });
+    let currentUser = null;
+    let replyToMessageId = null;
+    let username = "";
+    let userStatus = "green";
+    let userSparks = 0;
 
-    return text;
-  }
-
-  // Send a message handler
-  async function sendMessage() {
-    if (uploading) {
-      alert("Please wait, images are still uploading.");
-      return;
-    }
-
-    let text = messageInput.value.trim();
-    if (!text && uploadedImages.length === 0) return;
-
-    // Prepare message object
-    const msgObj = {
-      email: currentUser.email,
-      accountStatus: currentUserData.accountStatus || "green",
-      text: text,
-      images: uploadedImages,
-      createdAt: new Date(),
-    };
-    if (replyToMessageId) {
-      // Find original message text for reply preview
-      // Ideally should be cached or loaded, here simplified with Firestore getDoc
-      try {
-        const replyDoc = await getDoc(doc(db, "messages", replyToMessageId));
-        if (replyDoc.exists()) {
-          msgObj.replyToText = replyDoc.data().text.slice(0, 100);
-        }
-      } catch (e) {}
-    }
-
-    await addDoc(collection(db, "messages"), msgObj);
-
-    // Reset
-    messageInput.value = "";
-    replyToMessageId = null;
-    messageInput.placeholder = "Message #general";
-    uploadedImages = [];
-    imageUploadInput.value = "";
-  }
-
-  // Emoji picker toggle
-  function toggleEmojiPicker() {
-    if (emojiPickerVisible) {
-      if (emojiPickerDiv) emojiPickerDiv.remove();
-      emojiPickerVisible = false;
-      return;
-    }
-    emojiPickerDiv = document.createElement("div");
-    emojiPickerDiv.className = "emoji-picker";
-    const emojis = ["😄", "👍", "❤️", "🔥", "🚀"];
-    emojis.forEach(e => {
-      const btn = document.createElement("button");
-      btn.textContent = e;
-      btn.setAttribute("aria-label", `Insert emoji ${e}`);
-      btn.addEventListener("click", () => {
-        insertAtCursor(messageInput, e);
-        messageInput.focus();
-      });
-      emojiPickerDiv.appendChild(btn);
-    });
-    document.body.appendChild(emojiPickerDiv);
-    emojiPickerVisible = true;
-  }
-
-  // Insert text at cursor position
-  function insertAtCursor(input, textToInsert) {
-    const start = input.selectionStart;
-    const end = input.selectionEnd;
-    const text = input.value;
-    input.value = text.substring(0, start) + textToInsert + text.substring(end);
-    input.selectionStart = input.selectionEnd = start + textToInsert.length;
-  }
-
-  // Handle Enter key in message input: send message unless Shift is held
-  messageInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
-  sendBtn.addEventListener("click", sendMessage);
-  emojiBtn.addEventListener("click", toggleEmojiPicker);
-
-  // Clicking outside emoji picker closes it
-  document.body.addEventListener("click", (e) => {
-    if (emojiPickerVisible && emojiPickerDiv && !emojiPickerDiv.contains(e.target) && e.target !== emojiBtn) {
-      emojiPickerDiv.remove();
-      emojiPickerVisible = false;
-    }
-  });
-
-  // Image upload
-  uploadImageBtn.addEventListener("click", () => {
-    imageUploadInput.click();
-  });
-
-  imageUploadInput.addEventListener("change", async () => {
-    if (uploading) return;
-    const files = Array.from(imageUploadInput.files);
-    if (!files.length) return;
-
-    const totalSize = files.reduce((sum, f) => sum + f.size, 0);
-    if (totalSize > 6 * 1024 * 1024) {
-      alert("Total images size must not exceed 6 MB.");
-      imageUploadInput.value = "";
-      return;
-    }
-
-    uploading = true;
-    const uploadedUrls = [];
-
-    for (const file of files) {
-      const base64 = await fileToBase64(file);
-      try {
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: base64.split(",")[1] }),
-        });
-        const data = await res.json();
-        if (data.success) {
-          uploadedUrls.push(data.data.url);
-        } else {
-          alert("Image upload failed.");
-        }
-      } catch {
-        alert("Error uploading image.");
-      }
-    }
-
-    uploadedImages = uploadedUrls;
-    uploading = false;
-    alert(`Uploaded ${uploadedUrls.length} image(s)`);
-  });
-
-  // Convert file to base64
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // Fullscreen image viewer close
-  fullscreenImgViewer.addEventListener("click", () => {
-    fullscreenImgViewer.style.display = "none";
-    fullscreenImgTag.src = "";
-  });
-  fullscreenImgViewer.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      fullscreenImgViewer.style.display = "none";
-      fullscreenImgTag.src = "";
-    }
-  });
-
-  // No song notification dismiss
-  dismissNoSongBtn.addEventListener("click", () => {
-    noSongNotification.style.display = "none";
-    const until = Date.now() + 10 * 60 * 60 * 1000; // 10 hours
-    localStorage.setItem("noSongDismissedUntil", until.toString());
-  });
-
-  // Set song link redirects to settings page
-  setSongLink.addEventListener("click", () => {
-    window.location.href = "settings.html";
-  });
-
-  // Load groups (left sidebar)
-  function loadGroups() {
-    const groupsRef = collection(db, "groups");
-    onSnapshot(groupsRef, (snapshot) => {
-      sidebarLeft.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        const group = docSnap.data();
-        const icon = document.createElement("div");
-        icon.className = "server-icon";
-        icon.title = group.name;
-        icon.textContent = group.icon || group.name.charAt(0).toUpperCase();
-        sidebarLeft.appendChild(icon);
-      });
-    });
-  }
-
-  // Load announcements, subcommunities, projects (secondary sidebar)
-  function loadSidebarSections() {
-    // Announcements
-    const annRef = collection(db, "announcements");
-    onSnapshot(annRef, (snap) => {
-      announcementsList.innerHTML = "";
-      snap.forEach(docSnap => {
-        const ann = docSnap.data();
-        const item = document.createElement("div");
-        item.className = "list-item";
-        item.textContent = ann.text;
-        announcementsList.appendChild(item);
-      });
-    });
-
-    // Sub-communities
-    const subRef = collection(db, "subcommunities");
-    onSnapshot(subRef, (snap) => {
-      subcommunitiesList.innerHTML = "";
-      snap.forEach(docSnap => {
-        const sub = docSnap.data();
-        const item = document.createElement("div");
-        item.className = "list-item";
-        item.textContent = sub.name;
-        subcommunitiesList.appendChild(item);
-      });
-    });
-
-    // Projects
-    const projRef = collection(db, "projects");
-    onSnapshot(projRef, (snap) => {
-      myProjectsList.innerHTML = "";
-      snap.forEach(docSnap => {
-        const proj = docSnap.data();
-        const item = document.createElement("div");
-        item.className = "list-item";
-        item.textContent = proj.name;
-        myProjectsList.appendChild(item);
-      });
-    });
-  }
-
-  // Profile icon click redirects to settings.html
-  profileIcon.addEventListener("click", () => {
-    window.location.href = "settings.html";
-  });
-
-  profileIcon.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      profileIcon.click();
-    }
-  });
-
-  // Search bar with 300ms debounce
-  let searchTimeout = null;
-  searchInput.addEventListener("input", () => {
-    clearTimeout(searchTimeout);
-    const queryText = searchInput.value.trim().toLowerCase();
-    if (!queryText) {
-      searchResults.innerHTML = "";
-      searchResults.style.display = "none";
-      searchClearBtn.style.display = "none";
-      return;
-    }
-    searchClearBtn.style.display = "inline";
-    searchTimeout = setTimeout(() => {
-      searchUsers(queryText);
-    }, 300);
-  });
-
-  searchClearBtn.addEventListener("click", () => {
-    searchInput.value = "";
-    searchResults.innerHTML = "";
-    searchResults.style.display = "none";
-    searchClearBtn.style.display = "none";
-  });
-
-  // Search users by email prefix
-  async function searchUsers(queryText) {
-    searchResults.innerHTML = "";
-    searchResults.style.display = "block";
-    try {
-      // Query Firestore Kamba_users collection for emails starting with queryText
-      // Firestore doesn't support startsWith natively, so workaround with range queries:
-      const start = queryText;
-      const end = queryText.replace(/.$/, c => String.fromCharCode(c.charCodeAt(0) + 1));
-      const usersRef = collection(db, "Kamba_users");
-      const q = query(usersRef, orderBy("email"), 
-        // between start and end
-        // This is a known workaround for prefix search in Firestore
-        // Firestore query function from version 12.x requires import but simplified here
-        // Note: Adapt if needed in your env
-        );
-      const querySnapshot = await getDocs(usersRef);
-      // Filter on client side for demo (better indexing can be done)
-      const matchedUsers = [];
-      querySnapshot.forEach(docSnap => {
-        const email = docSnap.id.toLowerCase();
-        if (email.startsWith(queryText)) {
-          matchedUsers.push({ email: docSnap.id, ...docSnap.data() });
-        }
-      });
-      if (matchedUsers.length === 0) {
-        searchResults.innerHTML = "<div class='list-item'>No results found</div>";
+    // Check auth state and load user data
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "sign.html";
         return;
       }
-      matchedUsers.forEach(user => {
-        const item = document.createElement("div");
-        item.className = "list-item";
-        item.textContent = user.email;
-        item.tabIndex = 0;
-        item.addEventListener("click", () => {
-          alert(`User selected: ${user.email}`);
-          // Implement further user profile or action
-          searchResults.innerHTML = "";
-          searchResults.style.display = "none";
-        });
-        searchResults.appendChild(item);
+      currentUser = user;
+      username = user.email.split("@")[0];
+      const userDoc = await getDoc(doc(db, "Kamba_users", user.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        userStatus = data.status || "green";
+        userSparks = data.sparks || 0;
+        profileUsername.textContent = username;
+        profileUsername.classList.add(userStatus);
+        profileSparks.textContent = `${userSparks} Sparks`;
+        if (["blue", "violet", "red"].includes(userStatus)) {
+          createGroupBtn.classList.remove("hidden");
+        }
+        if (data.song) {
+          audioPlayer.src = data.song;
+          audioPlayer.volume = data.volume || 0.5;
+          volumeSlider.value = data.volume || 0.5;
+          volumeLabel.textContent = `${Math.round(data.volume * 100)}%`;
+          audioPlayer.play().catch(() => {});
+        } else {
+          noSongNotification.style.display = "block";
+        }
+      }
+    });
+
+    // Load messages in real-time
+    const messagesQuery = query(collection(db, "Kamba_messages"), orderBy("timestamp", "asc"));
+    onSnapshot(messagesQuery, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const msg = change.doc.data();
+          const msgId = change.doc.id;
+          displayMessage(msg, msgId);
+        }
       });
-    } catch (e) {
-      searchResults.innerHTML = `<div class="list-item">Search error: ${e.message}</div>`;
+    });
+
+    // Load groups in real-time
+    const groupsQuery = query(collection(db, "Kamba_groups"), orderBy("createdAt", "asc"));
+    onSnapshot(groupsQuery, (snapshot) => {
+      groupsList.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const group = doc.data();
+        const div = document.createElement("div");
+        div.classList.add("group-item");
+        div.innerHTML = `
+          <img src="${group.imageUrl || 'https://via.placeholder.com/40'}" class="group-image" alt="${group.name}" />
+          <div class="group-details">
+            <div class="group-name">${group.name}</div>
+            <div class="group-description">${group.description}</div>
+          </div>
+        `;
+        groupsList.appendChild(div);
+      });
+      updateGroupDetailsVisibility();
+    });
+
+    // Display a message
+    async function displayMessage(msg, msgId) {
+      const div = document.createElement("div");
+      div.classList.add("message");
+      const senderStatus = msg.status || "green";
+      let replyHtml = "";
+      if (msg.replyTo) {
+        const replyDoc = await getDoc(doc(db, "Kamba_messages", msg.replyTo));
+        if (replyDoc.exists()) {
+          const replyData = replyDoc.data();
+          replyHtml = `<div class="reply-to">${replyData.sender}: ${replyData.message.substring(0, 50)}${replyData.message.length > 50 ? "..." : ""}</div>`;
+        }
+      }
+      div.innerHTML = `
+        ${replyHtml}
+        <div class="username ${senderStatus}">${msg.sender}</div>
+        <div class="message-text">${msg.message}</div>
+        <div class="reply-btn" data-id="${msgId}">Reply</div>
+      `;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      div.querySelector(".reply-btn").addEventListener("click", () => {
+        replyToMessageId = msgId;
+        messageInput.placeholder = `Replying to ${msg.sender}...`;
+        messageInput.focus();
+      });
     }
-  }
 
-</script>
+    // Send message
+    sendBtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
 
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message || !currentUser) return;
+
+      try {
+        const msgData = {
+          sender: username,
+          status: userStatus,
+          message,
+          replyTo: replyToMessageId,
+          timestamp: new Date().getTime()
+        };
+        await addDoc(collection(db, "Kamba_messages"), msgData);
+
+        // Update sparks
+        userSparks += 1;
+        let newStatus = userStatus;
+        if (userStatus !== "red") {
+          if (userSparks >= 1000) newStatus = "violet";
+          else if (userSparks >= 100) newStatus = "blue";
+          else newStatus = "green";
+        }
+        await updateDoc(doc(db, "Kamba_users", currentUser.uid), {
+          sparks: userSparks,
+          status: newStatus
+        });
+        userStatus = newStatus;
+        profileUsername.classList.remove("green", "blue", "violet", "red");
+        profileUsername.classList.add(userStatus);
+        profileSparks.textContent = `${userSparks} Sparks`;
+        if (["blue", "violet", "red"].includes(userStatus)) {
+          createGroupBtn.classList.remove("hidden");
+        } else {
+          createGroupBtn.classList.add("hidden");
+        }
+
+        messageInput.value = "";
+        replyToMessageId = null;
+        messageInput.placeholder = "Type a message...";
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    }
+
+    // Emoji picker toggle
+    emojiBtn.addEventListener("click", () => {
+      emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
+    });
+
+    // Add emoji to input
+    emojiPicker.querySelectorAll("span").forEach(span => {
+      span.addEventListener("click", () => {
+        messageInput.value += span.dataset.emoji;
+        emojiPicker.style.display = "none";
+        messageInput.focus();
+      });
+    });
+
+    // Sign out
+    signOutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "sign.html";
+    });
+
+    // No song notification click
+    noSongNotification.addEventListener("click", () => {
+      window.location.href = "settings.html";
+    });
+
+    // Volume control
+    volumeSlider.addEventListener("input", async () => {
+      const volume = parseFloat(volumeSlider.value);
+      audioPlayer.volume = volume;
+      volumeLabel.textContent = `${Math.round(volume * 100)}%`;
+      if (currentUser) {
+        await updateDoc(doc(db, "Kamba_users", currentUser.uid), { volume });
+      }
+    });
+
+    // Create group
+    createGroupBtn.addEventListener("click", async () => {
+      if (!["blue", "violet", "red"].includes(userStatus)) return;
+      const name = prompt("Enter group name:");
+      const description = prompt("Enter group description:");
+      const imageUrl = prompt("Enter group image URL (or leave blank):") || "https://via.placeholder.com/40";
+      if (name && description) {
+        try {
+          await addDoc(collection(db, "Kamba_groups"), {
+            name,
+            description,
+            imageUrl,
+            creatorId: currentUser.uid,
+            createdAt: new Date().getTime()
+          });
+        } catch (error) {
+          console.error("Error creating group:", error);
+        }
+      }
+    });
+
+    // Sidebar resize handling
+    groupsSidebar.addEventListener("resize", updateGroupDetailsVisibility);
+    function updateGroupDetailsVisibility() {
+      const width = groupsSidebar.offsetWidth;
+      if (width > 200) {
+        groupsSidebar.classList.add("wide");
+      } else {
+        groupsSidebar.classList.remove("wide");
+      }
+    }
+
+    // Hide emoji picker when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+        emojiPicker.style.display = "none";
+      }
+    });
+  </script>
 </body>
 </html>
