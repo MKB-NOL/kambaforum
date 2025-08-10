@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KAMBA Forum - Login</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: "Whitney", "Segoe UI", sans-serif;
+        background-color: #36393f;
+        display: flex;
+        min-height: 100vh;
+    }
+    .left-panel {
+        flex: 1;
+        background: url('https://i.imgur.com/3aX4O8M.png') center/cover no-repeat;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 2rem;
+        color: white;
+    }
+    .left-panel h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .left-panel p { font-size: 0.9rem; color: #ccc; max-width: 300px; }
+    .right-panel {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #2f3136;
+        padding: 2rem;
+    }
+    .auth-box {
+        background-color: #36393f;
+        padding: 2rem;
+        border-radius: 5px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .auth-box h2 {
+        text-align: center;
+        color: white;
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+    }
+    .form-group { margin-bottom: 1rem; }
+    label {
+        font-size: 0.75rem;
+        color: #b9bbbe;
+        display: block;
+        margin-bottom: 0.4rem;
+    }
+    input, select {
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 3px;
+        border: none;
+        background-color: #202225;
+        color: white;
+        font-size: 1rem;
+    }
+    input:focus, select:focus { outline: 2px solid #5865f2; }
+    .phone-row {
+        display: flex;
+        gap: 5px;
+    }
+    .phone-row select {
+        width: 35%;
+        min-width: 90px;
+    }
+    .phone-row input {
+        width: 65%;
+    }
+    button {
+        width: 100%;
+        padding: 0.8rem;
+        background-color: #5865f2;
+        border: none;
+        border-radius: 3px;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+    }
+    button:hover { background-color: #4752c4; }
+    .switch {
+        text-align: center;
+        margin-top: 1rem;
+        color: #b9bbbe;
+        font-size: 0.9rem;
+    }
+    .switch a {
+        color: #5865f2;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .switch a:hover { text-decoration: underline; }
+    .error-message {
+        background: #ff4f4f;
+        color: white;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border-radius: 3px;
+        display: none;
+        font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+        body { flex-direction: column; }
+        .left-panel { display: none; }
+        .right-panel { flex: none; }
+    }
+</style>
+</head>
+<body>
+
+<div class="left-panel">
+    <h1>KAMBA Forum</h1>
+    <p>Chat, connect, and share ideas with the KAMBA community — your space to belong.</p>
+</div>
+
+<div class="right-panel">
+    <div class="auth-box">
+        <h2 id="form-title">Welcome Back!</h2>
+        <div id="error-box" class="error-message"></div>
+        
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="Enter your email" />
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password" />
+        </div>
+
+        <!-- Phone only visible in Sign-up -->
+        <div class="form-group" id="phone-group" style="display:none;">
+            <label>Phone Number</label>
+            <div class="phone-row">
+                <select id="country-code">
+                    <option value="+250">🇷🇼 +250</option>
+                    <option value="+257">🇧🇮 +257</option>
+                    <option value="+255">🇹🇿 +255</option>
+                    <option value="+27">🇿🇦 +27</option>
+                    <option value="+254">🇰🇪 +254</option>
+                    <option value="+224">🇬🇳 +224</option>
+                    <option value="+1">🇺🇸 +1</option>
+                </select>
+                <input type="tel" id="phone" placeholder="Phone number" />
+            </div>
+        </div>
+
+        <button id="auth-btn">Login</button>
+        <div class="switch" id="switch-text">
+            Need an account? <a href="#" id="switch-link">Register</a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+        authDomain: "muah-feed.firebaseapp.com",
+        databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+        projectId: "muah-feed",
+        storageBucket: "muah-feed.firebasestorage.app",
+        messagingSenderId: "442314397706",
+        appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+        measurementId: "G-S86S229F1T"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    await setPersistence(auth, browserLocalPersistence);
+
+    const formTitle = document.getElementById("form-title");
+    const authBtn = document.getElementById("auth-btn");
+    const phoneGroup = document.getElementById("phone-group");
+    const errorBox = document.getElementById("error-box");
+
+    let isLogin = true;
+
+    function showError(msg) {
+        errorBox.style.display = "block";
+        errorBox.textContent = msg;
+    }
+    function clearError() {
+        errorBox.style.display = "none";
+        errorBox.textContent = "";
+    }
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function switchMode() {
+        isLogin = !isLogin;
+        formTitle.textContent = isLogin ? "Welcome Back!" : "Create an account";
+        authBtn.textContent = isLogin ? "Login" : "Register";
+        phoneGroup.style.display = isLogin ? "none" : "block";
+        document.getElementById("switch-text").innerHTML = isLogin
+            ? `Need an account? <a href="#" id="switch-link">Register</a>`
+            : `Already have an account? <a href="#" id="switch-link">Login</a>`;
+        document.getElementById("switch-link").addEventListener("click", (e) => {
+            e.preventDefault();
+            switchMode();
+        });
+    }
+
+    document.getElementById("switch-link").addEventListener("click", (e) => {
+        e.preventDefault();
+        switchMode();
+    });
+
+    authBtn.addEventListener("click", async () => {
+        clearError();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        if (!validateEmail(email)) {
+            showError("Please enter a valid email address.");
+            return;
+        }
+        if (!email || !password) {
+            showError("Please fill out all fields.");
+            return;
+        }
+
+        try {
+            if (isLogin) {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = "forum.html";
+            } else {
+                const phoneCode = document.getElementById("country-code").value;
+                const phoneNumber = document.getElementById("phone").value.trim();
+                if (!phoneNumber) {
+                    showError("Please enter your phone number.");
+                    return;
+                }
+
+                // Check if phone number already exists
+                const q = query(collection(db, "Kamba_users"), where("phone", "==", phoneCode + phoneNumber));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    showError("Phone number already registered.");
+                    return;
+                }
+
+                // Check if email already exists
+                const existingUser = await getDoc(doc(db, "Kamba_users", email));
+                if (existingUser.exists()) {
+                    showError("Email already registered.");
+                    return;
+                }
+
+                // Create auth account
+                await createUserWithEmailAndPassword(auth, email, password);
+
+                // Store phone in Firestore
+                await setDoc(doc(db, "Kamba_users", email), {
+                    email: email,
+                    phone: phoneCode + phoneNumber
+                });
+
+                window.location.href = "forum.html";
+            }
+        } catch (error) {
+            showError(error.message);
+        }
+    });
+</script>
+</body>
+</html>
