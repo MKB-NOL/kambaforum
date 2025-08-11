@@ -1,557 +1,1101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Create - KAMBA</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
-<style>
-  /* General */
-  body {
-    margin: 0; padding: 0;
-    font-family: 'Poppins', sans-serif;
-    background: #f5f6fa;
-    display: flex;
-    height: 100vh;
-  }
-  /* Sidebar */
-  #sidebar {
-    width: 280px;
-    background: #2f3136;
-    color: white;
-    display: flex;
-    flex-direction: column;
-  }
-  #sidebar header {
-    font-size: 1.5rem;
-    font-weight: bold;
-    padding: 1rem;
-    border-bottom: 1px solid #40444b;
-    text-align: center;
-  }
-  #sidebar nav {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  #sidebar nav button {
-    background: none;
-    border: none;
-    color: white;
-    padding: 1rem 1.5rem;
-    text-align: left;
-    font-size: 1rem;
-    cursor: pointer;
-    border-left: 4px solid transparent;
-    transition: background 0.3s, border-color 0.3s;
-  }
-  #sidebar nav button:hover,
-  #sidebar nav button.active {
-    background: #40444b;
-    border-left-color: #43b581;
-  }
-  #sidebar footer {
-    padding: 1rem;
-    text-align: center;
-    border-top: 1px solid #40444b;
-  }
-  #sidebar footer button {
-    background: #43b581;
-    border: none;
-    color: white;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create - KAMBA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset and basics */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f5f6fa;
+      display: flex;
+      min-height: 100vh;
+      color: #2f3640;
+    }
+    a {
+      color: #4a90e2;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
 
-  /* Main content */
-  #main {
-    flex: 1;
-    padding: 2rem;
-    overflow-y: auto;
-    background: white;
-  }
+    /* Left sidebar */
+    #sidebar {
+      width: 240px;
+      background: #2f3640;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0;
+    }
+    #sidebar h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+    #sidebar nav {
+      flex-grow: 1;
+    }
+    #sidebar nav button {
+      width: 100%;
+      background: none;
+      border: none;
+      color: white;
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-size: 1rem;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+      transition: background 0.2s, border-left-color 0.2s;
+    }
+    #sidebar nav button:hover,
+    #sidebar nav button.active {
+      background: #4a90e2;
+      border-left-color: #1e72d1;
+    }
 
-  h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
+    /* Main container */
+    #main {
+      flex-grow: 1;
+      padding: 1rem 2rem;
+      overflow-y: auto;
+    }
 
-  /* Forms */
-  form {
-    max-width: 900px;
-    margin: auto;
-  }
-  label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: 600;
-  }
-  input[type=text], textarea, select {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.3rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-  }
-  textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-  input[type=file] {
-    margin-top: 0.3rem;
-  }
+    h1 {
+      margin-top: 0;
+    }
 
-  /* Required asterisk */
-  .required:after {
-    content: "*";
-    color: red;
-    margin-left: 2px;
-  }
+    /* Form common styles */
+    form {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      max-width: 900px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+    }
+    input[type="text"],
+    input[type="url"],
+    input[type="file"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      resize: vertical;
+      font-family: 'Poppins', sans-serif;
+    }
+    textarea {
+      min-height: 100px;
+    }
+    button.add-btn,
+    button.remove-btn {
+      margin-top: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      background: #4a90e2;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    button.remove-btn {
+      background: #e84118;
+      margin-left: 0.5rem;
+    }
+    button.add-btn:hover,
+    button.remove-btn:hover {
+      opacity: 0.9;
+    }
 
-  /* Flexible overview container */
-  #projectOverviewContainer {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    border-radius: 6px;
-    min-height: 150px;
-  }
-  .overview-block {
-    flex: 1 1 300px;
-    border: 1px solid #aaa;
-    border-radius: 6px;
-    padding: 0.5rem;
-    background: #f0f0f0;
-    position: relative;
-    min-height: 120px;
-  }
-  .overview-block textarea {
-    width: 100%;
-    min-height: 100px;
-    border: none;
-    resize: none;
-    background: transparent;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-  }
-  .overview-block img {
-    max-width: 100%;
-    border-radius: 4px;
-    margin-top: 0.5rem;
-  }
-  .overview-block .remove-btn {
-    position: absolute;
-    top: 5px; right: 5px;
-    background: #e74c3c;
-    border: none;
-    color: white;
-    border-radius: 50%;
-    width: 24px; height: 24px;
-    cursor: pointer;
-    font-weight: bold;
-    line-height: 24px;
-    text-align: center;
-  }
-  #addOverviewBlockBtn {
-    margin-top: 0.5rem;
-  }
+    /* Code snippet styling */
+    .code-snippet {
+      border: 1px solid #ccc;
+      padding: 0.8rem;
+      margin-top: 1rem;
+      border-radius: 6px;
+      background: #fafafa;
+      font-family: 'Courier New', Courier, monospace;
+      position: relative;
+    }
+    .code-snippet pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    .language-select {
+      width: auto;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+    .code-snippet .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+    }
 
-  /* Code snippets */
-  #codeSnippetsContainer {
-    margin-top: 1rem;
-  }
-  .snippet {
-    border: 1px solid #888;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    background: #2d2d2d;
-    color: white;
-    font-family: 'Courier New', Courier, monospace;
-    position: relative;
-  }
-  .snippet select {
-    margin-bottom: 0.5rem;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-  }
-  .snippet textarea {
-    width: 100%;
-    height: 150px;
-    background: #1e1e1e;
-    color: white;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: none;
-    resize: vertical;
-  }
-  .snippet .remove-snippet {
-    position: absolute;
-    top: 8px; right: 8px;
-    background: #e74c3c;
-    border: none;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 0 8px;
-    font-weight: bold;
-  }
+    /* Color badges for languages */
+    .badge-html { color: #4CAF50; }
+    .badge-js { color: #f0db4f; }
+    .badge-node { color: #68a063; }
+    .badge-css { color: #264de4; }
+    .badge-python { color: #306998; }
+    .badge-java { color: #b07219; }
+    .badge-default { color: #999; }
 
-  /* Buttons */
-  button {
-    cursor: pointer;
-    background: #43b581;
-    border: none;
-    color: white;
-    font-weight: 600;
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    margin-top: 1rem;
-  }
-  button:disabled {
-    background: #a5d6a7;
-    cursor: not-allowed;
-  }
+    /* Flexible overview with images */
+    .overview-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .overview-text,
+    .overview-images {
+      flex: 1 1 45%;
+      min-width: 280px;
+    }
+    .overview-images img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin-bottom: 0.8rem;
+      cursor: pointer;
+      border: 1px solid #ccc;
+    }
 
-  /* Preview styles for code languages */
-  .language-html { background-color: #4caf50; }
-  .language-js { background-color: #f0db4f; color: black; }
-  .language-java { background-color: #5382a1; }
-  .language-node { background-color: #68a063; }
-  .language-python { background-color: #3572A5; }
-  /* Add more languages colors as needed */
+    /* Steps, rules, collaborators list */
+    ul.dynamic-list {
+      list-style: disc inside;
+      padding-left: 1rem;
+      margin: 0.5rem 0 1rem 0;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fafafa;
+    }
+    ul.dynamic-list li {
+      padding: 0.2rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    ul.dynamic-list li button {
+      background: none;
+      border: none;
+      color: #e84118;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
 
-  /* Preview area */
-  #preview {
-    margin-top: 2rem;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    border-radius: 6px;
-    max-width: 900px;
-    background: #f9f9f9;
-  }
-  #preview h3 {
-    margin-top: 0;
-  }
-  #preview pre {
-    background: #1e1e1e;
-    color: white;
-    padding: 1rem;
-    border-radius: 6px;
-    font-family: 'Courier New', Courier, monospace;
-    overflow-x: auto;
-  }
+    /* Notifications placeholder */
+    #notifications-list {
+      max-height: 400px;
+      overflow-y: auto;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-top: 1rem;
+    }
 
-</style>
+    /* Misc */
+    .hidden { display: none; }
+
+    /* Buttons for submit */
+    button.submit-btn {
+      background: #4a90e2;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button.submit-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    /* Font selector in post */
+    #post-font-select {
+      width: 150px;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Text formatting buttons */
+    .format-buttons {
+      margin-bottom: 0.5rem;
+    }
+    .format-buttons button {
+      background: #ddd;
+      border: none;
+      margin-right: 0.3rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+    }
+    .format-buttons button.active {
+      background: #4a90e2;
+      color: white;
+    }
+
+    /* Collaborators list */
+    #collaborators-list {
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fafafa;
+      padding: 0.5rem;
+    }
+    #collaborators-list div {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.3rem;
+    }
+    #collaborators-list div button {
+      background: none;
+      border: none;
+      color: #e84118;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <div id="sidebar">
-    <header>KAMBA</header>
+    <h2>KAMBA</h2>
     <nav>
-      <button id="tabProfile">Profile</button>
-      <button id="tabCreate" class="active">Create</button>
-      <button id="tabNotifications">Notifications</button>
-      <button id="tabSettings">Settings</button>
+      <button id="btn-home">Home</button>
+      <button id="btn-profile">Profile</button>
+      <button id="btn-create" class="active">Create</button>
+      <button id="btn-notifications">Notifications</button>
     </nav>
-    <footer>
-      <button id="homeBtn">Home</button>
-    </footer>
   </div>
-  <main id="main">
-    <h2>Create a Project</h2>
-    <form id="projectForm">
-      <label for="projectName" class="required">Project Name</label>
-      <input type="text" id="projectName" required />
 
-      <label for="projectShortDesc" class="required">Short Description</label>
-      <textarea id="projectShortDesc" required></textarea>
+  <div id="main">
+    <h1>Create</h1>
+    <div id="user-info"></div>
 
-      <label for="projectBanner">Project Banner (image)</label>
-      <input type="file" id="projectBanner" accept="image/*" />
+    <!-- Creation selector -->
+    <div id="creation-tabs" style="margin-bottom: 1rem;">
+      <!-- Buttons will be injected dynamically -->
+    </div>
 
-      <label class="required">Project Overview (flexible blocks with text/images)</label>
-      <div id="projectOverviewContainer"></div>
-      <button type="button" id="addOverviewBlockBtn">+ Add Text/Image Block</button>
+    <!-- Project creation form -->
+    <form id="form-project" class="hidden">
+      <h2>Create Project</h2>
+      <label for="project-name">* Name</label>
+      <input type="text" id="project-name" required placeholder="Project Name" />
 
-      <label for="stepsTaken">Steps Taken</label>
-      <textarea id="stepsTaken"></textarea>
+      <label for="project-shortdesc">Short Description</label>
+      <textarea id="project-shortdesc" placeholder="Brief summary"></textarea>
 
-      <label>Code Snippets (choose language, add many)</label>
-      <div id="codeSnippetsContainer"></div>
-      <button type="button" id="addSnippetBtn">+ Add Code Snippet</button>
+      <label for="project-banner">Project Banner Image URL</label>
+      <input type="url" id="project-banner" placeholder="Image URL" />
 
-      <label for="mainImportance" class="required">Main Importance</label>
-      <textarea id="mainImportance" required></textarea>
+      <label>Main Overview *</label>
+      <div class="overview-section">
+        <textarea id="project-overview-text" class="overview-text" placeholder="Write your project overview here..." required></textarea>
+        <div class="overview-images" id="overview-images-container"></div>
+      </div>
+      <input type="file" id="overview-image-upload" accept="image/*" multiple style="margin-top:0.5rem" />
 
-      <label for="profitability">Profitability</label>
-      <textarea id="profitability"></textarea>
+      <label>Steps Taken</label>
+      <ul id="project-steps-list" class="dynamic-list"></ul>
+      <input type="text" id="step-input" placeholder="Add a step and press Add" />
+      <button type="button" id="add-step-btn" class="add-btn">Add Step</button>
 
-      <label for="obstaclesRisks" class="required">Obstacles / Risks</label>
-      <textarea id="obstaclesRisks" required></textarea>
+      <label>Code Snippets</label>
+      <div id="code-snippets-container"></div>
+      <button type="button" id="add-code-snippet-btn" class="add-btn">Add Code Snippet</button>
 
-      <button type="submit">Create Project</button>
+      <label for="project-profitability">Main Importance & Profitability *</label>
+      <textarea id="project-profitability" placeholder="Describe main importance and profitability" required></textarea>
+
+      <label for="project-obstacles">* Obstacles / Risks</label>
+      <textarea id="project-obstacles" placeholder="Describe obstacles and risks" required></textarea>
+
+      <button type="submit" class="submit-btn">Submit Project</button>
     </form>
 
-    <section id="preview">
-      <h3>Preview</h3>
-      <div id="previewContent">Fill the form to see preview here.</div>
+    <!-- Post creation form -->
+    <form id="form-post" class="hidden">
+      <h2>Create Post</h2>
+
+      <label for="post-content">* Content</label>
+      <div class="format-buttons">
+        <button type="button" data-format="bold" title="Bold"><b>B</b></button>
+        <button type="button" data-format="italic" title="Italic"><i>I</i></button>
+        <button type="button" data-format="underline" title="Underline"><u>U</u></button>
+      </div>
+      <select id="post-font-select" title="Choose font">
+        <option value="Poppins">Poppins</option>
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+      <textarea id="post-content" placeholder="Write your post here..." required></textarea>
+
+      <button type="submit" class="submit-btn">Submit Post</button>
+    </form>
+
+    <!-- Group creation form -->
+    <form id="form-group" class="hidden">
+      <h2>Create Group</h2>
+      <label for="group-name">* Name</label>
+      <input type="text" id="group-name" placeholder="Group Name" required />
+
+      <label for="group-image">Group Image URL</label>
+      <input type="url" id="group-image" placeholder="Image URL" />
+
+      <label for="group-banner">Group Banner URL</label>
+      <input type="url" id="group-banner" placeholder="Banner Image URL" />
+
+      <label for="group-description">Description</label>
+      <textarea id="group-description" placeholder="Describe the group"></textarea>
+
+      <label>Rules</label>
+      <ul id="group-rules-list" class="dynamic-list"></ul>
+      <input type="text" id="rule-input" placeholder="Add a rule and press Add" />
+      <button type="button" id="add-rule-btn" class="add-btn">Add Rule</button>
+
+      <button type="submit" class="submit-btn">Submit Group</button>
+    </form>
+
+    <!-- Community creation form -->
+    <form id="form-community" class="hidden">
+      <h2>Create Community</h2>
+
+      <label for="community-name">* Name</label>
+      <input type="text" id="community-name" placeholder="Community Name" required />
+
+      <label for="community-description">Description</label>
+      <textarea id="community-description" placeholder="Describe your community"></textarea>
+
+      <label>Collaborators (Community Leaders)</label>
+      <input type="text" id="collaborator-input" placeholder="Enter collaborator's username/email" />
+      <button type="button" id="add-collaborator-btn" class="add-btn">Add Collaborator</button>
+      <div id="collaborators-list"></div>
+
+      <label>Community Rules</label>
+      <ul id="community-rules-list" class="dynamic-list"></ul>
+      <input type="text" id="community-rule-input" placeholder="Add a community rule and press Add" />
+      <button type="button" id="add-community-rule-btn" class="add-btn">Add Rule</button>
+
+      <button type="submit" class="submit-btn">Submit Community</button>
+    </form>
+
+    <!-- Notifications placeholder -->
+    <section id="notifications-section" class="hidden">
+      <h2>Notifications</h2>
+      <div id="notifications-list">
+        <!-- Notifications dynamically loaded here -->
+      </div>
     </section>
-  </main>
+  </div>
 
-<script>
-  // Redirect home
-  document.getElementById("homeBtn").addEventListener("click", () => {
-    window.location.href = "hello.html";
-  });
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  // Sidebar tab switching logic (only Create active for now)
-  const tabs = {
-    tabProfile: () => alert("Profile tab clicked - implement profile view"),
-    tabCreate: () => { /* stay here */ },
-    tabNotifications: () => alert("Notifications tab clicked - implement notifications view"),
-    tabSettings: () => alert("Settings tab clicked - implement settings view"),
-  };
+  <script>
+    // Firebase config - replace with your own config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MSG_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-  for (const tabId in tabs) {
-    document.getElementById(tabId).addEventListener("click", () => {
-      Object.keys(tabs).forEach(id => {
-        document.getElementById(id).classList.remove("active");
+    // DOM Elements
+    const userInfoDiv = document.getElementById('user-info');
+    const creationTabsDiv = document.getElementById('creation-tabs');
+    const forms = {
+      project: document.getElementById('form-project'),
+      post: document.getElementById('form-post'),
+      group: document.getElementById('form-group'),
+      community: document.getElementById('form-community'),
+    };
+    const notificationsSection = document.getElementById('notifications-section');
+
+    const btnHome = document.getElementById('btn-home');
+    const btnProfile = document.getElementById('btn-profile');
+    const btnCreate = document.getElementById('btn-create');
+    const btnNotifications = document.getElementById('btn-notifications');
+
+    // Current user info
+    let currentUser = null;
+    let currentUserData = null;
+
+    // For dynamic steps, code snippets, rules, collaborators arrays
+    let projectSteps = [];
+    let codeSnippets = [];
+    let groupRules = [];
+    let communityRules = [];
+    let collaborators = [];
+
+    // --- Navigation buttons ---
+    btnHome.addEventListener('click', () => {
+      window.location.href = 'hello.html';
+    });
+    btnProfile.addEventListener('click', () => {
+      alert("Profile page is not implemented here but redirect as needed");
+    });
+    btnCreate.addEventListener('click', () => {
+      showSection('create');
+    });
+    btnNotifications.addEventListener('click', () => {
+      showSection('notifications');
+    });
+
+    // Show section helper
+    function showSection(section) {
+      // Hide all forms and notifications
+      Object.values(forms).forEach(f => f.classList.add('hidden'));
+      notificationsSection.classList.add('hidden');
+      creationTabsDiv.style.display = 'none';
+
+      if (section === 'create') {
+        creationTabsDiv.style.display = 'block';
+        // Show first tab by default
+        showCreationForm(Object.keys(forms)[0]);
+      } else if (section === 'notifications') {
+        notificationsSection.classList.remove('hidden');
+        loadNotifications();
+      }
+    }
+
+    // Format username (email simplification)
+    function simplifyEmail(email) {
+      return email.split('@')[0];
+    }
+
+    // Get user status from user data
+    function getUserStatus(data) {
+      return data?.status || 'green';
+    }
+
+    // Show user info
+    function showUserInfo() {
+      if (!currentUserData) return;
+      userInfoDiv.innerHTML = `
+        <strong>Logged in as:</strong> ${simplifyEmail(currentUser.email)} <br />
+        <strong>Status:</strong> ${getUserStatus(currentUserData).toUpperCase()} <br />
+        <strong>Sparks:</strong> ${currentUserData.sparks || 0}
+      `;
+    }
+
+    // Build creation tabs based on user status
+    function buildCreationTabs() {
+      const status = getUserStatus(currentUserData);
+      creationTabsDiv.innerHTML = '';
+
+      // Map user status to allowed creations
+      const allowedCreations = [];
+      allowedCreations.push({key: 'project', label: 'Project'});
+      allowedCreations.push({key: 'post', label: 'Post'});
+
+      if (status === 'blue' || status === 'violet' || status === 'red') {
+        allowedCreations.push({key: 'group', label: 'Group'});
+      }
+      if (status === 'violet' || status === 'red') {
+        allowedCreations.push({key: 'community', label: 'Community'});
+      }
+
+      allowedCreations.forEach(({key, label}, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.dataset.key = key;
+        btn.className = idx === 0 ? 'active' : '';
+        btn.style.marginRight = '0.5rem';
+        btn.addEventListener('click', () => {
+          // Set active tab
+          [...creationTabsDiv.children].forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          showCreationForm(key);
+        });
+        creationTabsDiv.appendChild(btn);
       });
-      document.getElementById(tabId).classList.add("active");
-      tabs[tabId]();
-    });
-  }
-
-  // Project Overview flexible blocks logic
-  const overviewContainer = document.getElementById("projectOverviewContainer");
-  const addOverviewBlockBtn = document.getElementById("addOverviewBlockBtn");
-
-  function createTextBlock() {
-    const block = document.createElement("div");
-    block.className = "overview-block";
-
-    const textarea = document.createElement("textarea");
-    textarea.placeholder = "Enter overview text here...";
-    block.appendChild(textarea);
-
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "remove-btn";
-    removeBtn.textContent = "×";
-    removeBtn.type = "button";
-    removeBtn.title = "Remove this block";
-    removeBtn.onclick = () => block.remove();
-    block.appendChild(removeBtn);
-
-    return block;
-  }
-  function createImageBlock() {
-    const block = document.createElement("div");
-    block.className = "overview-block";
-
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-    fileInput.title = "Select image";
-    block.appendChild(fileInput);
-
-    const imgPreview = document.createElement("img");
-    imgPreview.style.display = "none";
-    block.appendChild(imgPreview);
-
-    fileInput.addEventListener("change", () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        imgPreview.src = e.target.result;
-        imgPreview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-    });
-
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "remove-btn";
-    removeBtn.textContent = "×";
-    removeBtn.type = "button";
-    removeBtn.title = "Remove this block";
-    removeBtn.onclick = () => block.remove();
-    block.appendChild(removeBtn);
-
-    return block;
-  }
-
-  addOverviewBlockBtn.addEventListener("click", () => {
-    // Show a small prompt to choose block type
-    const choice = prompt("Add Block: type 'text' or 'image'");
-    if (!choice) return;
-    if (choice.toLowerCase() === "text") {
-      overviewContainer.appendChild(createTextBlock());
-    } else if (choice.toLowerCase() === "image") {
-      overviewContainer.appendChild(createImageBlock());
-    } else {
-      alert("Invalid block type. Choose 'text' or 'image'.");
     }
-  });
 
-  // Code snippets logic
-  const codeSnippetsContainer = document.getElementById("codeSnippetsContainer");
-  const addSnippetBtn = document.getElementById("addSnippetBtn");
-
-  // Supported languages & their preview colors
-  const languageColors = {
-    html: "#4caf50",
-    js: "#f0db4f",
-    java: "#5382a1",
-    node: "#68a063",
-    python: "#3572A5",
-  };
-
-  function createCodeSnippet() {
-    const snippet = document.createElement("div");
-    snippet.className = "snippet";
-
-    const langSelect = document.createElement("select");
-    for (const lang in languageColors) {
-      const option = document.createElement("option");
-      option.value = lang;
-      option.textContent = lang.toUpperCase();
-      langSelect.appendChild(option);
+    // Show specific form and hide others
+    function showCreationForm(key) {
+      Object.entries(forms).forEach(([k, f]) => {
+        if (k === key) f.classList.remove('hidden');
+        else f.classList.add('hidden');
+      });
     }
-    snippet.appendChild(langSelect);
 
-    const textarea = document.createElement("textarea");
-    textarea.placeholder = "Enter code here...";
-    snippet.appendChild(textarea);
+    // --- Project form logic ---
 
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "remove-snippet";
-    removeBtn.textContent = "×";
-    removeBtn.type = "button";
-    removeBtn.title = "Remove this snippet";
-    removeBtn.onclick = () => snippet.remove();
-    snippet.appendChild(removeBtn);
+    const overviewImagesContainer = document.getElementById('overview-images-container');
+    const overviewImageUpload = document.getElementById('overview-image-upload');
 
-    // Change background color on language select
-    langSelect.addEventListener("change", () => {
-      snippet.style.backgroundColor = languageColors[langSelect.value] || "#2d2d2d";
-      snippet.style.color = (langSelect.value === "js") ? "black" : "white";
+    // Add uploaded images to overview section with flexy display
+    overviewImageUpload.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = document.createElement('img');
+          img.src = ev.target.result;
+          img.title = "Click to remove";
+          img.style.cursor = 'pointer';
+          img.addEventListener('click', () => {
+            overviewImagesContainer.removeChild(img);
+          });
+          overviewImagesContainer.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+      overviewImageUpload.value = '';
     });
 
-    // Initialize snippet color
-    langSelect.dispatchEvent(new Event("change"));
+    // Steps logic
+    const stepInput = document.getElementById('step-input');
+    const addStepBtn = document.getElementById('add-step-btn');
+    const stepsList = document.getElementById('project-steps-list');
 
-    return snippet;
-  }
-
-  addSnippetBtn.addEventListener("click", () => {
-    codeSnippetsContainer.appendChild(createCodeSnippet());
-  });
-
-  // Preview logic for project form
-  const previewContent = document.getElementById("previewContent");
-  const projectForm = document.getElementById("projectForm");
-
-  function updatePreview() {
-    let html = `<strong>Name:</strong> ${projectForm.projectName.value}<br>`;
-    html += `<strong>Short Description:</strong> ${projectForm.projectShortDesc.value}<br>`;
-
-    // Overview blocks preview
-    html += `<strong>Project Overview:</strong><br><div style="display:flex; gap: 1rem; flex-wrap: wrap;">`;
-    [...overviewContainer.children].forEach(block => {
-      if (block.querySelector("textarea")) {
-        html += `<div style="flex: 1 1 300px; border: 1px solid #aaa; padding: 0.5rem; background:#f0f0f0;">${block.querySelector("textarea").value}</div>`;
-      } else if (block.querySelector("img")) {
-        const img = block.querySelector("img");
-        html += `<div style="flex: 1 1 300px;"><img src="${img.src}" style="max-width: 100%; border-radius: 4px;" /></div>`;
+    addStepBtn.addEventListener('click', () => {
+      const val = stepInput.value.trim();
+      if (val) {
+        projectSteps.push(val);
+        renderSteps();
+        stepInput.value = '';
       }
     });
-    html += `</div>`;
-
-    html += `<strong>Steps Taken:</strong><br>${projectForm.stepsTaken.value}<br>`;
-    // Show code snippets with colors
-    html += `<strong>Code Snippets:</strong><br>`;
-    [...codeSnippetsContainer.children].forEach(snippet => {
-      const lang = snippet.querySelector("select").value;
-      const code = snippet.querySelector("textarea").value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      const bgColor = languageColors[lang] || "#2d2d2d";
-      const color = (lang === "js") ? "black" : "white";
-      html += `<pre style="background:${bgColor}; color:${color}; padding:10px; border-radius: 6px; font-family: 'Courier New', Courier, monospace;">${code}</pre>`;
-    });
-
-    html += `<strong>Main Importance:</strong><br>${projectForm.mainImportance.value}<br>`;
-    html += `<strong>Profitability:</strong><br>${projectForm.profitability.value}<br>`;
-    html += `<strong>Obstacles/Risks:</strong><br>${projectForm.obstaclesRisks.value}<br>`;
-
-    previewContent.innerHTML = html;
-  }
-
-  // Update preview on input change
-  projectForm.addEventListener("input", updatePreview);
-  overviewContainer.addEventListener("input", updatePreview);
-  codeSnippetsContainer.addEventListener("input", updatePreview);
-
-  updatePreview();
-
-  // Handle project form submission
-  projectForm.addEventListener("submit", e => {
-    e.preventDefault();
-
-    // Validate required fields (projectName, projectShortDesc, mainImportance, obstaclesRisks)
-    if (!projectForm.projectName.value.trim() ||
-        !projectForm.projectShortDesc.value.trim() ||
-        !projectForm.mainImportance.value.trim() ||
-        !projectForm.obstaclesRisks.value.trim()) {
-      alert("Please fill all required fields (*)");
-      return;
+    function renderSteps() {
+      stepsList.innerHTML = '';
+      projectSteps.forEach((step, i) => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        const btn = document.createElement('button');
+        btn.textContent = '×';
+        btn.className = 'remove-btn';
+        btn.title = 'Remove step';
+        btn.addEventListener('click', () => {
+          projectSteps.splice(i, 1);
+          renderSteps();
+        });
+        li.appendChild(btn);
+        stepsList.appendChild(li);
+      });
     }
 
-    // Gather overview blocks data
-    const overviewData = [];
-    [...overviewContainer.children].forEach(block => {
-      if (block.querySelector("textarea")) {
-        overviewData.push({ type: "text", content: block.querySelector("textarea").value.trim() });
-      } else if (block.querySelector("img")) {
-        overviewData.push({ type: "image", content: block.querySelector("img").src });
-      }
-    });
+    // Code snippets logic
+    const codeSnippetsContainer = document.getElementById('code-snippets-container');
+    const addCodeSnippetBtn = document.getElementById('add-code-snippet-btn');
 
-    // Gather code snippets data
-    const snippetsData = [];
-    [...codeSnippetsContainer.children].forEach(snippet => {
-      snippetsData.push({
-        language: snippet.querySelector("select").value,
-        code: snippet.querySelector("textarea").value,
-      });
-    });
-
-    // Prepare project data object (mock example, replace with actual DB save logic)
-    const projectData = {
-      name: projectForm.projectName.value.trim(),
-      shortDescription: projectForm.projectShortDesc.value.trim(),
-      bannerImage: null, // TODO: upload logic if image selected
-      overview: overviewData,
-      stepsTaken: projectForm.stepsTaken.value.trim(),
-      codeSnippets: snippetsData,
-      mainImportance: projectForm.mainImportance.value.trim(),
-      profitability: projectForm.profitability.value.trim(),
-      obstaclesRisks: projectForm.obstaclesRisks.value.trim(),
-      createdAt: Date.now(),
-      creatorId: "CURRENT_USER_ID", // Replace with real logged in user ID
+    // Supported languages with color classes
+    const langColors = {
+      html: 'badge-html',
+      javascript: 'badge-js',
+      js: 'badge-js',
+      node: 'badge-node',
+      css: 'badge-css',
+      python: 'badge-python',
+      java: 'badge-java'
     };
 
-    console.log("Project data to submit:", projectData);
-    alert("Project creation simulated (check console). Implement saving to database!");
+    addCodeSnippetBtn.addEventListener('click', () => {
+      addCodeSnippet();
+    });
 
-    // Reset form or redirect as needed here
-  });
+    function addCodeSnippet(lang = '', code = '') {
+      const snippet = {lang, code};
+      codeSnippets.push(snippet);
+      renderCodeSnippets();
+    }
 
-</script>
+    function renderCodeSnippets() {
+      codeSnippetsContainer.innerHTML = '';
+      codeSnippets.forEach((snippet, i) => {
+        const div = document.createElement('div');
+        div.className = 'code-snippet';
+
+        const langSelect = document.createElement('select');
+        langSelect.className = 'language-select';
+        Object.keys(langColors).forEach(language => {
+          const option = document.createElement('option');
+          option.value = language;
+          option.textContent = language.toUpperCase();
+          if (language === snippet.lang.toLowerCase()) option.selected = true;
+          langSelect.appendChild(option);
+        });
+
+        const codeTextarea = document.createElement('textarea');
+        codeTextarea.rows = 5;
+        codeTextarea.value = snippet.code;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove';
+        removeBtn.className = 'remove-btn';
+        removeBtn.addEventListener('click', () => {
+          codeSnippets.splice(i, 1);
+          renderCodeSnippets();
+        });
+
+        // Color preview label
+        const colorBadge = document.createElement('span');
+        colorBadge.textContent = langSelect.value.toUpperCase();
+        colorBadge.className = langColors[langSelect.value.toLowerCase()] || 'badge-default';
+        colorBadge.style.fontWeight = '700';
+        colorBadge.style.marginRight = '1rem';
+
+        langSelect.addEventListener('change', () => {
+          snippet.lang = langSelect.value;
+          colorBadge.className = langColors[langSelect.value.toLowerCase()] || 'badge-default';
+          colorBadge.textContent = langSelect.value.toUpperCase();
+        });
+
+        codeTextarea.addEventListener('input', () => {
+          snippet.code = codeTextarea.value;
+        });
+
+        div.appendChild(colorBadge);
+        div.appendChild(langSelect);
+        div.appendChild(codeTextarea);
+        div.appendChild(removeBtn);
+
+        codeSnippetsContainer.appendChild(div);
+      });
+    }
+
+    // --- Post form logic ---
+    const postContent = document.getElementById('post-content');
+    const postFontSelect = document.getElementById('post-font-select');
+    const formatButtons = document.querySelectorAll('.format-buttons button');
+
+    formatButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const format = btn.dataset.format;
+        let start = postContent.selectionStart;
+        let end = postContent.selectionEnd;
+        if (start === end) return; // no selection
+
+        let selectedText = postContent.value.substring(start, end);
+        let formattedText;
+
+        switch(format) {
+          case 'bold':
+            formattedText = `**${selectedText}**`;
+            break;
+          case 'italic':
+            formattedText = `*${selectedText}*`;
+            break;
+          case 'underline':
+            formattedText = `__${selectedText}__`;
+            break;
+          default:
+            formattedText = selectedText;
+        }
+        postContent.setRangeText(formattedText, start, end, "end");
+        postContent.focus();
+      });
+    });
+
+    postFontSelect.addEventListener('change', () => {
+      postContent.style.fontFamily = postFontSelect.value;
+    });
+
+    // --- Group form logic ---
+    const groupRulesList = document.getElementById('group-rules-list');
+    const addRuleBtn = document.getElementById('add-rule-btn');
+    const ruleInput = document.getElementById('rule-input');
+    let rulesArr = [];
+
+    addRuleBtn.addEventListener('click', () => {
+      const val = ruleInput.value.trim();
+      if (val) {
+        rulesArr.push(val);
+        renderRules();
+        ruleInput.value = '';
+      }
+    });
+    function renderRules() {
+      groupRulesList.innerHTML = '';
+      rulesArr.forEach((rule, i) => {
+        const li = document.createElement('li');
+        li.textContent = rule;
+        const btn = document.createElement('button');
+        btn.textContent = '×';
+        btn.className = 'remove-btn';
+        btn.title = 'Remove rule';
+        btn.addEventListener('click', () => {
+          rulesArr.splice(i, 1);
+          renderRules();
+        });
+        li.appendChild(btn);
+        groupRulesList.appendChild(li);
+      });
+    }
+
+    // --- Community form logic ---
+    const collaboratorInput = document.getElementById('collaborator-input');
+    const addCollaboratorBtn = document.getElementById('add-collaborator-btn');
+    const collaboratorsList = document.getElementById('collaborators-list');
+    const communityRulesList = document.getElementById('community-rules-list');
+    const addCommunityRuleBtn = document.getElementById('add-community-rule-btn');
+    const communityRuleInput = document.getElementById('community-rule-input');
+    let communityRulesArr = [];
+
+    addCollaboratorBtn.addEventListener('click', () => {
+      const val = collaboratorInput.value.trim();
+      if (val && !collaborators.includes(val)) {
+        collaborators.push(val);
+        renderCollaborators();
+        collaboratorInput.value = '';
+      }
+    });
+    function renderCollaborators() {
+      collaboratorsList.innerHTML = '';
+      collaborators.forEach((col, i) => {
+        const div = document.createElement('div');
+        div.textContent = col;
+        const btn = document.createElement('button');
+        btn.textContent = '×';
+        btn.title = 'Remove collaborator';
+        btn.addEventListener('click', () => {
+          collaborators.splice(i, 1);
+          renderCollaborators();
+        });
+        div.appendChild(btn);
+        collaboratorsList.appendChild(div);
+      });
+    }
+
+    addCommunityRuleBtn.addEventListener('click', () => {
+      const val = communityRuleInput.value.trim();
+      if (val) {
+        communityRulesArr.push(val);
+        renderCommunityRules();
+        communityRuleInput.value = '';
+      }
+    });
+    function renderCommunityRules() {
+      communityRulesList.innerHTML = '';
+      communityRulesArr.forEach((rule, i) => {
+        const li = document.createElement('li');
+        li.textContent = rule;
+        const btn = document.createElement('button');
+        btn.textContent = '×';
+        btn.className = 'remove-btn';
+        btn.title = 'Remove rule';
+        btn.addEventListener('click', () => {
+          communityRulesArr.splice(i, 1);
+          renderCommunityRules();
+        });
+        li.appendChild(btn);
+        communityRulesList.appendChild(li);
+      });
+    }
+
+    // --- Submit handlers ---
+    // Utility: upload image to ImgBB (you need your own API key)
+    async function uploadImageToImgBB(file) {
+      const API_KEY = "YOUR_IMGBB_API_KEY";
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) return data.data.url;
+      else throw new Error('Image upload failed');
+    }
+
+    // Upload all overview images to ImgBB before submit
+    async function uploadOverviewImages() {
+      const imgs = [...overviewImagesContainer.querySelectorAll('img')];
+      const urls = [];
+      for (const img of imgs) {
+        if (img.src.startsWith('data:')) {
+          // Convert base64 to blob
+          const res = await fetch(img.src);
+          const blob = await res.blob();
+          try {
+            const url = await uploadImageToImgBB(blob);
+            urls.push(url);
+          } catch (e) {
+            alert("Failed to upload overview image");
+            throw e;
+          }
+        } else {
+          // Already url
+          urls.push(img.src);
+        }
+      }
+      return urls;
+    }
+
+    // Project form submit
+    forms.project.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        alert("Not logged in");
+        return;
+      }
+      if (!forms.project.checkValidity()) {
+        alert("Please fill all required fields");
+        return;
+      }
+
+      try {
+        const overviewImageUrls = await uploadOverviewImages();
+
+        // Build project object
+        const project = {
+          name: document.getElementById('project-name').value.trim(),
+          shortDescription: document.getElementById('project-shortdesc').value.trim(),
+          bannerUrl: document.getElementById('project-banner').value.trim(),
+          overviewText: document.getElementById('project-overview-text').value.trim(),
+          overviewImages: overviewImageUrls,
+          steps: projectSteps,
+          codeSnippets: codeSnippets.map(cs => ({
+            language: cs.lang,
+            code: cs.code
+          })),
+          profitability: document.getElementById('project-profitability').value.trim(),
+          obstacles: document.getElementById('project-obstacles').value.trim(),
+
+          createdBy: currentUser.uid,
+          creatorEmail: currentUser.email,
+          creatorStatus: getUserStatus(currentUserData),
+          timestamp: Date.now(),
+          likes: 0,
+          shares: 0,
+          commentsCount: 0,
+          views: 0
+        };
+
+        await db.collection('Projects').add(project);
+
+        alert('Project created successfully!');
+        forms.project.reset();
+        overviewImagesContainer.innerHTML = '';
+        projectSteps = [];
+        renderSteps();
+        codeSnippets = [];
+        renderCodeSnippets();
+
+      } catch (error) {
+        console.error(error);
+        alert('Failed to create project: ' + error.message);
+      }
+    });
+
+    // Post form submit
+    forms.post.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        alert("Not logged in");
+        return;
+      }
+      if (!forms.post.checkValidity()) {
+        alert("Please fill all required fields");
+        return;
+      }
+
+      try {
+        const post = {
+          content: document.getElementById('post-content').value.trim(),
+          font: document.getElementById('post-font-select').value,
+          createdBy: currentUser.uid,
+          creatorEmail: currentUser.email,
+          creatorStatus: getUserStatus(currentUserData),
+          timestamp: Date.now(),
+          likes: 0,
+          shares: 0,
+          commentsCount: 0,
+          views: 0
+        };
+
+        await db.collection('Posts').add(post);
+
+        alert('Post created successfully!');
+        forms.post.reset();
+
+      } catch (error) {
+        console.error(error);
+        alert('Failed to create post: ' + error.message);
+      }
+    });
+
+    // Group form submit
+    forms.group.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        alert("Not logged in");
+        return;
+      }
+      if (!forms.group.checkValidity()) {
+        alert("Please fill all required fields");
+        return;
+      }
+
+      if (rulesArr.length > 0 && rulesArr.length > 50) {
+        alert("You can't add more than 50 rules");
+        return;
+      }
+
+      try {
+        const group = {
+          name: document.getElementById('group-name').value.trim(),
+          imageUrl: document.getElementById('group-image').value.trim(),
+          bannerUrl: document.getElementById('group-banner').value.trim(),
+          description: document.getElementById('group-description').value.trim(),
+          rules: rulesArr,
+          createdBy: currentUser.uid,
+          creatorEmail: currentUser.email,
+          creatorStatus: getUserStatus(currentUserData),
+          timestamp: Date.now(),
+          membersCount: 1, // creator included
+          members: [currentUser.uid],
+          maxMembers: 20,
+          pendingApprovals: [], // For join requests
+        };
+
+        await db.collection('Groups').add(group);
+
+        alert('Group created successfully!');
+        forms.group.reset();
+        rulesArr = [];
+        renderRules();
+
+      } catch (error) {
+        console.error(error);
+        alert('Failed to create group: ' + error.message);
+      }
+    });
+
+    // Community form submit
+    forms.community.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        alert("Not logged in");
+        return;
+      }
+      if (!forms.community.checkValidity()) {
+        alert("Please fill all required fields");
+        return;
+      }
+
+      if (communityRulesArr.length > 0 && communityRulesArr.length > 100) {
+        alert("Too many community rules");
+        return;
+      }
+
+      try {
+        const community = {
+          name: document.getElementById('community-name').value.trim(),
+          description: document.getElementById('community-description').value.trim(),
+          collaborators: collaborators,
+          rules: communityRulesArr,
+          createdBy: currentUser.uid,
+          creatorEmail: currentUser.email,
+          creatorStatus: getUserStatus(currentUserData),
+          timestamp: Date.now(),
+          membersCount: 1,
+          members: [currentUser.uid],
+          public: true,
+        };
+
+        await db.collection('Communities').add(community);
+
+        alert('Community created successfully!');
+        forms.community.reset();
+        collaborators = [];
+        renderCollaborators();
+        communityRulesArr = [];
+        renderCommunityRules();
+
+      } catch (error) {
+        console.error(error);
+        alert('Failed to create community: ' + error.message);
+      }
+    });
+
+    // --- Notifications loading placeholder ---
+    function loadNotifications() {
+      const notificationsList = document.getElementById('notifications-list');
+      notificationsList.innerHTML = '<p>Loading notifications...</p>';
+
+      if (!currentUser) {
+        notificationsList.innerHTML = '<p>Please login to see notifications.</p>';
+        return;
+      }
+
+      // TODO: Load notifications from Firestore, filtered by currentUser.uid
+      // For now, placeholder:
+      setTimeout(() => {
+        notificationsList.innerHTML = '<p>No notifications yet.</p>';
+      }, 1000);
+    }
+
+    // --- Auth state listener ---
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        try {
+          const doc = await db.collection('Users').doc(user.uid).get();
+          if (doc.exists) {
+            currentUserData = doc.data();
+          } else {
+            currentUserData = {status: 'green', sparks: 0};
+          }
+          showUserInfo();
+          buildCreationTabs();
+          showSection('create');
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          currentUserData = {status: 'green', sparks: 0};
+          showUserInfo();
+          buildCreationTabs();
+          showSection('create');
+        }
+      } else {
+        currentUser = null;
+        currentUserData = null;
+        userInfoDiv.innerHTML = 'Not logged in';
+        creationTabsDiv.innerHTML = '';
+        Object.values(forms).forEach(f => f.classList.add('hidden'));
+      }
+    });
+  </script>
 </body>
 </html>
