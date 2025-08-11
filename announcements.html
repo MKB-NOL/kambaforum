@@ -1,361 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KAMBA Forum - Announcements</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KAMBA Forum - Announcements</title>
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+<!-- Open Graph Meta Tags -->
+<meta property="og:title" content="KAMBA Forum - Announcements" />
+<meta property="og:description" content="View and share important announcements on KAMBA Forum, connecting tech enthusiasts across Africa." />
+<meta property="og:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
+<meta property="og:url" content="https://kamba-forum.com/announcements" />
+<meta property="og:type" content="website" />
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="KAMBA Forum - Announcements" />
+<meta name="twitter:description" content="View and share important announcements on KAMBA Forum, connecting tech enthusiasts across Africa." />
+<meta name="twitter:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
+
+<style>
+  /* Basic reset and Discord-inspired style */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+  }
+  body, html {
+    height: 100%;
+    background-color: #36393f;
+    color: #dcddde;
+    display: flex;
+    flex-direction: column;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
   
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
-
-  <!-- Open Graph Meta Tags -->
-  <meta property="og:title" content="KAMBA Forum - Announcements" />
-  <meta property="og:description" content="Official announcements from KAMBA Forum" />
-  <meta property="og:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
-  <meta property="og:url" content="https://kamba-forum.com/announcements" />
-  <meta property="og:type" content="website" />
-
-  <!-- Twitter Card Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="KAMBA Forum - Announcements" />
-  <meta name="twitter:description" content="Official announcements from KAMBA Forum" />
-  <meta name="twitter:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
-
-  <style>
-    /* Base styles (same as hello.html) */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-    }
-    body, html {
-      height: 100%;
-      background-color: #36393f;
-      color: #dcddde;
-      display: flex;
-      flex-direction: column;
-    }
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-    header {
-      background-color: #2f3136;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-      border-bottom: 1px solid #202225;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    #main-content {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-    
-    /* Left sidebar (same as hello.html) */
-    #left-sidebar {
-      width: 250px;
-      background-color: #2f3136;
-      border-right: 1px solid #202225;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    .sidebar-section {
-      margin-bottom: 1.5rem;
-    }
-    .sidebar-title {
-      color: #b9bbbe;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-      padding-left: 0.5rem;
-    }
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 0.3rem;
-      transition: background-color 0.2s;
-    }
-    .sidebar-item:hover {
-      background-color: #3a3d44;
-    }
-    .sidebar-item.active {
-      background-color: #40444b;
-    }
-    .sidebar-item .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 0.8rem;
-      background-color: #b9bbbe;
-    }
-    .sidebar-item.active .dot {
-      background-color: #5865f2;
-    }
-    .sidebar-item .icon {
-      margin-right: 0.8rem;
-      font-size: 1.1rem;
-      width: 20px;
-      text-align: center;
-    }
-    
-    /* Announcements-specific styles */
-    #announcements-container {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      background-color: #36393f;
-    }
-    
-    .announcement-card {
-      background-color: #2f3136;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-    
-    .announcement-header {
-      padding: 1rem;
-      background-color: #292b2f;
-      border-bottom: 1px solid #202225;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .announcement-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 0.5rem;
-    }
-    
-    .announcement-meta {
-      display: flex;
-      align-items: center;
-      font-size: 0.8rem;
-      color: #b9bbbe;
-    }
-    
-    .announcement-author {
-      font-weight: 600;
-      color: #5865f2;
-      margin-right: 0.5rem;
-    }
-    
-    .announcement-time {
-      margin-right: 0.5rem;
-    }
-    
-    .announcement-content {
-      padding: 1rem;
-      line-height: 1.6;
-    }
-    
-    .announcement-content p {
-      margin-bottom: 1rem;
-    }
-    
-    .announcement-content a {
-      color: #5865f2;
-      text-decoration: none;
-    }
-    
-    .announcement-content a:hover {
-      text-decoration: underline;
-    }
-    
-    .announcement-actions {
-      padding: 0.5rem 1rem;
-      background-color: #292b2f;
-      border-top: 1px solid #202225;
-      display: flex;
-      gap: 1rem;
-    }
-    
-    .announcement-action {
-      color: #b9bbbe;
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-    
-    .announcement-action:hover {
-      color: white;
-    }
-    
-    .announcement-action i {
-      font-size: 1rem;
-    }
-    
-    /* Right sidebar (same as hello.html) */
-    #right-sidebar {
-      width: 80px;
-      background-color: #2f3136;
-      border-left: 1px solid #202225;
-      padding: 1rem 0.5rem;
-      overflow-y: auto;
-      transition: width 0.3s ease;
-      resize: horizontal;
-      min-width: 80px;
-      max-width: 300px;
-    }
-    
-    /* Create announcement modal */
-    #create-announcement-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.7);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    #create-announcement-content {
-      background-color: #2f3136;
-      padding: 1.5rem;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-    }
-    
-    .modal-title {
-      margin-bottom: 1rem;
-      color: white;
-    }
-    
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #b9bbbe;
-    }
-    
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.8rem;
-      border-radius: 4px;
-      border: none;
-      background-color: #40444b;
-      color: white;
-    }
-    
-    .form-group textarea {
-      min-height: 150px;
-      resize: vertical;
-    }
-    
-    .modal-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    
-    .modal-btn {
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-    }
-    
-    .modal-btn.cancel {
-      background-color: #72767d;
-      color: white;
-    }
-    
-    .modal-btn.submit {
-      background-color: #5865f2;
-      color: white;
-    }
-    
-    /* Status colors */
-    .username.green { color: #43b581; }
-    .username.blue { color: #5865f2; }
-    .username.violet { color: #9b59b6; }
-    .username.red { color: #f04747; }
-    
-    /* Scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background-color: #5865f2;
-      border-radius: 5px;
-    }
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  header {
+    background-color: #2f3136;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    border-bottom: 1px solid #202225;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  #main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  /* Left sidebar */
+  #left-sidebar {
+    width: 250px;
+    background-color: #2f3136;
+    border-right: 1px solid #202225;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    margin-bottom: 1.5rem;
+  }
+  .sidebar-title {
+    color: #b9bbbe;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.3rem;
+    transition: background-color 0.2s;
+  }
+  .sidebar-item:hover {
+    background-color: #3a3d44;
+  }
+  .sidebar-item.active {
+    background-color: #40444b;
+  }
+  .sidebar-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.8rem;
+    background-color: #b9bbbe;
+  }
+  .sidebar-item.active .dot {
+    background-color: #5865f2;
+  }
+  .sidebar-item .icon {
+    margin-right: 0.8rem;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+  #search-bar {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #202225;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  #search-bar:focus {
+    outline: 2px solid #5865f2;
+  }
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #2f3136;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 100;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+  }
+  .search-result-item {
+    padding: 0.8rem;
+    border-bottom: 1px solid #40444b;
+    cursor: pointer;
+  }
+  .search-result-item:hover {
+    background-color: #3a3d44;
+  }
+  .search-result-type {
+    font-size: 0.7rem;
+    color: #b9bbbe;
+    margin-top: 0.2rem;
+  }
+  .search-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* User profile section */
+  #user-profile {
+    margin-top: auto;
+    padding: 1rem;
+    background-color: #292b2f;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #5865f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+    background-size: cover;
+    background-position: center;
+  }
+  #profile-name {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  #profile-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #b9bbbe;
+  }
+  #status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  #status-info {
+    position: absolute;
+    bottom: 100px;
+    left: 20px;
+    background-color: #202225;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 100;
+    display: none;
+    width: 200px;
+  }
+  #status-info h4 {
+    margin-bottom: 0.5rem;
+  }
+  .status-level {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+  .status-level-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  
+  /* Announcement area */
+  #announcement-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #36393f;
+  }
+  #announcement-header {
+    padding: 1rem;
+    border-bottom: 1px solid #202225;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #announcement-header h2 {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+  }
+  #sparks-count {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    background-color: #2f3136;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    color: #faa61a;
+  }
+  #sparks-count i {
+    color: #faa61a;
+    margin-right: 0.3rem;
+  }
+  #announcements-container {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  .announcement {
+    background-color: #2f3136;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    position: relative;
+    word-break: break-word;
+    border-left: 4px solid #f04747;
+  }
+  .announcement:hover {
+    background-color: #34373c;
+  }
+  .announcement-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .announcement-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+  .username {
+    font-weight: 700;
+    cursor: default;
+  }
+  .announcement-time {
+    font-size: 0.7rem;
+    color: #b9bbbe;
+    margin-left: 0.8rem;
+  }
+  .announcement-text {
+    white-space: pre-wrap;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  .announcement-text a {
+    color: #5865f2;
+    text-decoration: none;
+  }
+  .announcement-text a:hover {
+    text-decoration: underline;
+  }
+  .announcement-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .announcement-action {
+    font-size: 0.8rem;
+    color: #b9bbbe;
+    cursor: pointer;
+  }
+  .announcement-action:hover {
+    color: white;
+    text-decoration: underline;
+  }
+  .announcement-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+    background-color: #f04747;
+    color: white;
+  }
+  
+  /* Right sidebar */
+  #right-sidebar {
+    width: 80px;
+    background-color: #2f3136;
+    border-left: 1px solid #202225;
+    padding: 1rem 0.5rem;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    resize: horizontal;
+    min-width: 80px;
+    max-width: 300px;
+  }
+  #right-sidebar:hover {
+    width: 200px;
+  }
+  #right-sidebar.expanded {
+    width: 200px;
+  }
+  .right-sidebar-title {
+    color: #b9bbbe;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    display: none;
+  }
+  #right-sidebar:hover .right-sidebar-title,
+  #right-sidebar.expanded .right-sidebar-title {
+    display: block;
+  }
+  .group-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 4px;
+  }
+  .group-item:hover {
+    background-color: #3a3d44;
+  }
+  .group-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0;
+  }
+  #right-sidebar:hover .group-avatar,
+  #right-sidebar.expanded .group-avatar {
+    margin-right: 10px;
+  }
+  .group-name {
+    display: none;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #right-sidebar:hover .group-name,
+  #right-sidebar.expanded .group-name {
+    display: block;
+  }
+  
+  /* Announcement input area */
+  #announcement-input-area {
+    background-color: #40444b;
+    padding: 1rem;
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  #announcement-title-input {
+    padding: 0.8rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    color: white;
+    background-color: #2f3136;
+    margin-bottom: 0.5rem;
+  }
+  #announcement-input {
+    padding: 0.8rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    color: white;
+    background-color: #2f3136;
+    resize: none;
+    height: auto;
+    min-height: 80px;
+    max-height: 150px;
+  }
+  #announcement-title-input:focus,
+  #announcement-input:focus {
+    outline: 2px solid #5865f2;
+  }
+  #announcement-send-btn {
+    background-color: #5865f2;
+    border: none;
+    color: white;
+    padding: 0.55rem 1.2rem;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    align-self: flex-end;
+  }
+  #announcement-send-btn:hover {
+    background-color: #4752c4;
+  }
+  
+  /* Status colors */
+  .username.green { color: #43b581; }
+  .username.blue { color: #5865f2; }
+  .username.violet { color: #9b59b6; }
+  .username.red { color: #f04747; }
+  
+  .status-dot.green { background-color: #43b581; }
+  .status-dot.blue { background-color: #5865f2; }
+  .status-dot.violet { background-color: #9b59b6; }
+  .status-dot.red { background-color: #f04747; }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #5865f2;
+    border-radius: 5px;
+  }
+  
+  /* No song notification */
+  #no-song-notification {
+    background-color: #f04747;
+    color: white;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dismiss-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* Edit announcement modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background-color: #2f3136;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+  }
+  .modal-title {
+    margin-bottom: 1rem;
+    color: white;
+  }
+  .modal-input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #40444b;
+    color: white;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .modal-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  .modal-btn.cancel {
+    background-color: #72767d;
+    color: white;
+  }
+  .modal-btn.save {
+    background-color: #5865f2;
+    color: white;
+  }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<!-- Create Announcement Modal -->
-<div id="create-announcement-modal">
-  <div id="create-announcement-content">
-    <h3 class="modal-title">Create Announcement</h3>
-    <div class="form-group">
-      <label for="announcement-title">Title</label>
-      <input type="text" id="announcement-title" placeholder="Enter announcement title" required>
-    </div>
-    <div class="form-group">
-      <label for="announcement-content">Content</label>
-      <textarea id="announcement-content" placeholder="Write your announcement here (Markdown supported)" required></textarea>
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="cancel-announcement">Cancel</button>
-      <button class="modal-btn submit" id="submit-announcement">Post Announcement</button>
-    </div>
-  </div>
-</div>
-
-<!-- Edit Announcement Modal -->
-<div id="edit-announcement-modal" class="modal">
-  <div class="modal-content">
-    <h3 class="modal-title">Edit Announcement</h3>
-    <div class="form-group">
-      <label for="edit-announcement-title">Title</label>
-      <input type="text" id="edit-announcement-title" required>
-    </div>
-    <div class="form-group">
-      <label for="edit-announcement-content">Content</label>
-      <textarea id="edit-announcement-content" required></textarea>
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="cancel-edit-announcement">Cancel</button>
-      <button class="modal-btn submit" id="save-edit-announcement">Save Changes</button>
-    </div>
-  </div>
-</div>
-
 <header>
-  <h1>KAMBA Forum - Announcements</h1>
-  <button id="new-announcement-btn" style="background-color: #5865f2; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-    <i class="fas fa-plus"></i> New Announcement
-  </button>
+  <h1>KAMBA Forum</h1>
 </header>
 
 <div id="main-content">
-  <!-- Left Sidebar (same as hello.html) -->
+  <!-- Left Sidebar -->
   <div id="left-sidebar">
     <div class="sidebar-item" id="home-btn">
       <div class="icon"><i class="fas fa-home"></i></div>
@@ -378,8 +561,15 @@
     </div>
     
     <div class="sidebar-section">
+      <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search..." autocomplete="off" />
+        <div id="search-results"></div>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
       <div class="sidebar-title">Channels</div>
-      <div class="sidebar-item" data-channel="general" onclick="window.location.href='hello.html'">
+      <div class="sidebar-item" data-channel="general">
         <div class="dot"></div>
         <span>#General</span>
       </div>
@@ -387,15 +577,15 @@
         <div class="dot"></div>
         <span>#Announcements</span>
       </div>
-      <div class="sidebar-item" data-channel="communities" onclick="window.location.href='communities.html'">
+      <div class="sidebar-item" data-channel="communities">
         <div class="dot"></div>
         <span>#Communities</span>
       </div>
-      <div class="sidebar-item" data-channel="posts" onclick="window.location.href='posts.html'">
+      <div class="sidebar-item" data-channel="posts">
         <div class="dot"></div>
         <span>#Posts</span>
       </div>
-      <div class="sidebar-item" data-channel="projects" onclick="window.location.href='projects.html'">
+      <div class="sidebar-item" data-channel="projects">
         <div class="dot"></div>
         <span>#Projects</span>
       </div>
@@ -408,19 +598,76 @@
       <div id="profile-status">
         <div id="status-dot"></div>
         <span id="status-text"></span>
+        <i class="fas fa-lightbulb" id="status-info-btn" style="margin-left: 5px; cursor: pointer;"></i>
+      </div>
+    </div>
+    
+    <!-- Status Info Tooltip -->
+    <div id="status-info">
+      <h4>Account Status</h4>
+      <div class="status-level">
+        <div class="status-level-dot green"></div>
+        <span>Green: 0-99 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot blue"></div>
+        <span>Blue: 100-999 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot violet"></div>
+        <span>Violet: 1000+ Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot red"></div>
+        <span>Red: Admin (special)</span>
       </div>
     </div>
   </div>
   
-  <!-- Main Announcements Area -->
-  <div id="announcements-container">
-    <!-- Announcements will be loaded here -->
+  <!-- Main Announcement Area -->
+  <div id="announcement-area">
+    <div id="announcement-header">
+      <div style="display: flex; align-items: center;">
+        <i class="fas fa-bullhorn"></i>
+        <h2 id="channel-title">Announcements</h2>
+      </div>
+      <div id="sparks-count">
+        <i class="fas fa-clover"></i>
+        <span id="sparks-value">0</span>
+      </div>
+    </div>
+    
+    <div id="no-song-notification" style="display:none;">
+      <span>No song set. Click here to set your song in Settings.</span>
+      <button class="dismiss-btn">Dismiss</button>
+    </div>
+    
+    <div id="announcement-input-area">
+      <input type="text" id="announcement-title-input" placeholder="Announcement Title" autocomplete="off" />
+      <textarea id="announcement-input" placeholder="Type your announcement..." autocomplete="off" rows="3"></textarea>
+      <button id="announcement-send-btn">Post Announcement</button>
+    </div>
+    
+    <div id="announcements-container"></div>
   </div>
 
   <!-- Right Sidebar -->
   <div id="right-sidebar">
     <div class="right-sidebar-title">GROUPS</div>
     <!-- Groups will be added dynamically -->
+  </div>
+</div>
+
+<!-- Edit Announcement Modal -->
+<div id="edit-announcement-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Edit Announcement</h3>
+    <input type="text" id="edit-announcement-title" class="modal-input" placeholder="Announcement Title" />
+    <textarea id="edit-announcement-input" class="modal-input" rows="4"></textarea>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-edit-btn">Cancel</button>
+      <button class="modal-btn save" id="save-edit-btn">Save</button>
+    </div>
   </div>
 </div>
 
@@ -441,9 +688,12 @@
     getDoc,
     updateDoc,
     deleteDoc,
-    serverTimestamp,
+    getDocs,
+    increment,
+    setDoc,
+    arrayUnion,
+    arrayRemove,
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-  import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
@@ -462,272 +712,536 @@
 
   // DOM Elements
   const announcementsContainer = document.getElementById("announcements-container");
-  const newAnnouncementBtn = document.getElementById("new-announcement-btn");
-  const createAnnouncementModal = document.getElementById("create-announcement-modal");
-  const cancelAnnouncementBtn = document.getElementById("cancel-announcement");
-  const submitAnnouncementBtn = document.getElementById("submit-announcement");
-  const announcementTitleInput = document.getElementById("announcement-title");
-  const announcementContentInput = document.getElementById("announcement-content");
+  const announcementTitleInput = document.getElementById("announcement-title-input");
+  const announcementInput = document.getElementById("announcement-input");
+  const announcementSendBtn = document.getElementById("announcement-send-btn");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const dismissBtn = noSongNotification.querySelector(".dismiss-btn");
+  const searchBar = document.getElementById("search-bar");
+  const searchResults = document.getElementById("search-results");
+  const channelItems = document.querySelectorAll(".sidebar-item[data-channel]");
+  const homeBtn = document.getElementById("home-btn");
+  const profileBtn = document.getElementById("profile-btn");
+  const createBtn = document.getElementById("create-btn");
+  const notificationsBtn = document.getElementById("notifications-btn");
   const editAnnouncementModal = document.getElementById("edit-announcement-modal");
   const editAnnouncementTitle = document.getElementById("edit-announcement-title");
-  const editAnnouncementContent = document.getElementById("edit-announcement-content");
-  const cancelEditAnnouncementBtn = document.getElementById("cancel-edit-announcement");
-  const saveEditAnnouncementBtn = document.getElementById("save-edit-announcement");
+  const editAnnouncementInput = document.getElementById("edit-announcement-input");
+  const cancelEditBtn = document.getElementById("cancel-edit-btn");
+  const saveEditBtn = document.getElementById("save-edit-btn");
   const profilePic = document.getElementById("profile-pic");
   const profileName = document.getElementById("profile-name");
   const statusDot = document.getElementById("status-dot");
   const statusText = document.getElementById("status-text");
+  const statusInfoBtn = document.getElementById("status-info-btn");
+  const statusInfo = document.getElementById("status-info");
+  const sparksValue = document.getElementById("sparks-value");
+  const announcementInputArea = document.getElementById("announcement-input-area");
 
   // App State
   let currentUser = null;
   let currentUserData = null;
-  let currentEditingAnnouncementId = null;
+  let announcementBeingEdited = null;
+  let searchTimeout = null;
+  let likedAnnouncements = new Set();
+  let hasInteracted = false;
+  const currentChannel = "announcements";
 
   // Initialize the app
   function init() {
     setupEventListeners();
+    loadGroups();
+    checkSongNotificationDismissed();
     checkAuthState();
   }
 
   // Set up all event listeners
   function setupEventListeners() {
-    // New announcement button
-    newAnnouncementBtn.addEventListener("click", () => {
-      // Check if user is admin (only admins can create announcements)
-      if (currentUserData?.isAdmin) {
-        createAnnouncementModal.style.display = "flex";
-        announcementTitleInput.focus();
-      } else {
-        alert("Only administrators can create announcements.");
-      }
-    });
-
-    // Create announcement modal
-    cancelAnnouncementBtn.addEventListener("click", () => {
-      createAnnouncementModal.style.display = "none";
-      announcementTitleInput.value = "";
-      announcementContentInput.value = "";
-    });
-
-    submitAnnouncementBtn.addEventListener("click", createAnnouncement);
-
-    // Edit announcement modal
-    cancelEditAnnouncementBtn.addEventListener("click", () => {
-      editAnnouncementModal.style.display = "none";
-      currentEditingAnnouncementId = null;
-    });
-
-    saveEditAnnouncementBtn.addEventListener("click", saveEditedAnnouncement);
-
     // Navigation buttons
-    document.getElementById("home-btn").addEventListener("click", () => {
+    homeBtn.addEventListener("click", () => {
       window.location.href = "hello.html";
     });
     
-    document.getElementById("profile-btn").addEventListener("click", () => {
+    profileBtn.addEventListener("click", () => {
       window.location.href = "settings.html";
     });
     
-    document.getElementById("create-btn").addEventListener("click", () => {
-      window.location.href = "hello.html#create"; // Redirect to main create page
+    createBtn.addEventListener("click", () => {
+      window.location.href = "addannounce.html";
     });
     
-    document.getElementById("notifications-btn").addEventListener("click", () => {
+    notificationsBtn.addEventListener("click", () => {
       alert("Notifications feature will be implemented in the next update");
+    });
+
+    // Channel navigation
+    channelItems.forEach(item => {
+      item.addEventListener("click", () => {
+        const channel = item.dataset.channel;
+        let url;
+        switch(channel) {
+          case "general": url = "hello.html"; break;
+          case "announcements": url = "announcements.html"; break;
+          case "communities": url = "communities.html"; break;
+          case "posts": url = "posts.html"; break;
+          case "projects": url = "projects.html"; break;
+        }
+        if (url) window.location.href = url;
+      });
+    });
+
+    // Announcement sending
+    announcementSendBtn.addEventListener("click", sendAnnouncement);
+    announcementInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendAnnouncement();
+      }
+    });
+
+    // Auto-resize textarea
+    announcementInput.addEventListener("input", function() {
+      this.style.height = "auto";
+      this.style.height = (this.scrollHeight) + "px";
+    });
+
+    // Search functionality
+    searchBar.addEventListener("input", handleSearch);
+    searchBar.addEventListener("focus", () => {
+      if (searchBar.value.trim() !== "") {
+        searchResults.style.display = "block";
+      }
+    });
+    searchBar.addEventListener("blur", () => {
+      setTimeout(() => {
+        searchResults.style.display = "none";
+      }, 200);
+    });
+
+    // Edit announcement modal
+    cancelEditBtn.addEventListener("click", () => {
+      editAnnouncementModal.style.display = "none";
+    });
+    saveEditBtn.addEventListener("click", saveEditedAnnouncement);
+
+    // Status info button
+    statusInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      statusInfo.style.display = statusInfo.style.display === "block" ? "none" : "block";
+    });
+
+    // Close status info when clicking outside
+    document.addEventListener("click", () => {
+      statusInfo.style.display = "none";
+    });
+
+    // Dismiss notification
+    dismissBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissSongNotification();
+    });
+
+    // Redirect to settings on notification click
+    noSongNotification.querySelector("span").addEventListener("click", () => {
+      window.location.href = "settings.html";
     });
   }
 
-  // Create a new announcement
-  async function createAnnouncement() {
+  // Send announcement
+  async function sendAnnouncement() {
     const title = announcementTitleInput.value.trim();
-    const content = announcementContentInput.value.trim();
+    const text = announcementInput.value.trim();
+    
+    if (!title || !text) {
+      alert("Both title and announcement text are required");
+      return;
+    }
 
-    if (!title || !content) {
-      alert("Please fill in both title and content");
+    if (getUserStatus(currentUserData) !== "red") {
+      alert("Only admins can post announcements");
       return;
     }
 
     try {
       await addDoc(collection(db, "Kamba_announcements"), {
-        title,
-        content,
-        authorId: currentUser.uid,
-        authorEmail: currentUser.email,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        isPinned: false,
-        views: 0
+        userId: currentUser.uid,
+        senderEmail: currentUser.email,
+        sender: simplifyEmail(currentUser.email),
+        title: title,
+        message: text,
+        timestamp: Date.now(),
       });
 
-      // Clear inputs and close modal
       announcementTitleInput.value = "";
-      announcementContentInput.value = "";
-      createAnnouncementModal.style.display = "none";
+      announcementInput.value = "";
+      announcementInput.style.height = "auto";
     } catch (error) {
-      console.error("Error creating announcement:", error);
-      alert("Failed to create announcement");
+      console.error("Error sending announcement:", error);
+      alert("Failed to send announcement");
     }
   }
 
-  // Load announcements from Firestore
-  function loadAnnouncements() {
-    announcementsContainer.innerHTML = "<div style='text-align: center; padding: 2rem;'>Loading announcements...</div>";
+  // Render an announcement
+  function renderAnnouncement(id, data) {
+    const div = document.createElement("div");
+    div.className = "announcement";
+    div.dataset.id = id;
 
-    const announcementsQuery = query(
-      collection(db, "Kamba_announcements"),
-      orderBy("isPinned", "desc"),
-      orderBy("createdAt", "desc")
-    );
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "announcement-header";
 
-    const unsubscribe = onSnapshot(announcementsQuery, async (snapshot) => {
-      announcementsContainer.innerHTML = "";
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "username " + getStatusClass(data.status);
+    usernameSpan.textContent = data.sender;
+    headerDiv.appendChild(usernameSpan);
 
-      if (snapshot.empty) {
-        announcementsContainer.innerHTML = "<div style='text-align: center; padding: 2rem; color: #b9bbbe;'>No announcements yet</div>";
-        return;
-      }
+    const badge = document.createElement("span");
+    badge.className = "announcement-badge";
+    badge.textContent = "ANNOUNCEMENT";
+    headerDiv.appendChild(badge);
 
-      // Preload author data
-      const authorIds = new Set();
-      snapshot.forEach(doc => {
-        authorIds.add(doc.data().authorId);
-      });
+    const timeSpan = document.createElement("span");
+    timeSpan.className = "announcement-time";
+    timeSpan.textContent = formatTime(data.timestamp);
+    headerDiv.appendChild(timeSpan);
 
-      const authorDataMap = new Map();
-      const authorPromises = Array.from(authorIds).map(async (uid) => {
-        const userDoc = await getDoc(doc(db, "Kamba_users", uid));
-        if (userDoc.exists()) {
-          authorDataMap.set(uid, userDoc.data());
-        }
-      });
+    div.appendChild(headerDiv);
 
-      await Promise.all(authorPromises);
+    const titleDiv = document.createElement("div");
+    titleDiv.className = "announcement-title";
+    titleDiv.textContent = data.title;
+    div.appendChild(titleDiv);
 
-      // Render announcements
-      snapshot.forEach(doc => {
-        const announcement = doc.data();
-        const authorData = authorDataMap.get(announcement.authorId) || {};
-        
-        const announcementElement = document.createElement("div");
-        announcementElement.className = "announcement-card";
-        if (announcement.isPinned) {
-          announcementElement.style.borderLeft = "4px solid #faa61a";
-        }
+    const textDiv = document.createElement("div");
+    textDiv.className = "announcement-text";
+    // Convert URLs to clickable links
+    textDiv.innerHTML = linkify(data.message);
+    div.appendChild(textDiv);
 
-        announcementElement.innerHTML = `
-          <div class="announcement-header">
-            <div>
-              <h3 class="announcement-title">${announcement.title}</h3>
-              <div class="announcement-meta">
-                <span class="announcement-author">${simplifyEmail(announcement.authorEmail)}</span>
-                <span class="announcement-time">${formatTime(announcement.createdAt?.toDate() || new Date())}</span>
-                ${announcement.isPinned ? '<span><i class="fas fa-thumbtack"></i> Pinned</span>' : ''}
-              </div>
-            </div>
-            ${currentUserData?.isAdmin ? `
-              <div class="announcement-admin-actions">
-                <button class="edit-announcement" data-id="${doc.id}" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="delete-announcement" data-id="${doc.id}" title="Delete"><i class="fas fa-trash"></i></button>
-              </div>
-            ` : ''}
-          </div>
-          <div class="announcement-content">${marked.parse(announcement.content)}</div>
-          <div class="announcement-actions">
-            <div class="announcement-action">
-              <i class="fas fa-eye"></i> <span>${announcement.views || 0} views</span>
-            </div>
-          </div>
-        `;
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "announcement-actions";
 
-        announcementsContainer.appendChild(announcementElement);
+    // Like button
+    const likeBtn = document.createElement("span");
+    likeBtn.className = "announcement-action";
+    likeBtn.textContent = likedAnnouncements.has(id) ? "Liked" : "Like";
+    if (likedAnnouncements.has(id)) {
+      likeBtn.style.color = "#43b581";
+    } else {
+      likeBtn.addEventListener("click", () => likeAnnouncement(id, data.userId));
+    }
+    actionsDiv.appendChild(likeBtn);
 
-        // Add event listeners for admin actions
-        if (currentUserData?.isAdmin) {
-          announcementElement.querySelector(".edit-announcement")?.addEventListener("click", (e) => {
-            e.stopPropagation();
-            editAnnouncement(doc.id, announcement);
-          });
+    // Edit and Delete buttons for admins
+    if (getUserStatus(currentUserData) === "red") {
+      const editBtn = document.createElement("span");
+      editBtn.className = "announcement-action";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => editAnnouncement(id, data.title, data.message));
+      actionsDiv.appendChild(editBtn);
 
-          announcementElement.querySelector(".delete-announcement")?.addEventListener("click", (e) => {
-            e.stopPropagation();
-            deleteAnnouncement(doc.id);
-          });
-        }
-      });
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "announcement-action";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", () => deleteAnnouncement(id));
+      actionsDiv.appendChild(deleteBtn);
+    }
+
+    div.appendChild(actionsDiv);
+
+    return div;
+  }
+
+  // Convert URLs to clickable links
+  function linkify(text) {
+    const urlRegex = /(https?:\/\/[^\s<]+[^\s<.,:;"')\]\}])/g;
+    return text.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+  }
+
+  // Format timestamp
+  function formatTime(timestamp) {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleString([], { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
     });
+  }
 
-    return unsubscribe;
+  // Like an announcement
+  async function likeAnnouncement(announcementId, senderUid) {
+    if (likedAnnouncements.has(announcementId)) {
+      alert("You've already liked this announcement");
+      return;
+    }
+
+    try {
+      likedAnnouncements.add(announcementId);
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      await updateDoc(senderRef, {
+        sparks: increment(2)
+      });
+      loadAnnouncements();
+    } catch (error) {
+      console.error("Error liking announcement:", error);
+      alert("Failed to like announcement");
+    }
   }
 
   // Edit an announcement
-  function editAnnouncement(id, announcementData) {
-    currentEditingAnnouncementId = id;
-    editAnnouncementTitle.value = announcementData.title;
-    editAnnouncementContent.value = announcementData.content;
+  function editAnnouncement(announcementId, title, text) {
+    announcementBeingEdited = announcementId;
+    editAnnouncementTitle.value = title;
+    editAnnouncementInput.value = text;
     editAnnouncementModal.style.display = "flex";
     editAnnouncementTitle.focus();
   }
 
   // Save edited announcement
   async function saveEditedAnnouncement() {
-    const title = editAnnouncementTitle.value.trim();
-    const content = editAnnouncementContent.value.trim();
+    if (!announcementBeingEdited) return;
 
-    if (!title || !content) {
-      alert("Please fill in both title and content");
+    const newTitle = editAnnouncementTitle.value.trim();
+    const newText = editAnnouncementInput.value.trim();
+
+    if (!newTitle || !newText) {
+      alert("Both title and announcement text are required");
       return;
     }
 
     try {
-      await updateDoc(doc(db, "Kamba_announcements", currentEditingAnnouncementId), {
-        title,
-        content,
-        updatedAt: serverTimestamp()
+      const announcementRef = doc(db, "Kamba_announcements", announcementBeingEdited);
+      await updateDoc(announcementRef, {
+        title: newTitle,
+        message: newText,
+        edited: true
       });
 
       editAnnouncementModal.style.display = "none";
-      currentEditingAnnouncementId = null;
+      announcementBeingEdited = null;
     } catch (error) {
-      console.error("Error updating announcement:", error);
-      alert("Failed to update announcement");
+      console.error("Error editing announcement:", error);
+      alert("Failed to edit announcement");
     }
   }
 
   // Delete an announcement
-  async function deleteAnnouncement(id) {
+  async function deleteAnnouncement(announcementId) {
     if (!confirm("Are you sure you want to delete this announcement?")) return;
 
     try {
-      await deleteDoc(doc(db, "Kamba_announcements", id));
+      await deleteDoc(doc(db, "Kamba_announcements", announcementId));
     } catch (error) {
       console.error("Error deleting announcement:", error);
       alert("Failed to delete announcement");
     }
   }
 
-  // Format timestamp
-  function formatTime(date) {
-    if (!date) return "";
-    return date.toLocaleString([], {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  // Load announcements from Firestore
+  function loadAnnouncements() {
+    const announcementsQuery = query(
+      collection(db, "Kamba_announcements"),
+      orderBy("timestamp", "desc")
+    );
+
+    onSnapshot(announcementsQuery, async (querySnapshot) => {
+      announcementsContainer.innerHTML = "";
+
+      // Preload user data
+      const userIds = new Set();
+      querySnapshot.forEach((doc) => {
+        userIds.add(doc.data().userId);
+      });
+
+      const userDataMap = new Map();
+      const userDocsPromises = Array.from(userIds).map(uid => getDoc(doc(db, "Kamba_users", uid)));
+      
+      try {
+        const userDocs = await Promise.all(userDocsPromises);
+        userDocs.forEach((docSnap) => {
+          if (docSnap.exists()) {
+            userDataMap.set(docSnap.id, docSnap.data());
+          }
+        });
+
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const userData = userDataMap.get(data.userId) || {};
+          const announcementData = {
+            sender: simplifyEmail(data.senderEmail),
+            status: getUserStatus(userData),
+            title: data.title,
+            message: data.message,
+            timestamp: data.timestamp,
+            userId: data.userId
+          };
+          
+          const announcementDiv = renderAnnouncement(docSnap.id, announcementData);
+          announcementsContainer.appendChild(announcementDiv);
+        });
+
+        announcementsContainer.scrollTop = 0; // Scroll to top for newest announcements
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        announcementsContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: #f04747;'>Error loading announcements</div>";
+      }
     });
   }
 
-  // Helper: remove @gmail.com and similar domains
-  function simplifyEmail(email) {
-    if (!email) return "unknown";
-    return email.split("@")[0];
+  // Handle search
+  function handleSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(async () => {
+      const searchTerm = searchBar.value.trim();
+      if (searchTerm === "") {
+        searchResults.innerHTML = "";
+        searchResults.style.display = "none";
+        return;
+      }
+
+      try {
+        searchResults.innerHTML = "<div style='padding: 1rem; text-align: center;'>Searching...</div>";
+        searchResults.style.display = "block";
+
+        const announcementsQuery = query(
+          collection(db, "Kamba_announcements"),
+          where("message", ">=", searchTerm),
+          where("message", "<=", searchTerm + "\uf8ff")
+        );
+        const announcementsSnapshot = await getDocs(announcementsQuery);
+
+        searchResults.innerHTML = "";
+
+        announcementsSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${data.title}</div>
+            <div class="search-result-type">Announcement by ${simplifyEmail(data.senderEmail)}</div>
+          `;
+          item.addEventListener("click", () => {
+            alert(`Viewing announcement: ${data.title}`);
+          });
+          searchResults.appendChild(item);
+        });
+
+        if (searchResults.children.length === 0) {
+          searchResults.innerHTML = "<div style='padding: 1rem; text-align: center;'>No results found</div>";
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        searchResults.innerHTML = "<div style='padding: 1rem; text-align: center; color: #f04747;'>Error searching</div>";
+      }
+    }, 300);
   }
 
-  // Update user profile section
+  // Load random groups
+  async function loadGroups() {
+    rightSidebar.innerHTML = '<div class="right-sidebar-title">GROUPS</div>';
+
+    try {
+      const groupsQuery = query(collection(db, "Kamba_groups"));
+      const querySnapshot = await getDocs(groupsQuery);
+
+      if (querySnapshot.empty) {
+        console.log("No groups found");
+        return;
+      }
+
+      const groups = [];
+      querySnapshot.forEach(doc => {
+        groups.push({ id: doc.id, ...doc.data() });
+      });
+
+      const shuffledGroups = [...groups].sort(() => 0.5 - Math.random()).slice(0, 4);
+
+      shuffledGroups.forEach(group => {
+        const groupItem = document.createElement("div");
+        groupItem.className = "group-item";
+        groupItem.dataset.groupId = group.id;
+
+        const avatar = document.createElement("img");
+        avatar.className = "group-avatar";
+        avatar.src = group.image || "https://i.imgur.com/J6l19aF.png";
+        avatar.alt = group.name;
+
+        const name = document.createElement("div");
+        name.className = "group-name";
+        name.textContent = group.name;
+
+        groupItem.appendChild(avatar);
+        groupItem.appendChild(name);
+
+        const button = document.createElement("button");
+        const isMember = group.members.includes(currentUser.uid);
+        button.textContent = isMember ? "Leave" : "Join";
+        button.addEventListener("click", () => handleGroupJoinLeave(group.id, group.creatorId, isMember, group.members.length, group.maxMembers));
+        groupItem.appendChild(button);
+
+        rightSidebar.appendChild(groupItem);
+
+        avatar.addEventListener("click", () => {
+          alert(`Viewing group: ${group.name}`);
+        });
+        name.addEventListener("click", () => {
+          alert(`Viewing group: ${group.name}`);
+        });
+      });
+    } catch (error) {
+      console.error("Error loading groups:", error);
+    }
+  }
+
+  // Handle group join/leave
+  async function handleGroupJoinLeave(id, creatorId, isLeaving, currentMembers, maxMembers) {
+    try {
+      const groupRef = doc(db, "Kamba_groups", id);
+      const userRef = doc(db, "Kamba_users", currentUser.uid);
+      const creatorRef = doc(db, "Kamba_users", creatorId);
+
+      if (isLeaving) {
+        await updateDoc(groupRef, { members: arrayRemove(currentUser.uid) });
+        await updateDoc(userRef, { groups: arrayRemove(id) });
+        await updateDoc(creatorRef, { sparks: increment(-3) });
+      } else {
+        if (currentMembers >= maxMembers) {
+          alert("Group is full");
+          return;
+        }
+        await updateDoc(groupRef, { members: arrayUnion(currentUser.uid) });
+        await updateDoc(userRef, { groups: arrayUnion(id) });
+        await updateDoc(creatorRef, { sparks: increment(4) });
+      }
+      loadGroups();
+    } catch (error) {
+      console.error("Error joining/leaving group:", error);
+      alert("Failed to join/leave group");
+    }
+  }
+
+  // Check if song notification was dismissed
+  function checkSongNotificationDismissed() {
+    const dismissedUntil = localStorage.getItem('songNotificationDismissed');
+    if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) {
+      noSongNotification.style.display = "none";
+    }
+  }
+
+  // Dismiss song notification
+  function dismissSongNotification() {
+    const fiveHours = 5 * 60 * 60 * 1000;
+    const dismissedUntil = Date.now() + fiveHours;
+    localStorage.setItem('songNotificationDismissed', dismissedUntil.toString());
+    noSongNotification.style.display = "none";
+  }
+
+  // Update user profile
   function updateUserProfile(userData) {
     if (!userData) return;
-    
-    // Set profile picture
+
     if (userData.profilePic) {
       profilePic.style.backgroundImage = `url(${userData.profilePic})`;
       profilePic.textContent = "";
@@ -735,17 +1249,13 @@
       const displayName = simplifyEmail(userData.email);
       profilePic.textContent = displayName.charAt(0).toUpperCase();
       profilePic.style.backgroundImage = "none";
-      
-      // Set random color for profile pic
       const colors = ['#5865f2', '#57f287', '#f04747', '#eb459e', '#ed4245', '#faa61a'];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       profilePic.style.backgroundColor = randomColor;
     }
-    
-    // Set username
+
     profileName.textContent = simplifyEmail(userData.email);
-    
-    // Set status based on sparks
+
     let status, statusColor;
     if (userData.isAdmin) {
       status = "Admin";
@@ -763,9 +1273,34 @@
         statusColor = "green";
       }
     }
-    
+
     statusDot.className = "status-dot " + statusColor;
     statusText.textContent = status;
+    sparksValue.textContent = userData.sparks || 0;
+
+    // Show announcement input only for admins
+    announcementInputArea.style.display = statusColor === "red" ? "flex" : "none";
+  }
+
+  // Simplify email
+  function simplifyEmail(email) {
+    if (!email) return "unknown";
+    return email.split("@")[0];
+  }
+
+  // Get user status
+  function getUserStatus(userData) {
+    if (!userData) return "green";
+    if (userData.isAdmin) return "red";
+    const sparks = userData.sparks || 0;
+    if (sparks >= 1000) return "violet";
+    if (sparks >= 100) return "blue";
+    return "green";
+  }
+
+  // Get status class
+  function getStatusClass(status) {
+    return status.toLowerCase();
   }
 
   // Check authentication state
@@ -777,24 +1312,39 @@
       }
       currentUser = user;
 
-      // Load user data from Firestore
       const userDocRef = doc(db, "Kamba_users", user.uid);
       const userDocSnap = await getDoc(userDocRef);
-      
+
       if (!userDocSnap.exists()) {
         window.location.href = "sign.html";
         return;
       }
-      
+
       currentUserData = userDocSnap.data();
       updateUserProfile(currentUserData);
       loadAnnouncements();
-      
-      // Show new announcement button only for admins
-      if (currentUserData.isAdmin) {
-        newAnnouncementBtn.style.display = "block";
+
+      if (currentUserData.song && currentUserData.song.trim() !== "") {
+        const songName = currentUserData.song.split('/').pop().split('.')[0];
+        const songPath = `Music/${songName}.mp3`;
+        const backgroundAudio = document.createElement("audio");
+        backgroundAudio.id = "background-audio";
+        backgroundAudio.loop = true;
+        backgroundAudio.src = songPath;
+        backgroundAudio.volume = currentUserData.volume ?? 0.5;
+        document.body.appendChild(backgroundAudio);
+
+        document.addEventListener('click', function firstInteraction() {
+          if (!hasInteracted) {
+            backgroundAudio.play().catch(e => console.log("Audio play failed:", e));
+            hasInteracted = true;
+            document.removeEventListener('click', firstInteraction);
+          }
+        });
+
+        noSongNotification.style.display = "none";
       } else {
-        newAnnouncementBtn.style.display = "none";
+        noSongNotification.style.display = "flex";
       }
     });
   }
