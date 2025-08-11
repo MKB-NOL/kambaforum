@@ -244,7 +244,7 @@
       return;
     }
 
-    if (getUserStatus(currentUserData) !== "red") {
+    if (currentUserData?.status !== "red") {
       alert("Only admins can create announcements");
       return;
     }
@@ -272,16 +272,6 @@
     return email.split("@")[0];
   }
 
-  // Get user status
-  function getUserStatus(userData) {
-    if (!userData) return "green";
-    if (userData.isAdmin) return "red";
-    const sparks = userData.sparks || 0;
-    if (sparks >= 1000) return "violet";
-    if (sparks >= 100) return "blue";
-    return "green";
-  }
-
   // Check auth state
   function checkAuthState() {
     onAuthStateChanged(auth, async (user) => {
@@ -300,6 +290,10 @@
       }
 
       currentUserData = userDocSnap.data();
+      if (currentUserData.status !== "red") {
+        alert("Access denied: Only admins can create announcements");
+        window.location.href = "announcements.html";
+      }
     });
   }
 
