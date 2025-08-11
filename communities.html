@@ -1,1 +1,813 @@
-nice
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KAMBA Forum - Communities</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+<meta property="og:title" content="KAMBA Forum - Communities" />
+<meta property="og:description" content="Join KAMBA Forum to connect, share tech projects, and collaborate with people around Africa." />
+<meta property="og:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
+<meta property="og:url" content="https://kamba-forum.com/communities" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="KAMBA Forum - Communities" />
+<meta name="twitter:description" content="Join KAMBA Forum to connect, share tech projects, and collaborate with people around Africa." />
+<meta name="twitter:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+  }
+  body, html {
+    height: 100%;
+    background-color: #36393f;
+    color: #dcddde;
+    display: flex;
+    flex-direction: column;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+  header {
+    background-color: #2f3136;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    border-bottom: 1px solid #202225;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  #main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  #left-sidebar {
+    width: 250px;
+    background-color: #2f3136;
+    border-right: 1px solid #202225;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    margin-bottom: 1.5rem;
+  }
+  .sidebar-title {
+    color: #b9bbbe;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.3rem;
+    transition: background-color 0.2s;
+  }
+  .sidebar-item:hover {
+    background-color: #3a3d44;
+  }
+  .sidebar-item.active {
+    background-color: #40444b;
+  }
+  .sidebar-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.8rem;
+    background-color: #b9bbbe;
+  }
+  .sidebar-item.active .dot {
+    background-color: #5865f2;
+  }
+  .sidebar-item .icon {
+    margin-right: 0.8rem;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+  #search-bar {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #202225;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  #search-bar:focus {
+    outline: 2px solid #5865f2;
+  }
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #2f3136;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 100;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+  }
+  .search-result-item {
+    padding: 0.8rem;
+    border-bottom: 1px solid #40444b;
+    cursor: pointer;
+  }
+  .search-result-item:hover {
+    background-color: #3a3d44;
+  }
+  .search-result-type {
+    font-size: 0.7rem;
+    color: #b9bbbe;
+    margin-top: 0.2rem;
+  }
+  .search-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  #user-profile {
+    margin-top: auto;
+    padding: 1rem;
+    background-color: #292b2f;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #5865f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+    background-size: cover;
+    background-position: center;
+  }
+  #profile-name {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  #profile-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #b9bbbe;
+  }
+  #status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  #status-info {
+    position: absolute;
+    bottom: 100px;
+    left: 20px;
+    background-color: #202225;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 100;
+    display: none;
+    width: 200px;
+  }
+  #status-info h4 {
+    margin-bottom: 0.5rem;
+  }
+  .status-level {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+  .status-level-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  #chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #36393f;
+  }
+  #chat-header {
+    padding: 1rem;
+    border-bottom: 1px solid #202225;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #chat-header h2 {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+  }
+  #sparks-count {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    background-color: #2f3136;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    color: #faa61a;
+  }
+  #sparks-count i {
+    color: #faa61a;
+    margin-right: 0.3rem;
+  }
+  #communities-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  .community-item {
+    background-color: #2f3136;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .community-banner {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  .community-info {
+    padding: 1rem;
+    text-align: center;
+  }
+  .community-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: -40px;
+    border: 4px solid #36393f;
+  }
+  .community-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+  .community-description {
+    font-size: 0.9rem;
+    color: #b9bbbe;
+    margin-top: 0.5rem;
+  }
+  .community-members {
+    font-size: 0.8rem;
+    color: #72767d;
+    margin-top: 0.5rem;
+  }
+  #community-search {
+    width: 100%;
+    max-width: 800px;
+    margin: 1rem auto;
+    padding: 0.8rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #202225;
+    color: white;
+  }
+  #community-search:focus {
+    outline: 2px solid #5865f2;
+  }
+  #right-sidebar {
+    width: 80px;
+    background-color: #2f3136;
+    border-left: 1px solid #202225;
+    padding: 1rem 0.5rem;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    resize: horizontal;
+    min-width: 80px;
+    max-width: 300px;
+  }
+  #right-sidebar:hover {
+    width: 200px;
+  }
+  #right-sidebar.expanded {
+    width: 200px;
+  }
+  .right-sidebar-title {
+    color: #b9bbbe;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    display: none;
+  }
+  #right-sidebar:hover .right-sidebar-title,
+  #right-sidebar.expanded .right-sidebar-title {
+    display: block;
+  }
+  .group-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 4px;
+  }
+  .group-item:hover {
+    background-color: #3a3d44;
+  }
+  .group-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0;
+  }
+  #right-sidebar:hover .group-avatar,
+  #right-sidebar.expanded .group-avatar {
+    margin-right: 10px;
+  }
+  .group-name {
+    display: none;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #right-sidebar:hover .group-name,
+  #right-sidebar.expanded .group-name {
+    display: block;
+  }
+  .status-dot.green { background-color: #43b581; }
+  .status-dot.blue { background-color: #5865f2; }
+  .status-dot.violet { background-color: #9b59b6; }
+  .status-dot.red { background-color: #f04747; }
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #5865f2;
+    border-radius: 5px;
+  }
+  #no-song-notification {
+    background-color: #f04747;
+    color: white;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dismiss-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<header>
+  <h1>KAMBA Forum</h1>
+</header>
+<div id="main-content">
+  <div id="left-sidebar">
+    <div class="sidebar-item" id="home-btn">
+      <div class="icon"><i class="fas fa-home"></i></div>
+      <span>Home</span>
+    </div>
+    <div class="sidebar-item" id="profile-btn">
+      <div class="icon"><i class="fas fa-user"></i></div>
+      <span>Profile</span>
+    </div>
+    <div class="sidebar-item" id="create-btn">
+      <div class="icon"><i class="fas fa-plus"></i></div>
+      <span>Create</span>
+    </div>
+    <div class="sidebar-item" id="notifications-btn">
+      <div class="icon"><i class="fas fa-bell"></i></div>
+      <span>Notifications</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search..." autocomplete="off" />
+        <div id="search-results"></div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Channels</div>
+      <div class="sidebar-item" data-channel="general">
+        <div class="dot"></div>
+        <span>#General</span>
+      </div>
+      <div class="sidebar-item" data-channel="announcements">
+        <div class="dot"></div>
+        <span>#Announcements</span>
+      </div>
+      <div class="sidebar-item active" data-channel="communities">
+        <div class="dot"></div>
+        <span>#Communities</span>
+      </div>
+      <div class="sidebar-item" data-channel="posts">
+        <div class="dot"></div>
+        <span>#Posts</span>
+      </div>
+      <div class="sidebar-item" data-channel="projects">
+        <div class="dot"></div>
+        <span>#Projects</span>
+      </div>
+    </div>
+    <div id="user-profile">
+      <div id="profile-pic"></div>
+      <div id="profile-name"></div>
+      <div id="profile-status">
+        <div id="status-dot"></div>
+        <span id="status-text"></span>
+        <i class="fas fa-lightbulb" id="status-info-btn" style="margin-left: 5px; cursor: pointer;"></i>
+      </div>
+    </div>
+    <div id="status-info">
+      <h4>Account Status</h4>
+      <div class="status-level">
+        <div class="status-level-dot green"></div>
+        <span>Green: 0-99 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot blue"></div>
+        <span>Blue: 100-999 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot violet"></div>
+        <span>Violet: 1000+ Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot red"></div>
+        <span>Red: Admin (special)</span>
+      </div>
+    </div>
+  </div>
+  <div id="chat-area">
+    <div id="no-song-notification" style="display:none;">
+      <span>No song set. Click here to set your song in Settings.</span>
+      <button class="dismiss-btn">Dismiss</button>
+    </div>
+    <div id="chat-header">
+      <div style="display: flex; align-items: center;">
+        <i class="fas fa-users"></i>
+        <h2 id="channel-title">Communities</h2>
+      </div>
+      <div id="sparks-count">
+        <i class="fas fa-clover"></i>
+        <span id="sparks-value">0</span>
+      </div>
+    </div>
+    <input type="text" id="community-search" placeholder="Search communities..." autocomplete="off" />
+    <div class="communities-container" id="communities-container"></div>
+  </div>
+  <div id="right-sidebar">
+    <div class="right-sidebar-title">GROUPS</div>
+  </div>
+</div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    doc,
+    getDoc,
+    updateDoc,
+    arrayUnion,
+    arrayRemove,
+    getDocs,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+    authDomain: "muah-feed.firebaseapp.com",
+    databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+    projectId: "muah-feed",
+    storageBucket: "muah-feed.firebasestorage.app",
+    messagingSenderId: "442314397706",
+    appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+    measurementId: "G-S86S229F1T",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const communitiesContainer = document.getElementById("communities-container");
+  const communitySearch = document.getElementById("community-search");
+  const homeBtn = document.getElementById("home-btn");
+  const profileBtn = document.getElementById("profile-btn");
+  const createBtn = document.getElementById("create-btn");
+  const notificationsBtn = document.getElementById("notifications-btn");
+  const channelItems = document.querySelectorAll(".sidebar-item[data-channel]");
+  const profilePic = document.getElementById("profile-pic");
+  const profileName = document.getElementById("profile-name");
+  const statusDot = document.getElementById("status-dot");
+  const statusText = document.getElementById("status-text");
+  const statusInfoBtn = document.getElementById("status-info-btn");
+  const statusInfo = document.getElementById("status-info");
+  const sparksValue = document.getElementById("sparks-value");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const dismissBtn = noSongNotification.querySelector(".dismiss-btn");
+  const rightSidebar = document.getElementById("right-sidebar");
+
+  let currentUser = null;
+  let currentUserData = null;
+  let allCommunities = [];
+  let hasInteracted = false;
+
+  function init() {
+    setupEventListeners();
+    checkSongNotificationDismissed();
+    checkAuthState();
+  }
+
+  function setupEventListeners() {
+    homeBtn.addEventListener("click", () => {
+      window.location.href = "hello.html";
+    });
+    profileBtn.addEventListener("click", () => {
+      window.location.href = "settings.html";
+    });
+    createBtn.addEventListener("click", () => {
+      window.location.href = "addannounce.html";
+    });
+    notificationsBtn.addEventListener("click", () => {
+      alert("Notifications feature will be implemented in the next update");
+    });
+    channelItems.forEach(item => {
+      item.addEventListener("click", () => {
+        const channel = item.dataset.channel;
+        let url;
+        switch(channel) {
+          case "general": url = "hello.html"; break;
+          case "announcements": url = "announcements.html"; break;
+          case "communities": url = "communities.html"; break;
+          case "posts": url = "posts.html"; break;
+          case "projects": url = "projects.html"; break;
+        }
+        if (url) window.location.href = url;
+      });
+    });
+    communitySearch.addEventListener("input", filterCommunities);
+    statusInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      statusInfo.style.display = statusInfo.style.display === "block" ? "none" : "block";
+    });
+    document.addEventListener("click", () => {
+      statusInfo.style.display = "none";
+    });
+    dismissBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissSongNotification();
+    });
+    noSongNotification.querySelector("span").addEventListener("click", () => {
+      window.location.href = "settings.html";
+    });
+  }
+
+  function loadCommunities() {
+    const communitiesQuery = query(collection(db, "Kamba_communities"), orderBy("createdAt", "desc"));
+    onSnapshot(communitiesQuery, (querySnapshot) => {
+      allCommunities = [];
+      querySnapshot.forEach((doc) => {
+        allCommunities.push({ id: doc.id, ...doc.data() });
+      });
+      allCommunities = allCommunities.sort(() => 0.5 - Math.random());
+      displayCommunities(allCommunities);
+    });
+  }
+
+  function displayCommunities(communities) {
+    communitiesContainer.innerHTML = "";
+    communities.forEach(community => {
+      const item = document.createElement("div");
+      item.className = "community-item";
+      item.innerHTML = `
+        <img src="${community.banner || 'https://via.placeholder.com/800x200'}" alt="Banner" class="community-banner">
+        <div class="community-info">
+          <img src="${community.image || 'https://via.placeholder.com/80'}" alt="Image" class="community-image">
+          <div class="community-name">${community.name}</div>
+          <div class="community-description">${community.description}</div>
+          <div class="community-members">${community.members.length} member${community.members.length === 1 ? '' : 's'}</div>
+        </div>
+      `;
+      item.addEventListener("click", () => {
+        window.location.href = `commune.html?id=${community.id}`;
+      });
+      communitiesContainer.appendChild(item);
+    });
+  }
+
+  function filterCommunities() {
+    const searchTerm = communitySearch.value.toLowerCase().trim();
+    const filtered = allCommunities.filter(com => 
+      com.name.toLowerCase().includes(searchTerm) || 
+      com.description.toLowerCase().includes(searchTerm)
+    );
+    displayCommunities(filtered);
+  }
+
+  async function loadGroups() {
+    rightSidebar.innerHTML = '<div class="right-sidebar-title">GROUPS</div>';
+    try {
+      const groupsQuery = query(collection(db, "Kamba_groups"));
+      const querySnapshot = await getDocs(groupsQuery);
+      if (querySnapshot.empty) {
+        console.log("No groups found");
+        return;
+      }
+      const groups = [];
+      querySnapshot.forEach(doc => {
+        groups.push({ id: doc.id, ...doc.data() });
+      });
+      const shuffledGroups = [...groups].sort(() => 0.5 - Math.random()).slice(0, 4);
+      shuffledGroups.forEach(group => {
+        const groupItem = document.createElement("div");
+        groupItem.className = "group-item";
+        groupItem.dataset.groupId = group.id;
+        const avatar = document.createElement("img");
+        avatar.className = "group-avatar";
+        avatar.src = group.image || "https://via.placeholder.com/50";
+        avatar.alt = group.name;
+        const name = document.createElement("div");
+        name.className = "group-name";
+        name.textContent = group.name;
+        groupItem.appendChild(avatar);
+        groupItem.appendChild(name);
+        const button = document.createElement("button");
+        const isMember = group.members.includes(currentUser.uid);
+        button.textContent = isMember ? "Leave" : "Join";
+        button.addEventListener("click", () => handleGroupJoinLeave(group.id, group.creatorId, isMember, group.members.length, group.maxMembers));
+        groupItem.appendChild(button);
+        rightSidebar.appendChild(groupItem);
+        avatar.addEventListener("click", () => {
+          alert(`Viewing group: ${group.name}`);
+        });
+        name.addEventListener("click", () => {
+          alert(`Viewing group: ${group.name}`);
+        });
+      });
+    } catch (error) {
+      console.error("Error loading groups:", error);
+    }
+  }
+
+  async function handleGroupJoinLeave(id, creatorId, isLeaving, currentMembers, maxMembers) {
+    try {
+      const groupRef = doc(db, "Kamba_groups", id);
+      const userRef = doc(db, "Kamba_users", currentUser.uid);
+      const creatorRef = doc(db, "Kamba_users", creatorId);
+      if (isLeaving) {
+        await updateDoc(groupRef, { members: arrayRemove(currentUser.uid) });
+        await updateDoc(userRef, { groups: arrayRemove(id) });
+        await updateDoc(creatorRef, { sparks: increment(-3) });
+      } else {
+        if (currentMembers >= maxMembers) {
+          alert("Group is full");
+          return;
+        }
+        await updateDoc(groupRef, { members: arrayUnion(currentUser.uid) });
+        await updateDoc(userRef, { groups: arrayUnion(id) });
+        await updateDoc(creatorRef, { sparks: increment(4) });
+      }
+      loadGroups();
+    } catch (error) {
+      console.error("Error joining/leaving group:", error);
+      alert("Failed to join/leave group");
+    }
+  }
+
+  function updateUserProfile(userData) {
+    if (!userData) return;
+    if (userData.profilePic) {
+      profilePic.style.backgroundImage = `url(${userData.profilePic})`;
+      profilePic.textContent = "";
+    } else {
+      const displayName = simplifyEmail(userData.email);
+      profilePic.textContent = displayName.charAt(0).toUpperCase();
+      profilePic.style.backgroundImage = "none";
+      const colors = ['#5865f2', '#57f287', '#f04747', '#eb459e', '#ed4245', '#faa61a'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      profilePic.style.backgroundColor = randomColor;
+    }
+    profileName.textContent = simplifyEmail(userData.email);
+    let status, statusColor;
+    if (userData.isAdmin || userData.status === "red") {
+      status = "Admin";
+      statusColor = "red";
+    } else {
+      const sparks = userData.sparks || 0;
+      if (sparks >= 1000) {
+        status = "Violet";
+        statusColor = "violet";
+      } else if (sparks >= 100) {
+        status = "Blue";
+        statusColor = "blue";
+      } else {
+        status = "Green";
+        statusColor = "green";
+      }
+    }
+    statusDot.className = "status-dot " + statusColor;
+    statusText.textContent = status;
+    sparksValue.textContent = userData.sparks || 0;
+  }
+
+  function simplifyEmail(email) {
+    if (!email) return "unknown";
+    return email.split("@")[0];
+  }
+
+  function checkSongNotificationDismissed() {
+    const dismissedUntil = localStorage.getItem('songNotificationDismissed');
+    if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) {
+      noSongNotification.style.display = "none";
+    }
+  }
+
+  function dismissSongNotification() {
+    const fiveHours = 5 * 60 * 60 * 1000;
+    const dismissedUntil = Date.now() + fiveHours;
+    localStorage.setItem('songNotificationDismissed', dismissedUntil.toString());
+    noSongNotification.style.display = "none";
+  }
+
+  function checkAuthState() {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "sign.html";
+        return;
+      }
+      currentUser = user;
+      const userDocRef = doc(db, "Kamba_users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (!userDocSnap.exists()) {
+        window.location.href = "sign.html";
+        return;
+      }
+      currentUserData = userDocSnap.data();
+      updateUserProfile(currentUserData);
+      loadCommunities();
+      loadGroups();
+      if (currentUserData.song && currentUserData.song.trim() !== "") {
+        const songName = currentUserData.song.split('/').pop().split('.')[0];
+        const songPath = `Music/${songName}.mp3`;
+        const backgroundAudio = document.createElement("audio");
+        backgroundAudio.id = "background-audio";
+        backgroundAudio.loop = true;
+        backgroundAudio.src = songPath;
+        backgroundAudio.volume = currentUserData.volume ?? 0.5;
+        document.body.appendChild(backgroundAudio);
+        document.addEventListener('click', function firstInteraction() {
+          if (!hasInteracted) {
+            backgroundAudio.play().catch(e => console.log("Audio play failed:", e));
+            hasInteracted = true;
+            document.removeEventListener('click', firstInteraction);
+          }
+        });
+        noSongNotification.style.display = "none";
+      } else {
+        noSongNotification.style.display = "flex";
+      }
+    });
+  }
+
+  init();
+</script>
+</body>
+</html>
