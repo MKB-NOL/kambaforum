@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KAMBA Forum - Community</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+<meta property="og:title" content="KAMBA Forum - Community" />
+<meta property="og:description" content="Engage with community chats, announcements, and rules on KAMBA Forum." />
+<meta property="og:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
+<meta property="og:url" content="https://kamba-forum.com/commune" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="KAMBA Forum - Community" />
+<meta name="twitter:description" content="Engage with community chats, announcements, and rules on KAMBA Forum." />
+<meta name="twitter:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+  }
+  body, html {
+    height: 100%;
+    background-color: #36393f;
+    color: #dcddde;
+    display: flex;
+    flex-direction: column;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+  header {
+    background-color: #2f3136;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    border-bottom: 1px solid #202225;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  #main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  #left-sidebar {
+    width: 250px;
+    background-color: #2f3136;
+    border-right: 1px solid #202225;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    margin-bottom: 1.5rem;
+  }
+  .sidebar-title {
+    color: #b9bbbe;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.3rem;
+    transition: background-color 0.2s;
+  }
+  .sidebar-item:hover {
+    background-color: #3a3d44;
+  }
+  .sidebar-item.active {
+    background-color: #40444b;
+  }
+  .sidebar-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.8rem;
+    background-color: #b9bbbe;
+  }
+  .sidebar-item.active .dot {
+    background-color: #5865f2;
+  }
+  .sidebar-item .icon {
+    margin-right: 0.8rem;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+  #search-bar {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #202225;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  #search-bar:focus {
+    outline: 2px solid #5865f2;
+  }
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #2f3136;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 100;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+  }
+  .search-result-item {
+    padding: 0.8rem;
+    border-bottom: 1px solid #40444b;
+    cursor: pointer;
+  }
+  .search-result-item:hover {
+    background-color: #3a3d44;
+  }
+  .search-result-type {
+    font-size: 0.7rem;
+    color: #b9bbbe;
+    margin-top: 0.2rem;
+  }
+  .search-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  #user-profile {
+    margin-top: auto;
+    padding: 1rem;
+    background-color: #292b2f;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #5865f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+    background-size: cover;
+    background-position: center;
+  }
+  #profile-name {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  #profile-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #b9bbbe;
+  }
+  #status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  #status-info {
+    position: absolute;
+    bottom: 100px;
+    left: 20px;
+    background-color: #202225;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    z-index: 100;
+    display: none;
+    width: 200px;
+  }
+  #status-info h4 {
+    margin-bottom: 0.5rem;
+  }
+  .status-level {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+  .status-level-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  #chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #36393f;
+  }
+  #community-header {
+    position: relative;
+  }
+  #community-banner {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+  }
+  #community-info {
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    display: flex;
+    align-items: flex-end;
+  }
+  #community-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #36393f;
+  }
+  #community-details {
+    margin-left: 1rem;
+    margin-bottom: 1rem;
+  }
+  #community-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  #community-description {
+    font-size: 1rem;
+    color: #b9bbbe;
+  }
+  #community-members {
+    font-size: 0.8rem;
+    color: #72767d;
+  }
+  #join-btn {
+    background-color: #5865f2;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 1rem;
+  }
+  #join-btn:disabled {
+    background-color: #72767d;
+    cursor: not-allowed;
+  }
+  #sections-container {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .section {
+    background-color: #2f3136;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .rule-item, .announcement-item, .message-item, .shared-item {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: #40444b;
+    border-radius: 4px;
+    position: relative;
+  }
+  .manage-btn {
+    background-color: #43b581;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+  }
+  .action-btn {
+    font-size: 0.8rem;
+    color: #b9bbbe;
+    cursor: pointer;
+    margin-left: 0.5rem;
+  }
+  .action-btn:hover {
+    color: white;
+    text-decoration: underline;
+  }
+  #no-groups-sidebar {
+    display: none;
+  }
+  #home-btn-commune {
+    background-color: #5865f2;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 1rem;
+  }
+  #message-input-area {
+    background-color: #40444b;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  #message-input {
+    padding: 0.8rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    color: white;
+    background-color: #2f3136;
+    resize: none;
+    height: auto;
+    min-height: 80px;
+    max-height: 150px;
+  }
+  #message-input:focus {
+    outline: 2px solid #5865f2;
+  }
+  #send-btn, #upload-btn {
+    background-color: #5865f2;
+    border: none;
+    color: white;
+    padding: 0.55rem 1.2rem;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    align-self: flex-end;
+  }
+  #send-btn:hover, #upload-btn:hover {
+    background-color: #4752c4;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background-color: #2f3136;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+  }
+  .modal-title {
+    margin-bottom: 1rem;
+    color: white;
+  }
+  .modal-input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #40444b;
+    color: white;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .modal-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  .modal-btn.cancel {
+    background-color: #72767d;
+    color: white;
+  }
+  .modal-btn.save {
+    background-color: #5865f2;
+    color: white;
+  }
+  .username.green { color: #43b581; }
+  .username.blue { color: #5865f2; }
+  .username.violet { color: #9b59b6; }
+  .username.red { color: #f04747; }
+  .shared-image {
+    max-width: 200px;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+  .message-text {
+    white-space: pre-wrap;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  .message-text a {
+    color: #5865f2;
+    text-decoration: none;
+  }
+  .message-text a:hover {
+    text-decoration: underline;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #5865f2;
+    border-radius: 5px;
+  }
+  #no-song-notification {
+    background-color: #f04747;
+    color: white;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dismiss-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<header>
+  <h1>KAMBA Forum</h1>
+</header>
+<div id="main-content">
+  <div id="left-sidebar">
+    <div class="sidebar-item" id="home-btn">
+      <div class="icon"><i class="fas fa-home"></i></div>
+      <span>Home</span>
+    </div>
+    <div class="sidebar-item" id="profile-btn">
+      <div class="icon"><i class="fas fa-user"></i></div>
+      <span>Profile</span>
+    </div>
+    <div class="sidebar-item" id="create-btn">
+      <div class="icon"><i class="fas fa-plus"></i></div>
+      <span>Create</span>
+    </div>
+    <div class="sidebar-item" id="notifications-btn">
+      <div class="icon"><i class="fas fa-bell"></i></div>
+      <span>Notifications</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search..." autocomplete="off" />
+        <div id="search-results"></div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Channels</div>
+      <div class="sidebar-item" data-channel="general">
+        <div class="dot"></div>
+        <span>#General</span>
+      </div>
+      <div class="sidebar-item" data-channel="announcements">
+        <div class="dot"></div>
+        <span>#Announcements</span>
+      </div>
+      <div class="sidebar-item active" data-channel="communities">
+        <div class="dot"></div>
+        <span>#Communities</span>
+      </div>
+      <div class="sidebar-item" data-channel="posts">
+        <div class="dot"></div>
+        <span>#Posts</span>
+      </div>
+      <div class="sidebar-item" data-channel="projects">
+        <div class="dot"></div>
+        <span>#Projects</span>
+      </div>
+    </div>
+    <div id="user-profile">
+      <div id="profile-pic"></div>
+      <div id="profile-name"></div>
+      <div id="profile-status">
+        <div id="status-dot"></div>
+        <span id="status-text"></span>
+        <i class="fas fa-lightbulb" id="status-info-btn" style="margin-left: 5px; cursor: pointer;"></i>
+      </div>
+    </div>
+    <div id="status-info">
+      <h4>Account Status</h4>
+      <div class="status-level">
+        <div class="status-level-dot green"></div>
+        <span>Green: 0-99 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot blue"></div>
+        <span>Blue: 100-999 Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot violet"></div>
+        <span>Violet: 1000+ Sparks</span>
+      </div>
+      <div class="status-level">
+        <div class="status-level-dot red"></div>
+        <span>Red: Admin (special)</span>
+      </div>
+    </div>
+  </div>
+  <div id="chat-area">
+    <div id="no-song-notification" style="display:none;">
+      <span>No song set. Click here to set your song in Settings.</span>
+      <button class="dismiss-btn">Dismiss</button>
+    </div>
+    <div id="community-header">
+      <img id="community-banner" src="" alt="Banner">
+      <div id="community-info">
+        <img id="community-image" src="" alt="Image">
+        <div id="community-details">
+          <div id="community-name"></div>
+          <div id="community-description"></div>
+          <div id="community-members"></div>
+          <button id="join-btn">Join</button>
+          <button class="manage-btn" id="manage-members-btn" style="display:none;">Manage Members</button>
+        </div>
+      </div>
+    </div>
+    <div id="sections-container">
+      <div class="section">
+        <div class="section-title">Announcements <button class="manage-btn" id="add-announcement-btn" style="display:none;">Add</button></div>
+        <div id="community-announcements"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Rules <button class="manage-btn" id="add-rule-btn" style="display:none;">Add</button></div>
+        <div id="community-rules"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Shared Content <button class="manage-btn" id="add-shared-btn" style="display:none;">Add</button></div>
+        <div id="shared-content"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Chat</div>
+        <div id="messages-container"></div>
+        <div id="message-input-area">
+          <textarea id="message-input" placeholder="Type a message..."></textarea>
+          <div style="display: flex; gap: 0.5rem;">
+            <button id="send-btn">Send</button>
+            <button id="upload-btn">Upload Image</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="no-groups-sidebar"></div>
+</div>
+<button id="home-btn-commune">Home</button>
+<div id="add-announcement-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Add Announcement</h3>
+    <textarea id="new-announcement-input" class="modal-input" rows="4" placeholder="Write announcement..."></textarea>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-announcement-btn">Cancel</button>
+      <button class="modal-btn save" id="save-announcement-btn">Save</button>
+    </div>
+  </div>
+</div>
+<div id="edit-announcement-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Edit Announcement</h3>
+    <textarea id="edit-announcement-input" class="modal-input" rows="4"></textarea>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-edit-announcement-btn">Cancel</button>
+      <button class="modal-btn save" id="save-edit-announcement-btn">Save</button>
+    </div>
+  </div>
+</div>
+<div id="add-rule-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Add Rule</h3>
+    <textarea id="new-rule-input" class="modal-input" rows="4" placeholder="Write rule..."></textarea>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-rule-btn">Cancel</button>
+      <button class="modal-btn save" id="save-rule-btn">Save</button>
+    </div>
+  </div>
+</div>
+<div id="edit-rule-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Edit Rule</h3>
+    <textarea id="edit-rule-input" class="modal-input" rows="4"></textarea>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-edit-rule-btn">Cancel</button>
+      <button class="modal-btn save" id="save-edit-rule-btn">Save</button>
+    </div>
+  </div>
+</div>
+<div id="manage-members-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Manage Members</h3>
+    <div id="members-list"></div>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-manage-members-btn">Close</button>
+    </div>
+  </div>
+</div>
+<div id="add-shared-modal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Upload Image</h3>
+    <input type="file" id="shared-image-input" accept="image/*" class="modal-input">
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancel-shared-btn">Cancel</button>
+      <button class="modal-btn save" id="save-shared-btn">Upload</button>
+    </div>
+  </div>
+</div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc,
+    arrayUnion,
+    arrayRemove,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    deleteDoc,
+    getDocs,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+    authDomain: "muah-feed.firebaseapp.com",
+    databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+    projectId: "muah-feed",
+    storageBucket: "muah-feed.firebasestorage.app",
+    messagingSenderId: "442314397706",
+    appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+    measurementId: "G-S86S229F1T",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  const communityBanner = document.getElementById("community-banner");
+  const communityImage = document.getElementById("community-image");
+  const communityName = document.getElementById("community-name");
+  const communityDescription = document.getElementById("community-description");
+  const communityMembers = document.getElementById("community-members");
+  const joinBtn = document.getElementById("join-btn");
+  const manageMembersBtn = document.getElementById("manage-members-btn");
+  const communityAnnouncements = document.getElementById("community-announcements");
+  const communityRules = document.getElementById("community-rules");
+  const sharedContent = document.getElementById("shared-content");
+  const addAnnouncementBtn = document.getElementById("add-announcement-btn");
+  const addRuleBtn = document.getElementById("add-rule-btn");
+  const addSharedBtn = document.getElementById("add-shared-btn");
+  const homeBtnCommune = document.getElementById("home-btn-commune");
+  const messagesContainer = document.getElementById("messages-container");
+  const messageInput = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+  const uploadBtn = document.getElementById("upload-btn");
+  const profilePic = document.getElementById("profile-pic");
+  const profileName = document.getElementById("profile-name");
+  const statusDot = document.getElementById("status-dot");
+  const statusText = document.getElementById("status-text");
+  const statusInfoBtn = document.getElementById("status-info-btn");
+  const statusInfo = document.getElementById("status-info");
+  const noSongNotification = document.getElementById("no-song-notification");
+  const dismissBtn = noSongNotification.querySelector(".dismiss-btn");
+  const addAnnouncementModal = document.getElementById("add-announcement-modal");
+  const newAnnouncementInput = document.getElementById("new-announcement-input");
+  const cancelAnnouncementBtn = document.getElementById("cancel-announcement-btn");
+  const saveAnnouncementBtn = document.getElementById("save-announcement-btn");
+  const editAnnouncementModal = document.getElementById("edit-announcement-modal");
+  const editAnnouncementInput = document.getElementById("edit-announcement-input");
+  const cancelEditAnnouncementBtn = document.getElementById("cancel-edit-announcement-btn");
+  const saveEditAnnouncementBtn = document.getElementById("save-edit-announcement-btn");
+  const addRuleModal = document.getElementById("add-rule-modal");
+  const newRuleInput = document.getElementById("new-rule-input");
+  const cancelRuleBtn = document.getElementById("cancel-rule-btn");
+  const saveRuleBtn = document.getElementById("save-rule-btn");
+  const editRuleModal = document.getElementById("edit-rule-modal");
+  const editRuleInput = document.getElementById("edit-rule-input");
+  const cancelEditRuleBtn = document.getElementById("cancel-edit-rule-btn");
+  const saveEditRuleBtn = document.getElementById("save-edit-rule-btn");
+  const manageMembersModal = document.getElementById("manage-members-modal");
+  const membersList = document.getElementById("members-list");
+  const cancelManageMembersBtn = document.getElementById("cancel-manage-members-btn");
+  const addSharedModal = document.getElementById("add-shared-modal");
+  const sharedImageInput = document.getElementById("shared-image-input");
+  const cancelSharedBtn = document.getElementById("cancel-shared-btn");
+  const saveSharedBtn = document.getElementById("save-shared-btn");
+
+  let currentUser = null;
+  let currentUserData = null;
+  let communityId = new URLSearchParams(window.location.search).get('id');
+  let communityData = null;
+  let hasInteracted = false;
+  let announcementBeingEdited = -1;
+  let ruleBeingEdited = -1;
+
+  function init() {
+    setupEventListeners();
+    checkSongNotificationDismissed();
+    checkAuthState();
+  }
+
+  function setupEventListeners() {
+    homeBtnCommune.addEventListener("click", () => {
+      window.location.href = "announcements.html";
+    });
+    document.getElementById("home-btn").addEventListener("click", () => {
+      window.location.href = "hello.html";
+    });
+    document.getElementById("profile-btn").addEventListener("click", () => {
+      window.location.href = "settings.html";
+    });
+    document.getElementById("create-btn").addEventListener("click", () => {
+      window.location.href = "addannounce.html";
+    });
+    document.getElementById("notifications-btn").addEventListener("click", () => {
+      alert("Notifications feature will be implemented in the next update");
+    });
+    document.querySelectorAll(".sidebar-item[data-channel]").forEach(item => {
+      item.addEventListener("click", () => {
+        const channel = item.dataset.channel;
+        let url;
+        switch(channel) {
+          case "general": url = "hello.html"; break;
+          case "announcements": url = "announcements.html"; break;
+          case "communities": url = "communities.html"; break;
+          case "posts": url = "posts.html"; break;
+          case "projects": url = "projects.html"; break;
+        }
+        if (url) window.location.href = url;
+      });
+    });
+    joinBtn.addEventListener("click", joinCommunity);
+    addAnnouncementBtn.addEventListener("click", () => {
+      newAnnouncementInput.value = "";
+      addAnnouncementModal.style.display = "flex";
+      newAnnouncementInput.focus();
+    });
+    cancelAnnouncementBtn.addEventListener("click", () => {
+      addAnnouncementModal.style.display = "none";
+    });
+    saveAnnouncementBtn.addEventListener("click", saveAnnouncement);
+    cancelEditAnnouncementBtn.addEventListener("click", () => {
+      editAnnouncementModal.style.display = "none";
+    });
+    saveEditAnnouncementBtn.addEventListener("click", saveEditedAnnouncement);
+    addRuleBtn.addEventListener("click", () => {
+      newRuleInput.value = "";
+      addRuleModal.style.display = "flex";
+      newRuleInput.focus();
+    });
+    cancelRuleBtn.addEventListener("click", () => {
+      addRuleModal.style.display = "none";
+    });
+    saveRuleBtn.addEventListener("click", saveRule);
+    cancelEditRuleBtn.addEventListener("click", () => {
+      editRuleModal.style.display = "none";
+    });
+    saveEditRuleBtn.addEventListener("click", saveEditedRule);
+    manageMembersBtn.addEventListener("click", openManageMembers);
+    cancelManageMembersBtn.addEventListener("click", () => {
+      manageMembersModal.style.display = "none";
+    });
+    addSharedBtn.addEventListener("click", () => {
+      sharedImageInput.value = "";
+      addSharedModal.style.display = "flex";
+    });
+    cancelSharedBtn.addEventListener("click", () => {
+      addSharedModal.style.display = "none";
+    });
+    saveSharedBtn.addEventListener("click", uploadSharedImage);
+    sendBtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    messageInput.addEventListener("input", function() {
+      this.style.height = "auto";
+      this.style.height = (this.scrollHeight) + "px";
+    });
+    uploadBtn.addEventListener("click", () => {
+      sharedImageInput.value = "";
+      addSharedModal.style.display = "flex";
+    });
+    statusInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      statusInfo.style.display = statusInfo.style.display === "block" ? "none" : "block";
+    });
+    document.addEventListener("click", () => {
+      statusInfo.style.display = "none";
+    });
+    dismissBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissSongNotification();
+    });
+    noSongNotification.querySelector("span").addEventListener("click", () => {
+      window.location.href = "settings.html";
+    });
+  }
+
+  async function loadCommunity() {
+    const communityRef = doc(db, "Kamba_communities", communityId);
+    const snap = await getDoc(communityRef);
+    if (snap.exists()) {
+      communityData = snap.data();
+      communityData.collaborators = communityData.collaborators || [];
+      communityData.announcements = communityData.announcements || [];
+      communityData.rules = communityData.rules || [];
+      communityData.sharedImages = communityData.sharedImages || [];
+      communityBanner.src = communityData.banner || "https://via.placeholder.com/800x250";
+      communityImage.src = communityData.image || "https://via.placeholder.com/100";
+      communityName.textContent = communityData.name;
+      communityDescription.textContent = communityData.description;
+      communityMembers.textContent = `${communityData.members.length} member${communityData.members.length === 1 ? '' : 's'}`;
+      const isMember = communityData.members.includes(currentUser.uid);
+      joinBtn.textContent = isMember ? "Joined" : "Join";
+      joinBtn.disabled = isMember;
+      const isCreator = communityData.creatorId === currentUser.uid;
+      const isCollaborator = communityData.collaborators.some(col => col.userId === currentUser.uid);
+      if (isCreator || isCollaborator) {
+        addAnnouncementBtn.style.display = "inline";
+        addRuleBtn.style.display = "inline";
+        addSharedBtn.style.display = "inline";
+      }
+      if (isCreator) {
+        manageMembersBtn.style.display = "inline";
+      }
+      displayAnnouncements(communityData.announcements);
+      displayRules(communityData.rules);
+      displaySharedContent(communityData.sharedImages);
+      loadCommunityMessages();
+    } else {
+      alert("Community not found");
+      window.location.href = "communities.html";
+    }
+  }
+
+  async function joinCommunity() {
+    if (!communityData.members.includes(currentUser.uid)) {
+      try {
+        const communityRef = doc(db, "Kamba_communities", communityId);
+        const userRef = doc(db, "Kamba_users", currentUser.uid);
+        await updateDoc(communityRef, { members: arrayUnion(currentUser.uid) });
+        await updateDoc(userRef, { communities: arrayUnion(communityId) });
+        await updateDoc(doc(db, "Kamba_users", communityData.creatorId), { sparks: increment(6) });
+        joinBtn.textContent = "Joined";
+        joinBtn.disabled = true;
+        communityMembers.textContent = `${parseInt(communityMembers.textContent.split(' ')[0]) + 1} member${parseInt(communityMembers.textContent.split(' ')[0]) + 1 === 1 ? '' : 's'}`;
+        communityData.members.push(currentUser.uid);
+      } catch (error) {
+        console.error("Error joining community:", error);
+        alert("Failed to join community");
+      }
+    }
+  }
+
+  function displayAnnouncements(anns) {
+    communityAnnouncements.innerHTML = "";
+    anns.forEach((ann, index) => {
+      const item = document.createElement("div");
+      item.className = "announcement-item";
+      item.innerHTML = `
+        <div>${linkify(ann.text)}</div>
+        <div style="font-size: 0.7rem; color: #b9bbbe;">Posted by ${ann.sender} on ${formatTime(ann.timestamp)}</div>
+      `;
+      if (communityData.creatorId === currentUser.uid || communityData.collaborators.some(col => col.userId === currentUser.uid)) {
+        const actions = document.createElement("div");
+        actions.style.display = "flex";
+        actions.style.gap = "0.5rem";
+        const editBtn = document.createElement("span");
+        editBtn.className = "action-btn";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => {
+          announcementBeingEdited = index;
+          editAnnouncementInput.value = ann.text;
+          editAnnouncementModal.style.display = "flex";
+          editAnnouncementInput.focus();
+        });
+        const deleteBtn = document.createElement("span");
+        deleteBtn.className = "action-btn";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => deleteAnnouncement(index));
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        item.appendChild(actions);
+      }
+      communityAnnouncements.appendChild(item);
+    });
+  }
+
+  function displayRules(rules) {
+    communityRules.innerHTML = "";
+    rules.forEach((rule, index) => {
+      const item = document.createElement("div");
+      item.className = "rule-item";
+      item.innerHTML = `<div>${linkify(rule)}</div>`;
+      if (communityData.creatorId === currentUser.uid || communityData.collaborators.some(col => col.userId === currentUser.uid)) {
+        const actions = document.createElement("div");
+        actions.style.display = "flex";
+        actions.style.gap = "0.5rem";
+        const editBtn = document.createElement("span");
+        editBtn.className = "action-btn";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => {
+          ruleBeingEdited = index;
+          editRuleInput.value = rule;
+          editRuleModal.style.display = "flex";
+          editRuleInput.focus();
+        });
+        const deleteBtn = document.createElement("span");
+        deleteBtn.className = "action-btn";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => deleteRule(index));
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        item.appendChild(actions);
+      }
+      communityRules.appendChild(item);
+    });
+  }
+
+  function displaySharedContent(images) {
+    sharedContent.innerHTML = "";
+    images.forEach((img, index) => {
+      const item = document.createElement("div");
+      item.className = "shared-item";
+      item.innerHTML = `
+        <img src="${img.url}" alt="Shared image" class="shared-image">
+        <div style="font-size: 0.7rem; color: #b9bbbe;">Uploaded by ${img.sender} on ${formatTime(img.timestamp)}</div>
+      `;
+      if (communityData.creatorId === currentUser.uid || communityData.collaborators.some(col => col.userId === currentUser.uid)) {
+        const deleteBtn = document.createElement("span");
+        deleteBtn.className = "action-btn";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => deleteSharedImage(index));
+        item.appendChild(deleteBtn);
+      }
+      sharedContent.appendChild(item);
+    });
+  }
+
+  async function saveAnnouncement() {
+    const text = newAnnouncementInput.value.trim();
+    if (!text) {
+      alert("Announcement text is required");
+      return;
+    }
+    try {
+      const communityRef = doc(db, "Kamba_communities", communityId);
+      await updateDoc(communityRef, {
+        announcements: arrayUnion({
+          text: text,
+          sender: simplifyEmail(currentUser.email),
+          timestamp: Date.now()
+        })
+      });
+      addAnnouncementModal.style.display = "none";
+    } catch (error) {
+      console.error("Error adding announcement:", error);
+      alert("Failed to add announcement");
+    }
+  }
+
+  async function saveEditedAnnouncement() {
+    if (announcementBeingEdited === -1) return;
+    const text = editAnnouncementInput.value.trim();
+    if (!text) {
+      alert("Announcement text is required");
+      return;
+    }
+    try {
+      const communityRef = doc(db, "Kamba_communities", communityId);
+      const newAnnouncements = [...communityData.announcements];
+      newAnnouncements[announcementBeingEdited] = {
+        text: text,
+        sender: simplifyEmail(currentUser.email),
+        timestamp: Date.now()
+      };
+      await updateDoc(communityRef, { announcements: newAnnouncements });
+      editAnnouncementModal.style.display = "none";
+      announcementBeingEdited = -1;
+    } catch (error) {
+      console.error("Error editing announcement:", error);
+      alert("Failed to edit announcement");
+    }
+  }
+
+  async function deleteAnnouncement(index) {
+    if (!confirm("Are you sure you want to delete this announcement?")) return;
+    try {
+      const communityRef = doc(db, "Kamba_communities", communityId);
+      const newAnnouncements = [...communityData.announcements];
+      newAnnouncements.splice(index, 1);
+      await updateDoc(communityRef, { announcements: newAnnouncements });
+    } catch (error) {
+      console.error("Error deleting announcement:", error);
+      alert("Failed to delete announcement");
+    }
+  }
+
+  async function saveRule() {
+    const text = newRuleInput.value.trim();
+    if (!text) {
+      alert("Rule text is required");
+      return;
+    }
+    try {
+      const communityRef = doc(db, "Kamba_communities", communityId);
+      await updateDoc(communityRef, {
+        rules: arrayUnion(text)
+      });
+      addRuleModal.style.display = "none";
+    } catch (error) {
+      console.error("Error adding rule:", error);
+      alert("Failed to add rule");
+    }
+  }
+
+  async function saveEditedRule() {
+    if (ruleBeingEdited === -1) return;
+    const text = editRuleInput.value.trim();
+    if (!text) {
+      alert("Rule text is required");
+      return;
+    }
+    try {
+      const communityRef = doc(db, "Kamba_communities", communityId);
+      const newRules = [...communityData.rules];
+      newRules[ruleBeingEdited] = text;
+      await updateDoc(communityRef, { rules: newRules });
+      editRuleModal.style.display = "none";
+      ruleBeingEdited = -1;
+    } catch (error) {
+      console.error("Error editing rule:", error);
+      alert("Failed to edit rule");
+    }
+  }
+
+  async function deleteRule(index) {
+    if (!confirm("Are you sure you want to delete this rule?")) return;
+    try {
+      const communityRef = doc(db, "Kamba_communities", communityId);
+      const newRules = [...communityData.rules];
+      newRules.splice(index, 1);
+      await updateDoc(communityRef, { rules: newRules });
+    } catch (error) {
+      console.error("Error deleting rule:", error);
+      alert("Failed to delete rule");
+    }
+  }
+
+  async function openManageMembers() {
+    membersList.innerHTML = "";
+    try {
+      const userDocsPromises = communityData.members.map(uid => getDoc(doc(db, "Kamba_users", uid)));
+      const userDocs = await Promise.all(userDocsPromises);
+      userDocs.forEach((docSnap, index) => {
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          const memberItem = document.createElement("div");
+          memberItem.style.padding = "0.5rem";
+          memberItem.style.borderBottom = "1px
