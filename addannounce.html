@@ -275,7 +275,7 @@
   // Get user status
   function getUserStatus(userData) {
     if (!userData) return "green";
-    if (userData.isviolet) return "red";
+    if (userData.isAdmin) return "red";
     const sparks = userData.sparks || 0;
     if (sparks >= 1000) return "violet";
     if (sparks >= 100) return "blue";
