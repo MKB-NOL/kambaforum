@@ -61,11 +61,36 @@
   #main-content {
     display: flex;
     flex: 1;
+    overflow: hidden;
+  }
+  #settings-sidebar {
+    width: 250px;
+    background-color: #2f3136;
+    border-right: 1px solid #202225;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.3rem;
+  }
+  .sidebar-item:hover {
+    background-color: #3a3d44;
+  }
+  .sidebar-item.active {
+    background-color: #40444b;
+  }
+  #settings-main {
+    flex: 1;
     padding: 2rem;
-    gap: 2rem;
+    overflow-y: auto;
   }
   #settings-container {
-    flex: 1;
     background-color: #2f3136;
     border-radius: 8px;
     padding: 2rem;
@@ -76,6 +101,10 @@
     margin-bottom: 2rem;
     border-bottom: 1px solid #40444b;
     padding-bottom: 1.5rem;
+    display: none;
+  }
+  .settings-section.active {
+    display: block;
   }
   .settings-section:last-child {
     border-bottom: none;
@@ -302,6 +331,14 @@
   }
   @media (max-width: 768px) {
     #main-content {
+      flex-direction: column;
+    }
+    #settings-sidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid #202225;
+    }
+    #settings-main {
       padding: 1rem;
     }
     #settings-container {
@@ -329,105 +366,123 @@
 </header>
 
 <div id="main-content">
-  <div id="settings-container">
-    <div class="profile-pic-container">
-      <div class="profile-pic" id="profile-pic">U</div>
-      <div class="profile-info">
-        <div class="profile-name" id="profile-name">Username</div>
-        <div class="profile-status">
-          <div class="status-dot" id="status-dot"></div>
-          <span id="status-text">Green</span>
+  <div id="settings-sidebar">
+    <div class="sidebar-item active" data-section="profile">
+      <span>Profile Settings</span>
+    </div>
+    <div class="sidebar-item" data-section="sparks">
+      <span>Sparks Management</span>
+    </div>
+    <div class="sidebar-item" data-section="status">
+      <span>Account Status & Permissions</span>
+    </div>
+    <div class="sidebar-item" data-section="analytics">
+      <span>Analytics & Progress</span>
+    </div>
+    <div class="sidebar-item" data-section="danger">
+      <span>Danger Zone</span>
+    </div>
+  </div>
+  <div id="settings-main">
+    <div id="settings-container">
+      <div id="profile-section" class="settings-section active">
+        <div class="settings-title">
+          Profile Settings
+          <span class="status-badge" id="status-badge">Green</span>
+        </div>
+        
+        <div class="profile-pic-container">
+          <div class="profile-pic" id="profile-pic">U</div>
+          <div class="profile-info">
+            <div class="profile-name" id="profile-name">Username</div>
+            <div class="profile-status">
+              <div class="status-dot" id="status-dot"></div>
+              <span id="status-text">Green</span>
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group">
+          <label for="profile-picture">Profile Picture</label>
+          <input type="file" id="file-input" accept="image/*" />
+          <button class="btn-upload" id="upload-btn">
+            <i class="fas fa-upload"></i> Upload New Picture
+          </button>
+        </div>
+        
+        <div class="form-group">
+          <label for="background-song">Background Song</label>
+          <select id="background-song" class="form-control">
+            <option value="">No song</option>
+            <option value="Music/Camila Cabello- Havana .mp3">Camila Cabello- Havana</option>
+            <option value="Music/Charlie Puth- Attention .mp3">Charlie Puth- Attention</option>
+            <option value="Music/Ed Sheeran- Perfect .mp3">Ed Sheeran- Perfect</option>
+          </select>
+          <button id="preview-btn">Preview</button>
+        </div>
+        
+        <div class="form-group">
+          <label for="volume">Volume</label>
+          <div class="volume-control">
+            <input type="range" id="volume" class="volume-slider" min="0" max="1" step="0.1" value="0.5" />
+            <span class="volume-value" id="volume-value">50%</span>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" id="save-settings">Save Changes</button>
+      </div>
+
+      <div id="sparks-section" class="settings-section">
+        <div class="settings-title">Sparks Management</div>
+        <div class="sparks-count">
+          <i class="fas fa-clover"></i>
+          <span id="sparks-value">0</span> Sparks
+        </div>
+        <p>Current Sparks: <span id="current-sparks">0</span></p>
+        <div class="form-group">
+          <label>Send Sparks To (Username)</label>
+          <input id="recipient-name" class="form-control" placeholder="Username">
+        </div>
+        <div class="form-group">
+          <label>Amount</label>
+          <input id="sparks-amount" type="number" class="form-control" min="1">
+        </div>
+        <button class="btn btn-primary" id="send-sparks">Send Sparks</button>
+      </div>
+
+      <div id="status-section" class="settings-section">
+        <div class="settings-title">Account Status & Permissions</div>
+        
+        <div class="permissions-list">
+          <h4>Your Current Permissions:</h4>
+          <div id="permissions-container">
+            <!-- Permissions will be added dynamically based on status -->
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="sparks-count">
-      <i class="fas fa-clover"></i>
-      <span id="sparks-value">0</span> Sparks
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">
-        Profile Settings
-        <span class="status-badge" id="status-badge">Green</span>
-      </div>
-      
-      <div class="form-group">
-        <label for="profile-picture">Profile Picture</label>
-        <input type="file" id="file-input" accept="image/*" />
-        <button class="btn-upload" id="upload-btn">
-          <i class="fas fa-upload"></i> Upload New Picture
-        </button>
-      </div>
-      
-      <div class="form-group">
-        <label for="background-song">Background Song</label>
-        <select id="background-song" class="form-control">
-          <option value="">No song</option>
-          <option value="Music/Brazilianphunk.mp3">Brazilianphunk</option>
-          <option value="Music/Song2.mp3">Song2</option>
-          <!-- Add more manually -->
-        </select>
-        <button id="preview-btn">Preview</button>
-      </div>
-      
-      <div class="form-group">
-        <label for="volume">Volume</label>
-        <div class="volume-control">
-          <input type="range" id="volume" class="volume-slider" min="0" max="1" step="0.1" value="0.5" />
-          <span class="volume-value" id="volume-value">50%</span>
+      <div id="analytics-section" class="settings-section">
+        <div class="settings-title">Analytics & Progress</div>
+        <div class="analytics-list">
+          <h4>My Projects</h4>
+          <div id="projects-analytics"></div>
+          <h4>My Groups</h4>
+          <div id="groups-analytics"></div>
+          <h4>My Communities</h4>
+          <div id="communities-analytics"></div>
         </div>
       </div>
-      
-      <button class="btn btn-primary" id="save-settings">Save Changes</button>
-    </div>
 
-    <div class="settings-section">
-      <div class="settings-title">Sparks Management</div>
-      <p>Current Sparks: <span id="current-sparks">0</span></p>
-      <div class="form-group">
-        <label>Send Sparks To (Username)</label>
-        <input id="recipient-name" class="form-control" placeholder="Username">
-      </div>
-      <div class="form-group">
-        <label>Amount</label>
-        <input id="sparks-amount" type="number" class="form-control" min="1">
-      </div>
-      <button class="btn btn-primary" id="send-sparks">Send Sparks</button>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">Account Status & Permissions</div>
-      
-      <div class="permissions-list">
-        <h4>Your Current Permissions:</h4>
-        <div id="permissions-container">
-          <!-- Permissions will be added dynamically based on status -->
+      <div id="danger-section" class="settings-section">
+        <div class="settings-title">Danger Zone</div>
+        
+        <div class="form-group">
+          <label>Delete Account</label>
+          <p style="margin-bottom: 1rem; color: #b9bbbe;">This will permanently delete your account and all associated data.</p>
+          <button class="btn btn-danger" id="delete-account">
+            <i class="fas fa-trash"></i> Delete My Account
+          </button>
         </div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">Analytics & Progress</div>
-      <div class="analytics-list">
-        <h4>My Projects</h4>
-        <div id="projects-analytics"></div>
-        <h4>My Groups</h4>
-        <div id="groups-analytics"></div>
-        <h4>My Communities</h4>
-        <div id="communities-analytics"></div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">Danger Zone</div>
-      
-      <div class="form-group">
-        <label>Delete Account</label>
-        <p style="margin-bottom: 1rem; color: #b9bbbe;">This will permanently delete your account and all associated data.</p>
-        <button class="btn btn-danger" id="delete-account">
-          <i class="fas fa-trash"></i> Delete My Account
-        </button>
       </div>
     </div>
   </div>
@@ -508,6 +563,7 @@
   const projectsAnalytics = document.getElementById("projects-analytics");
   const groupsAnalytics = document.getElementById("groups-analytics");
   const communitiesAnalytics = document.getElementById("communities-analytics");
+  const sidebarItems = document.querySelectorAll("#settings-sidebar .sidebar-item");
 
   // App State
   let currentUser = null;
@@ -528,6 +584,17 @@
     signoutBtn.addEventListener("click", () => {
       signOut(auth).then(() => {
         window.location.href = "sign.html";
+      });
+    });
+
+    // Sidebar navigation
+    sidebarItems.forEach(item => {
+      item.addEventListener("click", () => {
+        sidebarItems.forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+        const section = item.dataset.section;
+        document.querySelectorAll(".settings-section").forEach(sec => sec.classList.remove("active"));
+        document.getElementById(section + "-section").classList.add("active");
       });
     });
 
@@ -620,52 +687,121 @@
     updatePermissionsDisplay(status);
   }
 
-  // Load analytics
-  async function loadAnalytics() {
-    // Projects
-    const projectsQ = query(collection(db, "Kamba_projects"), where("creatorUid", "==", currentUser.uid));
-    const projectsSnap = await getDocs(projectsQ);
-    projectsAnalytics.innerHTML = "";
-    projectsSnap.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "analytics-item";
-      div.innerHTML = `
-        <p>${data.name}</p>
-        <p>Likes: ${data.likes} | Views: ${data.views} | Shares: ${data.shares} | Comments: ${data.comments.length}</p>
-      `;
-      projectsAnalytics.appendChild(div);
-    });
+  // Get user status based on sparks
+  function getUserStatus(userData) {
+    if (!userData) return "green";
+    if (userData.isAdmin) return "red";
+    const sparks = userData.sparks || 0;
+    if (sparks >= 1000) return "violet";
+    if (sparks >= 100) return "blue";
+    return "green";
+  }
 
-    // Groups
-    const groupsQ = query(collection(db, "Kamba_groups"), where("creatorUid", "==", currentUser.uid));
-    const groupsSnap = await getDocs(groupsQ);
-    groupsAnalytics.innerHTML = "";
-    groupsSnap.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "analytics-item";
-      div.innerHTML = `
-        <p>${data.name}</p>
-        <p>Members: ${data.members.length}</p>
-      `;
-      groupsAnalytics.appendChild(div);
-    });
+  // Update permissions display based on status
+  function updatePermissionsDisplay(status) {
+    permissionsContainer.innerHTML = "";
+    
+    // Common permissions for all users
+    addPermissionItem("Create projects", true);
+    addPermissionItem("Send and receive sparks", true);
 
-    // Communities
-    const communitiesQ = query(collection(db, "Kamba_communities"), where("creatorUid", "==", currentUser.uid));
-    const communitiesSnap = await getDocs(communitiesQ);
-    communitiesAnalytics.innerHTML = "";
-    communitiesSnap.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "analytics-item";
-      div.innerHTML = `
-        <p>${data.name}</p>
-        <p>Members: ${data.members.length}</p>
-      `;
-      communitiesAnalytics.appendChild(div);
-    });
+    // Status-specific permissions
+    switch (status) {
+      case "blue":
+        addPermissionItem("Create up to 3 groups", true);
+        break;
+      case "violet":
+        addPermissionItem("Create unlimited groups", true);
+        addPermissionItem("Create up to 2 communities", true);
+        break;
+      case "red":
+        addPermissionItem("Create unlimited groups", true);
+        addPermissionItem("Create unlimited communities", true);
+        addPermissionItem("Admin privileges", true);
+        break;
+      default: // green
+        addPermissionItem("Create groups", false, "Requires Blue status (100+ Sparks)");
+        addPermissionItem("Create communities", false, "Requires Violet status (1000+ Sparks)");
+    }
+
+    // Edit/delete permissions
+    addPermissionItem("Edit your content", true);
+    addPermissionItem("Delete your content", status !== "green");
+  }
+
+  // Helper to add a permission item
+  function addPermissionItem(text, hasPermission, tooltip = "") {
+    const item = document.createElement("div");
+    item.className = "permission-item";
+    
+    const icon = document.createElement("div");
+    icon.className = "permission-icon";
+    icon.innerHTML = hasPermission ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle" style="color:#f04747"></i>';
+    
+    const textSpan = document.createElement("span");
+    textSpan.textContent = text;
+    
+    item.appendChild(icon);
+    item.appendChild(textSpan);
+    
+    if (tooltip) {
+      item.title = tooltip;
+      item.style.opacity = "0.7";
+    }
+    
+    permissionsContainer.appendChild(item);
+  }
+
+  // Handle profile picture upload
+  async function handleProfilePicUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      showLoading();
+      
+      // Upload to Firebase Storage
+      const storageRef = ref(storage, `profile_pics/${currentUser.uid}`);
+      await uploadBytes(storageRef, file);
+      
+      // Get download URL
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      // Update user document with new profile pic URL
+      await updateDoc(doc(db, "Kamba_users", currentUser.uid), {
+        profilePic: downloadURL
+      });
+      
+      // Update UI
+      profilePic.style.backgroundImage = `url(${downloadURL})`;
+      profilePic.textContent = "";
+      
+      hideLoading();
+      alert("Profile picture updated successfully!");
+    } catch (error) {
+      hideLoading();
+      console.error("Error uploading profile picture:", error);
+      alert("Failed to upload profile picture");
+    }
+  }
+
+  // Save settings
+  async function saveSettings() {
+    try {
+      showLoading();
+      
+      await updateDoc(doc(db, "Kamba_users", currentUser.uid), {
+        song: backgroundSong.value.trim(),
+        volume: parseFloat(volumeSlider.value)
+      });
+      
+      hideLoading();
+      alert("Settings saved successfully!");
+    } catch (error) {
+      hideLoading();
+      console.error("Error saving settings:", error);
+      alert("Failed to save settings");
+    }
   }
 
   // Send sparks
@@ -730,10 +866,101 @@
     }
   }
 
-  // Other functions remain similar...
+  // Delete account
+  async function deleteAccount() {
+    if (!confirm("Are you sure you want to delete your account? This cannot be undone!")) {
+      return;
+    }
+    
+    try {
+      showLoading();
+      
+      // Delete user document
+      await deleteDoc(doc(db, "Kamba_users", currentUser.uid));
+      
+      // Delete user from authentication
+      await currentUser.delete();
+      
+      // Sign out and redirect
+      await signOut(auth);
+      window.location.href = "sign.html";
+    } catch (error) {
+      hideLoading();
+      console.error("Error deleting account:", error);
+      alert("Failed to delete account. Please contact admin.");
+    }
+  }
 
-  // Note: Due to length, summarized. Full implementation would include updating permissions, saving song (now from dropdown), etc.
+  // Load analytics
+  async function loadAnalytics() {
+    // Projects
+    const projectsQ = query(collection(db, "Kamba_projects"), where("creatorUid", "==", currentUser.uid));
+    const projectsSnap = await getDocs(projectsQ);
+    projectsAnalytics.innerHTML = "";
+    projectsSnap.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "analytics-item";
+      div.innerHTML = `
+        <p>${data.name}</p>
+        <p>Likes: ${data.likes} | Views: ${data.views} | Shares: ${data.shares} | Comments: ${data.comments.length}</p>
+      `;
+      projectsAnalytics.appendChild(div);
+    });
 
+    // Groups
+    const groupsQ = query(collection(db, "Kamba_groups"), where("creatorUid", "==", currentUser.uid));
+    const groupsSnap = await getDocs(groupsQ);
+    groupsAnalytics.innerHTML = "";
+    groupsSnap.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "analytics-item";
+      div.innerHTML = `
+        <p>${data.name}</p>
+        <p>Members: ${data.members.length}</p>
+      `;
+      groupsAnalytics.appendChild(div);
+    });
+
+    // Communities
+    const communitiesQ = query(collection(db, "Kamba_communities"), where("creatorUid", "==", currentUser.uid));
+    const communitiesSnap = await getDocs(communitiesQ);
+    communitiesAnalytics.innerHTML = "";
+    communitiesSnap.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "analytics-item";
+      div.innerHTML = `
+        <p>${data.name}</p>
+        <p>Members: ${data.members.length}</p>
+      `;
+      communitiesAnalytics.appendChild(div);
+    });
+  }
+
+  // Helper: simplify email
+  function simplifyEmail(email) {
+    if (!email) return "User";
+    return email.split("@")[0];
+  }
+
+  // Helper: capitalize first letter
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  // Show loading spinner
+  function showLoading() {
+    loadingOverlay.style.display = "flex";
+  }
+
+  // Hide loading spinner
+  function hideLoading() {
+    loadingOverlay.style.display = "none";
+  }
+
+  // Initialize the app
   init();
 </script>
 
