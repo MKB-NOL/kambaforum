@@ -1033,130 +1033,188 @@
 </div>
 
 <!-- [Keep all other HTML elements from original] -->
-
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import {
-    getAuth,
-    signOut,
-    onAuthStateChanged,
-  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-  import {
-    getFirestore,
-    collection,
-    query,
-    orderBy,
-    where,
-    onSnapshot,
-    addDoc,
-    doc,
-    getDoc,
-    updateDoc,
-    deleteDoc,
-    getDocs,
-    increment,
-    setDoc,
-    arrayUnion,
-    arrayRemove,
-  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-  import {
-    getStorage,
-    ref,
-    uploadBytes,
-    getDownloadURL,
-  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
-
+  // Firebase Configuration and Initialization
   const firebaseConfig = {
     apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
     authDomain: "muah-feed.firebaseapp.com",
-    databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
     projectId: "muah-feed",
-    storageBucket: "muah-feed.firebasestorage.app",
+    storageBucket: "muah-feed.appspot.com",
     messagingSenderId: "442314397706",
-    appId: "1:442314397706:web:a69e3958257fb13b3667f3",
-    measurementId: "G-S86S229F1T",
+    appId: "1:442314397706:web:a69e3958257fb13b3667f3"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  // [Keep all DOM elements from original]
+  // DOM Elements
+  const elements = {
+    createBtn: document.getElementById('create-btn'),
+    messageInput: document.getElementById('message-input'),
+    sendBtn: document.getElementById('send-btn'),
+    messagesContainer: document.getElementById('messages-container'),
+    // Add all other DOM elements you need to reference
+  };
 
   // App State
-  let currentUser = null;
-  let currentUserData = null;
-  let currentChannel = "general";
-  let likedMessages = new Set();
+  const state = {
+    currentUser: null,
+    currentUserData: null,
+    currentChannel: "general",
+    likedMessages: new Set(),
+    unsubscribeAuth: null,
+    unsubscribeMessages: null
+  };
 
   // Initialize the app
   function init() {
     setupEventListeners();
-    loadGroups();
     checkAuthState();
+    loadChannelMessages();
   }
 
   function setupEventListeners() {
-    // [Keep all existing event listeners but modify create button to check permissions]
+    // Fix: Check if element exists before adding listener
+    if (elements.createBtn) {
+      elements.createBtn.addEventListener('click', handleCreateClick);
+    }
+
+    if (elements.sendBtn && elements.messageInput) {
+      elements.sendBtn.addEventListener('click', sendMessage);
+      elements.messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    }
+
+    // Add other event listeners here
+  }
+
+  function handleCreateClick() {
+    if (!state.currentUserData) return;
     
-    createBtn.addEventListener("click", () => {
-      // Check user permissions before showing create modal
-      if (!currentUserData) return;
-      
-      const status = getUserStatus(currentUserData);
-      
-      // Enable/disable tabs based on user status
+    const status = getUserStatus(state.currentUserData);
+    const createModal = document.getElementById('create-modal');
+    
+    if (createModal) {
+      // Show/hide tabs based on user status
       document.getElementById('post-tab-btn').style.display = 
-        (status === 'blue' || status === 'violet' || status === 'red') ? 'block' : 'none';
+        ['blue', 'violet', 'red'].includes(status) ? 'block' : 'none';
       document.getElementById('group-tab-btn').style.display = 
-        (status === 'blue' || status === 'violet' || status === 'red') ? 'block' : 'none';
+        ['blue', 'violet', 'red'].includes(status) ? 'block' : 'none';
       document.getElementById('community-tab-btn').style.display = 
-        (status === 'violet' || status === 'red') ? 'block' : 'none';
+        ['violet', 'red'].includes(status) ? 'block' : 'none';
       
       createModal.style.display = "flex";
-    });
-
-    // [Keep all other existing event listeners]
-  }
-
-  // [Keep all helper functions from original]
-
-  // Load messages for general channel
-  function loadChannelMessages() {
-    messagesContainer.innerHTML = "";
-    
-    const messagesQuery = query(
-      collection(db, "Kamba_messages"),
-      where("isAnnouncement", "==", false),
-      where("isPost", "==", false),
-      orderBy("timestamp", "asc")
-    );
-    
-    setupMessagesListener(messagesQuery);
-  }
-
-  // [Keep all other functions from original but modify like handling]
-  async function likeMessage(messageId, senderUid) {
-    if (likedMessages.has(messageId)) return;
-    
-    try {
-      likedMessages.add(messageId);
-      
-      // Update sender's sparks (+1 for general messages)
-      const senderRef = doc(db, "Kamba_users", senderUid);
-      await updateDoc(senderRef, {
-        sparks: increment(1)
-      });
-      
-      loadChannelMessages();
-    } catch (error) {
-      console.error("Error liking message:", error);
     }
   }
 
-  // [Keep all other existing code]
-  
+  // Authentication Functions
+  function checkAuthState() {
+    state.unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "sign.html";
+        return;
+      }
+      
+      state.currentUser = user;
+      await loadUserData(user.uid);
+    });
+  }
+
+  async function loadUserData(uid) {
+    try {
+      const userDoc = await getDoc(doc(db, "Kamba_users", uid));
+      if (userDoc.exists()) {
+        state.currentUserData = userDoc.data();
+        updateUserProfile();
+        setupUserEnvironment();
+      } else {
+        // New user - show welcome modal
+        document.getElementById('welcome-modal').style.display = "flex";
+      }
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    }
+  }
+
+  // Message Functions
+  function loadChannelMessages() {
+    if (state.unsubscribeMessages) {
+      state.unsubscribeMessages(); // Clean up previous listener
+    }
+
+    let messagesQuery;
+    if (state.currentChannel === "general") {
+      messagesQuery = query(
+        collection(db, "Kamba_messages"),
+        where("isAnnouncement", "==", false),
+        where("isPost", "==", false),
+        orderBy("timestamp", "asc")
+      );
+    } 
+    // Add other channel conditions as needed
+
+    state.unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
+      elements.messagesContainer.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const msg = renderMessage(doc.id, doc.data());
+        elements.messagesContainer.appendChild(msg);
+      });
+    });
+  }
+
+  async function sendMessage() {
+    const messageText = elements.messageInput.value.trim();
+    if (!messageText) return;
+
+    try {
+      await addDoc(collection(db, "Kamba_messages"), {
+        userId: state.currentUser.uid,
+        message: messageText,
+        timestamp: Date.now(),
+        // Add other message fields
+      });
+
+      elements.messageInput.value = "";
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  }
+
+  // Helper Functions
+  function getUserStatus(userData) {
+    if (!userData) return "green";
+    if (userData.isAdmin) return "red";
+    const sparks = userData.sparks || 0;
+    if (sparks >= 1000) return "violet";
+    if (sparks >= 100) return "blue";
+    return "green";
+  }
+
+  function updateUserProfile() {
+    if (!state.currentUserData) return;
+    
+    const profileName = document.getElementById('profile-name');
+    if (profileName) {
+      profileName.textContent = simplifyEmail(state.currentUserData.email);
+    }
+    
+    // Update other profile elements
+  }
+
+  // Clean up on page unload
+  window.addEventListener('beforeunload', () => {
+    if (state.unsubscribeAuth) state.unsubscribeAuth();
+    if (state.unsubscribeMessages) state.unsubscribeMessages();
+  });
+
+  // Initialize the app
   init();
 </script>
 </body>
