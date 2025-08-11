@@ -1,1 +1,557 @@
-h
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create - KAMBA</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+<style>
+  /* General */
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f5f6fa;
+    display: flex;
+    height: 100vh;
+  }
+  /* Sidebar */
+  #sidebar {
+    width: 280px;
+    background: #2f3136;
+    color: white;
+    display: flex;
+    flex-direction: column;
+  }
+  #sidebar header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 1rem;
+    border-bottom: 1px solid #40444b;
+    text-align: center;
+  }
+  #sidebar nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  #sidebar nav button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 1rem;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  #sidebar nav button:hover,
+  #sidebar nav button.active {
+    background: #40444b;
+    border-left-color: #43b581;
+  }
+  #sidebar footer {
+    padding: 1rem;
+    text-align: center;
+    border-top: 1px solid #40444b;
+  }
+  #sidebar footer button {
+    background: #43b581;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+  }
+
+  /* Main content */
+  #main {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background: white;
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  /* Forms */
+  form {
+    max-width: 900px;
+    margin: auto;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+  input[type=text], textarea, select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+  }
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  input[type=file] {
+    margin-top: 0.3rem;
+  }
+
+  /* Required asterisk */
+  .required:after {
+    content: "*";
+    color: red;
+    margin-left: 2px;
+  }
+
+  /* Flexible overview container */
+  #projectOverviewContainer {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 6px;
+    min-height: 150px;
+  }
+  .overview-block {
+    flex: 1 1 300px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding: 0.5rem;
+    background: #f0f0f0;
+    position: relative;
+    min-height: 120px;
+  }
+  .overview-block textarea {
+    width: 100%;
+    min-height: 100px;
+    border: none;
+    resize: none;
+    background: transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+  }
+  .overview-block img {
+    max-width: 100%;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+  .overview-block .remove-btn {
+    position: absolute;
+    top: 5px; right: 5px;
+    background: #e74c3c;
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 24px;
+    text-align: center;
+  }
+  #addOverviewBlockBtn {
+    margin-top: 0.5rem;
+  }
+
+  /* Code snippets */
+  #codeSnippetsContainer {
+    margin-top: 1rem;
+  }
+  .snippet {
+    border: 1px solid #888;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #2d2d2d;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative;
+  }
+  .snippet select {
+    margin-bottom: 0.5rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+  }
+  .snippet textarea {
+    width: 100%;
+    height: 150px;
+    background: #1e1e1e;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    resize: vertical;
+  }
+  .snippet .remove-snippet {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: #e74c3c;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0 8px;
+    font-weight: bold;
+  }
+
+  /* Buttons */
+  button {
+    cursor: pointer;
+    background: #43b581;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+  }
+  button:disabled {
+    background: #a5d6a7;
+    cursor: not-allowed;
+  }
+
+  /* Preview styles for code languages */
+  .language-html { background-color: #4caf50; }
+  .language-js { background-color: #f0db4f; color: black; }
+  .language-java { background-color: #5382a1; }
+  .language-node { background-color: #68a063; }
+  .language-python { background-color: #3572A5; }
+  /* Add more languages colors as needed */
+
+  /* Preview area */
+  #preview {
+    margin-top: 2rem;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 6px;
+    max-width: 900px;
+    background: #f9f9f9;
+  }
+  #preview h3 {
+    margin-top: 0;
+  }
+  #preview pre {
+    background: #1e1e1e;
+    color: white;
+    padding: 1rem;
+    border-radius: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    overflow-x: auto;
+  }
+
+</style>
+</head>
+<body>
+  <div id="sidebar">
+    <header>KAMBA</header>
+    <nav>
+      <button id="tabProfile">Profile</button>
+      <button id="tabCreate" class="active">Create</button>
+      <button id="tabNotifications">Notifications</button>
+      <button id="tabSettings">Settings</button>
+    </nav>
+    <footer>
+      <button id="homeBtn">Home</button>
+    </footer>
+  </div>
+  <main id="main">
+    <h2>Create a Project</h2>
+    <form id="projectForm">
+      <label for="projectName" class="required">Project Name</label>
+      <input type="text" id="projectName" required />
+
+      <label for="projectShortDesc" class="required">Short Description</label>
+      <textarea id="projectShortDesc" required></textarea>
+
+      <label for="projectBanner">Project Banner (image)</label>
+      <input type="file" id="projectBanner" accept="image/*" />
+
+      <label class="required">Project Overview (flexible blocks with text/images)</label>
+      <div id="projectOverviewContainer"></div>
+      <button type="button" id="addOverviewBlockBtn">+ Add Text/Image Block</button>
+
+      <label for="stepsTaken">Steps Taken</label>
+      <textarea id="stepsTaken"></textarea>
+
+      <label>Code Snippets (choose language, add many)</label>
+      <div id="codeSnippetsContainer"></div>
+      <button type="button" id="addSnippetBtn">+ Add Code Snippet</button>
+
+      <label for="mainImportance" class="required">Main Importance</label>
+      <textarea id="mainImportance" required></textarea>
+
+      <label for="profitability">Profitability</label>
+      <textarea id="profitability"></textarea>
+
+      <label for="obstaclesRisks" class="required">Obstacles / Risks</label>
+      <textarea id="obstaclesRisks" required></textarea>
+
+      <button type="submit">Create Project</button>
+    </form>
+
+    <section id="preview">
+      <h3>Preview</h3>
+      <div id="previewContent">Fill the form to see preview here.</div>
+    </section>
+  </main>
+
+<script>
+  // Redirect home
+  document.getElementById("homeBtn").addEventListener("click", () => {
+    window.location.href = "hello.html";
+  });
+
+  // Sidebar tab switching logic (only Create active for now)
+  const tabs = {
+    tabProfile: () => alert("Profile tab clicked - implement profile view"),
+    tabCreate: () => { /* stay here */ },
+    tabNotifications: () => alert("Notifications tab clicked - implement notifications view"),
+    tabSettings: () => alert("Settings tab clicked - implement settings view"),
+  };
+
+  for (const tabId in tabs) {
+    document.getElementById(tabId).addEventListener("click", () => {
+      Object.keys(tabs).forEach(id => {
+        document.getElementById(id).classList.remove("active");
+      });
+      document.getElementById(tabId).classList.add("active");
+      tabs[tabId]();
+    });
+  }
+
+  // Project Overview flexible blocks logic
+  const overviewContainer = document.getElementById("projectOverviewContainer");
+  const addOverviewBlockBtn = document.getElementById("addOverviewBlockBtn");
+
+  function createTextBlock() {
+    const block = document.createElement("div");
+    block.className = "overview-block";
+
+    const textarea = document.createElement("textarea");
+    textarea.placeholder = "Enter overview text here...";
+    block.appendChild(textarea);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-btn";
+    removeBtn.textContent = "×";
+    removeBtn.type = "button";
+    removeBtn.title = "Remove this block";
+    removeBtn.onclick = () => block.remove();
+    block.appendChild(removeBtn);
+
+    return block;
+  }
+  function createImageBlock() {
+    const block = document.createElement("div");
+    block.className = "overview-block";
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.title = "Select image";
+    block.appendChild(fileInput);
+
+    const imgPreview = document.createElement("img");
+    imgPreview.style.display = "none";
+    block.appendChild(imgPreview);
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        imgPreview.src = e.target.result;
+        imgPreview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-btn";
+    removeBtn.textContent = "×";
+    removeBtn.type = "button";
+    removeBtn.title = "Remove this block";
+    removeBtn.onclick = () => block.remove();
+    block.appendChild(removeBtn);
+
+    return block;
+  }
+
+  addOverviewBlockBtn.addEventListener("click", () => {
+    // Show a small prompt to choose block type
+    const choice = prompt("Add Block: type 'text' or 'image'");
+    if (!choice) return;
+    if (choice.toLowerCase() === "text") {
+      overviewContainer.appendChild(createTextBlock());
+    } else if (choice.toLowerCase() === "image") {
+      overviewContainer.appendChild(createImageBlock());
+    } else {
+      alert("Invalid block type. Choose 'text' or 'image'.");
+    }
+  });
+
+  // Code snippets logic
+  const codeSnippetsContainer = document.getElementById("codeSnippetsContainer");
+  const addSnippetBtn = document.getElementById("addSnippetBtn");
+
+  // Supported languages & their preview colors
+  const languageColors = {
+    html: "#4caf50",
+    js: "#f0db4f",
+    java: "#5382a1",
+    node: "#68a063",
+    python: "#3572A5",
+  };
+
+  function createCodeSnippet() {
+    const snippet = document.createElement("div");
+    snippet.className = "snippet";
+
+    const langSelect = document.createElement("select");
+    for (const lang in languageColors) {
+      const option = document.createElement("option");
+      option.value = lang;
+      option.textContent = lang.toUpperCase();
+      langSelect.appendChild(option);
+    }
+    snippet.appendChild(langSelect);
+
+    const textarea = document.createElement("textarea");
+    textarea.placeholder = "Enter code here...";
+    snippet.appendChild(textarea);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-snippet";
+    removeBtn.textContent = "×";
+    removeBtn.type = "button";
+    removeBtn.title = "Remove this snippet";
+    removeBtn.onclick = () => snippet.remove();
+    snippet.appendChild(removeBtn);
+
+    // Change background color on language select
+    langSelect.addEventListener("change", () => {
+      snippet.style.backgroundColor = languageColors[langSelect.value] || "#2d2d2d";
+      snippet.style.color = (langSelect.value === "js") ? "black" : "white";
+    });
+
+    // Initialize snippet color
+    langSelect.dispatchEvent(new Event("change"));
+
+    return snippet;
+  }
+
+  addSnippetBtn.addEventListener("click", () => {
+    codeSnippetsContainer.appendChild(createCodeSnippet());
+  });
+
+  // Preview logic for project form
+  const previewContent = document.getElementById("previewContent");
+  const projectForm = document.getElementById("projectForm");
+
+  function updatePreview() {
+    let html = `<strong>Name:</strong> ${projectForm.projectName.value}<br>`;
+    html += `<strong>Short Description:</strong> ${projectForm.projectShortDesc.value}<br>`;
+
+    // Overview blocks preview
+    html += `<strong>Project Overview:</strong><br><div style="display:flex; gap: 1rem; flex-wrap: wrap;">`;
+    [...overviewContainer.children].forEach(block => {
+      if (block.querySelector("textarea")) {
+        html += `<div style="flex: 1 1 300px; border: 1px solid #aaa; padding: 0.5rem; background:#f0f0f0;">${block.querySelector("textarea").value}</div>`;
+      } else if (block.querySelector("img")) {
+        const img = block.querySelector("img");
+        html += `<div style="flex: 1 1 300px;"><img src="${img.src}" style="max-width: 100%; border-radius: 4px;" /></div>`;
+      }
+    });
+    html += `</div>`;
+
+    html += `<strong>Steps Taken:</strong><br>${projectForm.stepsTaken.value}<br>`;
+    // Show code snippets with colors
+    html += `<strong>Code Snippets:</strong><br>`;
+    [...codeSnippetsContainer.children].forEach(snippet => {
+      const lang = snippet.querySelector("select").value;
+      const code = snippet.querySelector("textarea").value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const bgColor = languageColors[lang] || "#2d2d2d";
+      const color = (lang === "js") ? "black" : "white";
+      html += `<pre style="background:${bgColor}; color:${color}; padding:10px; border-radius: 6px; font-family: 'Courier New', Courier, monospace;">${code}</pre>`;
+    });
+
+    html += `<strong>Main Importance:</strong><br>${projectForm.mainImportance.value}<br>`;
+    html += `<strong>Profitability:</strong><br>${projectForm.profitability.value}<br>`;
+    html += `<strong>Obstacles/Risks:</strong><br>${projectForm.obstaclesRisks.value}<br>`;
+
+    previewContent.innerHTML = html;
+  }
+
+  // Update preview on input change
+  projectForm.addEventListener("input", updatePreview);
+  overviewContainer.addEventListener("input", updatePreview);
+  codeSnippetsContainer.addEventListener("input", updatePreview);
+
+  updatePreview();
+
+  // Handle project form submission
+  projectForm.addEventListener("submit", e => {
+    e.preventDefault();
+
+    // Validate required fields (projectName, projectShortDesc, mainImportance, obstaclesRisks)
+    if (!projectForm.projectName.value.trim() ||
+        !projectForm.projectShortDesc.value.trim() ||
+        !projectForm.mainImportance.value.trim() ||
+        !projectForm.obstaclesRisks.value.trim()) {
+      alert("Please fill all required fields (*)");
+      return;
+    }
+
+    // Gather overview blocks data
+    const overviewData = [];
+    [...overviewContainer.children].forEach(block => {
+      if (block.querySelector("textarea")) {
+        overviewData.push({ type: "text", content: block.querySelector("textarea").value.trim() });
+      } else if (block.querySelector("img")) {
+        overviewData.push({ type: "image", content: block.querySelector("img").src });
+      }
+    });
+
+    // Gather code snippets data
+    const snippetsData = [];
+    [...codeSnippetsContainer.children].forEach(snippet => {
+      snippetsData.push({
+        language: snippet.querySelector("select").value,
+        code: snippet.querySelector("textarea").value,
+      });
+    });
+
+    // Prepare project data object (mock example, replace with actual DB save logic)
+    const projectData = {
+      name: projectForm.projectName.value.trim(),
+      shortDescription: projectForm.projectShortDesc.value.trim(),
+      bannerImage: null, // TODO: upload logic if image selected
+      overview: overviewData,
+      stepsTaken: projectForm.stepsTaken.value.trim(),
+      codeSnippets: snippetsData,
+      mainImportance: projectForm.mainImportance.value.trim(),
+      profitability: projectForm.profitability.value.trim(),
+      obstaclesRisks: projectForm.obstaclesRisks.value.trim(),
+      createdAt: Date.now(),
+      creatorId: "CURRENT_USER_ID", // Replace with real logged in user ID
+    };
+
+    console.log("Project data to submit:", projectData);
+    alert("Project creation simulated (check console). Implement saving to database!");
+
+    // Reset form or redirect as needed here
+  });
+
+</script>
+</body>
+</html>
