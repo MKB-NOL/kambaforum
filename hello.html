@@ -4,22 +4,24 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KAMBA Forum - Chat</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 <style>
   /* Basic reset and Discord style */
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: 'Poppins', sans-serif;
   }
   body, html {
     height: 100%;
     background-color: #36393f;
     color: #dcddde;
-    font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     flex-direction: column;
   }
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+  
   header {
     background-color: #2f3136;
     padding: 1rem 2rem;
@@ -47,6 +49,7 @@
     padding: 1rem;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
   }
   .sidebar-section {
     margin-bottom: 1.5rem;
@@ -65,6 +68,7 @@
     border-radius: 4px;
     cursor: pointer;
     margin-bottom: 0.3rem;
+    transition: background-color 0.2s;
   }
   .sidebar-item:hover {
     background-color: #3a3d44;
@@ -140,7 +144,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: pointer;
   }
   #profile-pic {
     width: 60px;
@@ -154,6 +157,8 @@
     font-weight: bold;
     color: white;
     margin-bottom: 0.5rem;
+    background-size: cover;
+    background-position: center;
   }
   #profile-name {
     font-weight: 600;
@@ -224,10 +229,10 @@
     background-color: #2f3136;
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
-    color: #faa61a; /* Yellow color for sparks */
+    color: #faa61a;
   }
   #sparks-count i {
-    color: #faa61a; /* Yellow color for icon */
+    color: #faa61a;
     margin-right: 0.3rem;
   }
   #messages-container {
@@ -495,10 +500,10 @@
   }
   
   /* Status colors */
-  .username.green { color: #43b581; }   /* New user */
-  .username.blue { color: #5865f2; }    /* 100+ sparks */
-  .username.violet { color: #9b59b6; }  /* 1000+ sparks / sub-admin */
-  .username.red { color: #f04747; }     /* Admin */
+  .username.green { color: #43b581; }
+  .username.blue { color: #5865f2; }
+  .username.violet { color: #9b59b6; }
+  .username.red { color: #f04747; }
   
   .status-dot.green { background-color: #43b581; }
   .status-dot.blue { background-color: #5865f2; }
@@ -554,8 +559,6 @@
     border-radius: 8px;
     width: 80%;
     max-width: 500px;
-    max-height: 80%;
-    overflow-y: auto;
   }
   .modal-title {
     margin-bottom: 1rem;
@@ -632,78 +635,237 @@
   #agree-btn:hover {
     background-color: #4752c4;
   }
-  
-  /* Project view modal */
-  #project-view-modal {
+
+  /* Create modal */
+  #create-modal {
     display: none;
-    /* same as modal */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
   }
-  /* Code snippets styling */
-  pre {
+  #create-modal-content {
     background-color: #2f3136;
-    padding: 1rem;
-    border-radius: 4px;
-    overflow-x: auto;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
   }
-  code {
-    font-family: 'Courier New', monospace;
+  #create-modal h3 {
+    margin-bottom: 1.5rem;
+    color: white;
+    text-align: center;
   }
-  .code-html { color: #6ab04c; }
-  .code-css { color: #74b9ff; }
-  .code-js { color: #f1c40f; }
-  .code-java { color: #e67e22; }
-  .code-python { color: #3498db; }
-  .code-node { color: #27ae60; }
-  .code-c { color: #9b59b6; }
-  /* Form group for creations */
-  .form-group {
-    margin-bottom: 1rem;
+  .create-tabs {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #40444b;
   }
-  .form-group label {
+  .create-tab {
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .create-tab.active {
+    border-bottom: 2px solid #5865f2;
+    color: white;
+    font-weight: bold;
+  }
+  .create-tab-content {
+    display: none;
+  }
+  .create-tab-content.active {
+    display: block;
+  }
+  .form-row {
+    margin-bottom: 1.2rem;
+  }
+  .form-row label {
     display: block;
     margin-bottom: 0.5rem;
+    color: #b9bbbe;
   }
-  .code-snippet-item {
-    margin-bottom: 1rem;
-  }
-  .overview-image-item {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .rule-item {
-    margin-bottom: 1rem;
-  }
-  /* Rich text for post */
-  .rich-editor {
-    background-color: #40444b;
-    padding: 0.8rem;
-    min-height: 150px;
+  .form-row input[type="text"],
+  .form-row input[type="url"],
+  .form-row textarea,
+  .form-row select {
+    width: 100%;
+    padding: 0.7rem;
     border-radius: 4px;
+    border: none;
+    background-color: #40444b;
     color: white;
   }
-  .editor-toolbar {
-    margin-bottom: 0.5rem;
-    display: flex;
-    gap: 0.5rem;
+  .form-row textarea {
+    min-height: 100px;
+    resize: vertical;
   }
-  .editor-btn {
+  .required-field::after {
+    content: " *";
+    color: #f04747;
+  }
+  .code-snippet {
+    margin-bottom: 1rem;
+    border: 1px solid #40444b;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .code-header {
+    background-color: #40444b;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .code-language {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+  }
+  .remove-code {
+    color: #f04747;
+    cursor: pointer;
+  }
+  .code-content {
+    font-family: 'Fira Code', monospace;
+    padding: 0.8rem;
+    background-color: #2f3136;
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+  .add-code-btn {
     background-color: #5865f2;
     color: white;
     border: none;
-    padding: 0.3rem 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+  .add-code-btn:hover {
+    background-color: #4752c4;
+  }
+  .add-rule-btn {
+    background-color: #43b581;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+  .add-rule-btn:hover {
+    background-color: #3a9e70;
+  }
+  .rule-item {
+    background-color: #40444b;
+    padding: 0.8rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .remove-rule {
+    color: #f04747;
     cursor: pointer;
   }
-  #header-profile {
+  .create-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    gap: 1rem;
+  }
+  .create-btn {
+    padding: 0.7rem 1.5rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .create-btn.cancel {
+    background-color: #72767d;
+    color: white;
+  }
+  .create-btn.submit {
+    background-color: #5865f2;
+    color: white;
+  }
+  .font-style-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .font-style-btn {
+    background-color: #40444b;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .font-style-btn.active {
+    background-color: #5865f2;
+  }
+  .font-family-select {
+    margin-bottom: 0.5rem;
+  }
+  .preview-area {
+    border: 1px solid #40444b;
+    border-radius: 4px;
+    padding: 1rem;
+    min-height: 100px;
+    background-color: #2f3136;
+    margin-bottom: 1rem;
+  }
+  .collaborator-input {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .collaborator-input input {
+    flex: 1;
+  }
+  .collaborator-list {
+    margin-bottom: 1rem;
+  }
+  .collaborator-item {
+    background-color: #40444b;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .remove-collaborator {
+    color: #f04747;
+    cursor: pointer;
+  }
+  .music-preview {
     display: flex;
     align-items: center;
-    cursor: pointer;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
   }
-  #header-status-dot {
-    width: 10px;
-    height: 10px;
+  .music-preview-btn {
+    background-color: #40444b;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -719,20 +881,206 @@
   </div>
 </div>
 
+<!-- Create Modal -->
+<div id="create-modal">
+  <div id="create-modal-content">
+    <h3>Create Content</h3>
+    
+    <div class="create-tabs">
+      <div class="create-tab active" data-tab="project">Project</div>
+      <div class="create-tab" data-tab="post">Post</div>
+      <div class="create-tab" data-tab="group">Group</div>
+      <div class="create-tab" data-tab="community">Community</div>
+    </div>
+    
+    <!-- Project Tab -->
+    <div class="create-tab-content active" id="project-tab">
+      <div class="form-row">
+        <label class="required-field">Project Name</label>
+        <input type="text" id="project-name" placeholder="Enter project name">
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Short Description</label>
+        <input type="text" id="project-description" placeholder="Brief description of your project">
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Project Banner URL</label>
+        <input type="url" id="project-banner" placeholder="Enter image URL for your project banner">
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Project Overview</label>
+        <textarea id="project-overview" placeholder="Detailed overview of your project (you can add images with Markdown)"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <label>Steps Taken</label>
+        <textarea id="project-steps" placeholder="Describe the steps you took to complete the project"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <label>Code Snippets</label>
+        <button class="add-code-btn" id="add-code-btn">Add Code Snippet</button>
+        <div id="code-snippets-container"></div>
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Main Importance</label>
+        <textarea id="project-importance" placeholder="Why is this project important?"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Profitability</label>
+        <textarea id="project-profitability" placeholder="How can this project be profitable?"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Obstacles/Risks</label>
+        <textarea id="project-obstacles" placeholder="What challenges did you face or might others face?"></textarea>
+      </div>
+      
+      <div class="create-actions">
+        <button class="create-btn cancel" id="cancel-project">Cancel</button>
+        <button class="create-btn submit" id="submit-project">Create Project</button>
+      </div>
+    </div>
+    
+    <!-- Post Tab -->
+    <div class="create-tab-content" id="post-tab">
+      <div class="form-row">
+        <label>Font Family</label>
+        <select class="font-family-select" id="post-font">
+          <option value="Poppins">Poppins</option>
+          <option value="Arial">Arial</option>
+          <option value="Georgia">Georgia</option>
+        </select>
+      </div>
+      
+      <div class="form-row">
+        <label>Font Style</label>
+        <div class="font-style-controls">
+          <button class="font-style-btn" id="bold-btn" title="Bold"><i class="fas fa-bold"></i></button>
+          <button class="font-style-btn" id="italic-btn" title="Italic"><i class="fas fa-italic"></i></button>
+          <button class="font-style-btn" id="underline-btn" title="Underline"><i class="fas fa-underline"></i></button>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Post Content</label>
+        <textarea id="post-content" placeholder="Write your post here"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <label>Preview</label>
+        <div class="preview-area" id="post-preview"></div>
+      </div>
+      
+      <div class="create-actions">
+        <button class="create-btn cancel" id="cancel-post">Cancel</button>
+        <button class="create-btn submit" id="submit-post">Create Post</button>
+      </div>
+    </div>
+    
+    <!-- Group Tab -->
+    <div class="create-tab-content" id="group-tab">
+      <div class="form-row">
+        <label class="required-field">Group Name</label>
+        <input type="text" id="group-name" placeholder="Enter group name">
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Group Image URL</label>
+        <input type="url" id="group-image" placeholder="Enter image URL for your group">
+      </div>
+      
+      <div class="form-row">
+        <label>Group Banner URL</label>
+        <input type="url" id="group-banner" placeholder="Enter banner URL for your group">
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Description</label>
+        <textarea id="group-description" placeholder="Describe your group"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <label>Rules</label>
+        <button class="add-rule-btn" id="add-rule-btn">Add Rule</button>
+        <div id="rules-container"></div>
+      </div>
+      
+      <div class="create-actions">
+        <button class="create-btn cancel" id="cancel-group">Cancel</button>
+        <button class="create-btn submit" id="submit-group">Create Group</button>
+      </div>
+    </div>
+    
+    <!-- Community Tab -->
+    <div class="create-tab-content" id="community-tab">
+      <div class="form-row">
+        <label class="required-field">Community Name</label>
+        <input type="text" id="community-name" placeholder="Enter community name">
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Community Image URL</label>
+        <input type="url" id="community-image" placeholder="Enter image URL for your community">
+      </div>
+      
+      <div class="form-row">
+        <label>Community Banner URL</label>
+        <input type="url" id="community-banner" placeholder="Enter banner URL for your community">
+      </div>
+      
+      <div class="form-row">
+        <label class="required-field">Description</label>
+        <textarea id="community-description" placeholder="Describe your community"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <label>Collaborators (Community Leaders)</label>
+        <div class="collaborator-input">
+          <input type="text" id="collaborator-email" placeholder="Enter collaborator email">
+          <button id="add-collaborator-btn">Add</button>
+        </div>
+        <div class="collaborator-list" id="collaborators-list"></div>
+      </div>
+      
+      <div class="create-actions">
+        <button class="create-btn cancel" id="cancel-community">Cancel</button>
+        <button class="create-btn submit" id="submit-community">Create Community</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <header>
   <h1>KAMBA Forum</h1>
-  <div id="header-profile">
-    <span id="header-profile-name"></span>
-    <div id="header-status-dot"></div>
-  </div>
 </header>
 
 <div id="main-content">
   <!-- Left Sidebar -->
   <div id="left-sidebar">
-    <div class="sidebar-item" id="refresh-btn">
+    <div class="sidebar-item" id="home-btn">
       <div class="icon"><i class="fas fa-home"></i></div>
       <span>Home</span>
+    </div>
+    
+    <div class="sidebar-item" id="profile-btn">
+      <div class="icon"><i class="fas fa-user"></i></div>
+      <span>Profile</span>
+    </div>
+    
+    <div class="sidebar-item active" id="create-btn">
+      <div class="icon"><i class="fas fa-plus"></i></div>
+      <span>Create</span>
+    </div>
+    
+    <div class="sidebar-item" id="notifications-btn">
+      <div class="icon"><i class="fas fa-bell"></i></div>
+      <span>Notifications</span>
     </div>
     
     <div class="sidebar-section">
@@ -767,30 +1115,6 @@
       <div class="sidebar-item" data-channel="mentions">
         <div class="dot"></div>
         <span>#Mentions</span>
-      </div>
-      <div class="sidebar-item" data-channel="notifications">
-        <div class="dot"></div>
-        <span>#Notifications</span>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-title">Create</div>
-      <div class="sidebar-item" data-create="project">
-        <div class="dot"></div>
-        <span>Create Project</span>
-      </div>
-      <div class="sidebar-item" data-create="post">
-        <div class="dot"></div>
-        <span>Create Post</span>
-      </div>
-      <div class="sidebar-item" data-create="group">
-        <div class="dot"></div>
-        <span>Create Group</span>
-      </div>
-      <div class="sidebar-item" data-create="community">
-        <div class="dot"></div>
-        <span>Create Community</span>
       </div>
     </div>
     
@@ -892,174 +1216,6 @@
   </div>
 </div>
 
-<!-- Create Project Modal -->
-<div id="create-project-modal" class="modal">
-  <div class="modal-content">
-    <h3 class="modal-title">Create Project</h3>
-    <div class="form-group">
-      <label>Name *</label>
-      <input id="project-name" class="modal-input">
-    </div>
-    <div class="form-group">
-      <label>Short Description *</label>
-      <textarea id="project-short-desc" class="modal-input"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Project Banner *</label>
-      <input type="file" id="project-banner" accept="image/*">
-    </div>
-    <div class="form-group">
-      <label>Project Overview *</label>
-      <textarea id="project-overview" class="modal-input"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Overview Images</label>
-      <div id="overview-images-container"></div>
-      <button id="add-overview-image">Add Image</button>
-    </div>
-    <div class="form-group">
-      <label>Steps taken</label>
-      <textarea id="project-steps" class="modal-input"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Code snippets</label>
-      <div id="code-snippets-container"></div>
-      <button id="add-code-snippet">Add Snippet</button>
-    </div>
-    <div class="form-group">
-      <label>Main importance *</label>
-      <textarea id="project-importance" class="modal-input"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Profitability</label>
-      <textarea id="project-profitability" class="modal-input"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Obstacles/Risks *</label>
-      <textarea id="project-obstacles" class="modal-input"></textarea>
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="cancel-create-project">Cancel</button>
-      <button class="modal-btn save" id="save-create-project">Create</button>
-    </div>
-  </div>
-</div>
-
-<!-- Create Post Modal -->
-<div id="create-post-modal" class="modal">
-  <div class="modal-content">
-    <h3 class="modal-title">Create Post</h3>
-    <div class="editor-toolbar">
-      <select id="post-font">
-        <option value="Poppins">Poppins</option>
-        <option value="Arial">Arial</option>
-        <option value="Times New Roman">Times New Roman</option>
-      </select>
-      <button class="editor-btn" id="bold-btn">Bold</button>
-      <button class="editor-btn" id="italic-btn">Italic</button>
-      <button class="editor-btn" id="underline-btn">Underline</button>
-      <button class="editor-btn" id="link-btn">Link</button>
-    </div>
-    <div id="post-editor" class="rich-editor" contenteditable="true"></div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="cancel-create-post">Cancel</button>
-      <button class="modal-btn save" id="save-create-post">Create</button>
-    </div>
-  </div>
-</div>
-
-<!-- Create Group Modal -->
-<div id="create-group-modal" class="modal">
-  <div class="modal-content">
-    <h3 class="modal-title">Create Group</h3>
-    <div class="form-group">
-      <label>Name *</label>
-      <input id="group-name" class="modal-input">
-    </div>
-    <div class="form-group">
-      <label>Group Image</label>
-      <input type="file" id="group-image" accept="image/*">
-    </div>
-    <div class="form-group">
-      <label>Group Banner</label>
-      <input type="file" id="group-banner" accept="image/*">
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="group-desc" class="modal-input"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Rules</label>
-      <div id="group-rules-container"></div>
-      <button id="add-group-rule">Add Rule</button>
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="cancel-create-group">Cancel</button>
-      <button class="modal-btn save" id="save-create-group">Create</button>
-    </div>
-  </div>
-</div>
-
-<!-- Create Community Modal -->
-<div id="create-community-modal" class="modal">
-  <div class="modal-content">
-    <h3 class="modal-title">Create Community</h3>
-    <div class="form-group">
-      <label>Name *</label>
-      <input id="community-name" class="modal-input">
-    </div>
-    <div class="form-group">
-      <label>Community Image</label>
-      <input type="file" id="community-image" accept="image/*">
-    </div>
-    <div class="form-group">
-      <label>Community Banner</label>
-      <input type="file" id="community-banner" accept="image/*">
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="community-desc" class="modal-input"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Rules</label>
-      <div id="community-rules-container"></div>
-      <button id="add-community-rule">Add Rule</button>
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="cancel-create-community">Cancel</button>
-      <button class="modal-btn save" id="save-create-community">Create</button>
-    </div>
-  </div>
-</div>
-
-<!-- Project View Modal -->
-<div id="project-view-modal" class="modal">
-  <div class="modal-content">
-    <h3 id="project-view-name"></h3>
-    <img id="project-view-banner" style="max-width:100%;">
-    <p id="project-view-short-desc"></p>
-    <div id="project-view-overview"></div>
-    <div id="project-view-images"></div>
-    <p>Steps: <span id="project-view-steps"></span></p>
-    <div id="project-view-code-snippets"></div>
-    <p>Importance: <span id="project-view-importance"></span></p>
-    <p>Profitability: <span id="project-view-profitability"></span></p>
-    <p>Obstacles: <span id="project-view-obstacles"></span></p>
-    <div class="message-actions">
-      <span class="message-action" id="project-like-btn">Like</span>
-      <span class="message-action" id="project-share-btn">Share</span>
-      <div>
-        <textarea id="project-comment-input" placeholder="Add comment"></textarea>
-        <button id="project-add-comment">Comment</button>
-      </div>
-    </div>
-    <div id="project-comments"></div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="close-project-view">Close</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
   import {
@@ -1082,7 +1238,15 @@
     getDocs,
     increment,
     setDoc,
+    arrayUnion,
+    arrayRemove,
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
@@ -1098,6 +1262,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   // DOM Elements
   const messagesContainer = document.getElementById("messages-container");
@@ -1114,8 +1279,11 @@
   const searchBar = document.getElementById("search-bar");
   const searchResults = document.getElementById("search-results");
   const channelItems = document.querySelectorAll(".sidebar-item[data-channel]");
+  const homeBtn = document.getElementById("home-btn");
+  const profileBtn = document.getElementById("profile-btn");
+  const createBtn = document.getElementById("create-btn");
+  const notificationsBtn = document.getElementById("notifications-btn");
   const channelTitle = document.getElementById("channel-title");
-  const refreshBtn = document.getElementById("refresh-btn");
   const editMessageModal = document.getElementById("edit-message-modal");
   const editMessageInput = document.getElementById("edit-message-input");
   const cancelEditBtn = document.getElementById("cancel-edit-btn");
@@ -1129,10 +1297,30 @@
   const sparksValue = document.getElementById("sparks-value");
   const welcomeModal = document.getElementById("welcome-modal");
   const agreeBtn = document.getElementById("agree-btn");
-  const headerProfile = document.getElementById("header-profile");
-  const headerProfileName = document.getElementById("header-profile-name");
-  const headerStatusDot = document.getElementById("header-status-dot");
-  const userProfile = document.getElementById("user-profile");
+  const createModal = document.getElementById("create-modal");
+  const createTabs = document.querySelectorAll(".create-tab");
+  const createTabContents = document.querySelectorAll(".create-tab-content");
+  const addCodeBtn = document.getElementById("add-code-btn");
+  const codeSnippetsContainer = document.getElementById("code-snippets-container");
+  const addRuleBtn = document.getElementById("add-rule-btn");
+  const rulesContainer = document.getElementById("rules-container");
+  const addCollaboratorBtn = document.getElementById("add-collaborator-btn");
+  const collaboratorEmailInput = document.getElementById("collaborator-email");
+  const collaboratorsList = document.getElementById("collaborators-list");
+  const boldBtn = document.getElementById("bold-btn");
+  const italicBtn = document.getElementById("italic-btn");
+  const underlineBtn = document.getElementById("underline-btn");
+  const postContent = document.getElementById("post-content");
+  const postPreview = document.getElementById("post-preview");
+  const postFontSelect = document.getElementById("post-font");
+  const cancelProjectBtn = document.getElementById("cancel-project");
+  const submitProjectBtn = document.getElementById("submit-project");
+  const cancelPostBtn = document.getElementById("cancel-post");
+  const submitPostBtn = document.getElementById("submit-post");
+  const cancelGroupBtn = document.getElementById("cancel-group");
+  const submitGroupBtn = document.getElementById("submit-group");
+  const cancelCommunityBtn = document.getElementById("cancel-community");
+  const submitCommunityBtn = document.getElementById("submit-community");
 
   // App State
   let currentUser = null;
@@ -1146,6 +1334,8 @@
   let likedPosts = new Set();
   let likedProjects = new Set();
   let hasInteracted = false;
+  let currentActiveTab = "project";
+  let collaborators = [];
 
   // Initialize the app
   function init() {
@@ -1153,55 +1343,6 @@
     loadGroups();
     checkSongNotificationDismissed();
     checkAuthState();
-  }
-
-  // Check authentication state
-  function checkAuthState() {
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "sign.html";
-        return;
-      }
-      currentUser = user;
-
-      // Load user data from Firestore
-      const userDocRef = doc(db, "Kamba_users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
-      
-      if (!userDocSnap.exists()) {
-        // Show welcome modal for new users
-        welcomeModal.style.display = "flex";
-        return;
-      }
-      
-      currentUserData = userDocSnap.data();
-      updateUserProfile(currentUserData);
-      setupUserEnvironment();
-    });
-  }
-
-  // Set up user environment after authentication
-  function setupUserEnvironment() {
-    // Set background audio if available
-    if (currentUserData.song && currentUserData.song.trim() !== "") {
-      backgroundAudio.src = currentUserData.song;
-      backgroundAudio.volume = currentUserData.volume ?? 0.5;
-      
-      // Play audio on first interaction
-      document.addEventListener('click', function firstInteraction() {
-        if (!hasInteracted) {
-          backgroundAudio.play().catch(e => console.log("Audio play failed:", e));
-          hasInteracted = true;
-          document.removeEventListener('click', firstInteraction);
-        }
-      });
-      
-      noSongNotification.style.display = "none";
-    } else {
-      noSongNotification.style.display = "flex";
-    }
-
-    loadChannelMessages();
   }
 
   // Set up all event listeners
@@ -1217,7 +1358,12 @@
           sparks: 0,
           song: "",
           volume: 0.5,
-          createdAt: new Date()
+          createdAt: new Date(),
+          profilePic: "",
+          notifications: [],
+          groups: [],
+          communities: [],
+          projects: []
         });
         
         // Hide welcome modal
@@ -1233,6 +1379,95 @@
         alert("Error setting up your account. Please try again.");
       }
     });
+
+    // Navigation buttons
+    homeBtn.addEventListener("click", () => {
+      window.location.href = "hello.html";
+    });
+    
+    profileBtn.addEventListener("click", () => {
+      window.location.href = "settings.html";
+    });
+    
+    createBtn.addEventListener("click", () => {
+      createModal.style.display = "flex";
+    });
+    
+    notificationsBtn.addEventListener("click", () => {
+      alert("Notifications feature will be implemented in the next update");
+      // In a real app, this would show notifications panel
+    });
+
+    // Create modal tabs
+    createTabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        createTabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        currentActiveTab = tab.dataset.tab;
+        
+        createTabContents.forEach(content => {
+          content.classList.remove("active");
+          if (content.id === `${currentActiveTab}-tab`) {
+            content.classList.add("active");
+          }
+        });
+      });
+    });
+
+    // Code snippet handling
+    addCodeBtn.addEventListener("click", addCodeSnippet);
+
+    // Rule handling
+    addRuleBtn.addEventListener("click", addRuleInput);
+
+    // Collaborator handling
+    addCollaboratorBtn.addEventListener("click", addCollaborator);
+
+    // Post formatting
+    boldBtn.addEventListener("click", () => {
+      boldBtn.classList.toggle("active");
+      updatePostPreview();
+    });
+    
+    italicBtn.addEventListener("click", () => {
+      italicBtn.classList.toggle("active");
+      updatePostPreview();
+    });
+    
+    underlineBtn.addEventListener("click", () => {
+      underlineBtn.classList.toggle("active");
+      updatePostPreview();
+    });
+    
+    postFontSelect.addEventListener("change", updatePostPreview);
+    postContent.addEventListener("input", updatePostPreview);
+
+    // Create form cancel buttons
+    cancelProjectBtn.addEventListener("click", () => {
+      createModal.style.display = "none";
+      resetCreateForms();
+    });
+    
+    cancelPostBtn.addEventListener("click", () => {
+      createModal.style.display = "none";
+      resetCreateForms();
+    });
+    
+    cancelGroupBtn.addEventListener("click", () => {
+      createModal.style.display = "none";
+      resetCreateForms();
+    });
+    
+    cancelCommunityBtn.addEventListener("click", () => {
+      createModal.style.display = "none";
+      resetCreateForms();
+    });
+
+    // Create form submit buttons
+    submitProjectBtn.addEventListener("click", submitProject);
+    submitPostBtn.addEventListener("click", submitPost);
+    submitGroupBtn.addEventListener("click", submitGroup);
+    submitCommunityBtn.addEventListener("click", submitCommunity);
 
     // Emoji picker toggle
     emojiBtn.addEventListener("click", (e) => {
@@ -1298,11 +1533,6 @@
       }, 200);
     });
 
-    // Refresh button
-    refreshBtn.addEventListener("click", () => {
-      loadChannelMessages();
-    });
-
     // Edit message modal
     cancelEditBtn.addEventListener("click", () => {
       editMessageModal.style.display = "none";
@@ -1319,42 +1549,428 @@
     document.addEventListener("click", () => {
       statusInfo.style.display = "none";
     });
+  }
 
-    // Message send
-    sendBtn.addEventListener("click", () => sendMessage());
-    messageInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+  // Add code snippet to project form
+  function addCodeSnippet() {
+    const snippetId = Date.now();
+    const snippetDiv = document.createElement("div");
+    snippetDiv.className = "code-snippet";
+    snippetDiv.innerHTML = `
+      <div class="code-header">
+        <select class="code-language" data-id="${snippetId}">
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="csharp">C#</option>
+          <option value="php">PHP</option>
+          <option value="ruby">Ruby</option>
+          <option value="swift">Swift</option>
+          <option value="kotlin">Kotlin</option>
+          <option value="go">Go</option>
+          <option value="rust">Rust</option>
+          <option value="typescript">TypeScript</option>
+          <option value="bash">Bash</option>
+          <option value="sql">SQL</option>
+        </select>
+        <span class="remove-code" data-id="${snippetId}">Remove</span>
+      </div>
+      <textarea class="code-content" data-id="${snippetId}" placeholder="Enter your code here"></textarea>
+    `;
+    
+    codeSnippetsContainer.appendChild(snippetDiv);
+    
+    // Add event listener for remove button
+    snippetDiv.querySelector(".remove-code").addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      document.querySelector(`.code-snippet [data-id="${id}"]`).parentNode.parentNode.remove();
+    });
+  }
+
+  // Add rule input to group form
+  function addRuleInput() {
+    const ruleId = Date.now();
+    const ruleDiv = document.createElement("div");
+    ruleDiv.className = "rule-item";
+    ruleDiv.innerHTML = `
+      <input type="text" data-id="${ruleId}" placeholder="Enter rule text">
+      <span class="remove-rule" data-id="${ruleId}">Remove</span>
+    `;
+    
+    rulesContainer.appendChild(ruleDiv);
+    
+    // Add event listener for remove button
+    ruleDiv.querySelector(".remove-rule").addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      document.querySelector(`.rule-item [data-id="${id}"]`).parentNode.remove();
+    });
+  }
+
+  // Add collaborator to community form
+  function addCollaborator() {
+    const email = collaboratorEmailInput.value.trim();
+    if (!email) return;
+    
+    if (!email.includes("@")) {
+      alert("Please enter a valid email address");
+      return;
+    }
+    
+    if (collaborators.includes(email)) {
+      alert("This collaborator has already been added");
+      return;
+    }
+    
+    collaborators.push(email);
+    updateCollaboratorsList();
+    collaboratorEmailInput.value = "";
+  }
+
+  // Update collaborators list display
+  function updateCollaboratorsList() {
+    collaboratorsList.innerHTML = "";
+    collaborators.forEach(email => {
+      const item = document.createElement("div");
+      item.className = "collaborator-item";
+      item.innerHTML = `
+        <span>${email}</span>
+        <span class="remove-collaborator" data-email="${email}">Remove</span>
+      `;
+      
+      item.querySelector(".remove-collaborator").addEventListener("click", (e) => {
+        const emailToRemove = e.target.dataset.email;
+        collaborators = collaborators.filter(e => e !== emailToRemove);
+        updateCollaboratorsList();
+      });
+      
+      collaboratorsList.appendChild(item);
+    });
+  }
+
+  // Update post preview based on formatting
+  function updatePostPreview() {
+    let content = postContent.value;
+    
+    // Apply formatting
+    if (boldBtn.classList.contains("active")) {
+      content = `<strong>${content}</strong>`;
+    }
+    if (italicBtn.classList.contains("active")) {
+      content = `<em>${content}</em>`;
+    }
+    if (underlineBtn.classList.contains("active")) {
+      content = `<u>${content}</u>`;
+    }
+    
+    // Set font family
+    const fontFamily = postFontSelect.value;
+    postPreview.style.fontFamily = fontFamily;
+    postPreview.innerHTML = content;
+  }
+
+  // Submit project form
+  async function submitProject() {
+    const name = document.getElementById("project-name").value.trim();
+    const description = document.getElementById("project-description").value.trim();
+    const banner = document.getElementById("project-banner").value.trim();
+    const overview = document.getElementById("project-overview").value.trim();
+    const steps = document.getElementById("project-steps").value.trim();
+    const importance = document.getElementById("project-importance").value.trim();
+    const profitability = document.getElementById("project-profitability").value.trim();
+    const obstacles = document.getElementById("project-obstacles").value.trim();
+    
+    // Validate required fields
+    if (!name || !description || !banner || !overview || !importance || !profitability || !obstacles) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    
+    // Collect code snippets
+    const codeSnippets = [];
+    document.querySelectorAll(".code-snippet").forEach(snippet => {
+      const language = snippet.querySelector(".code-language").value;
+      const content = snippet.querySelector(".code-content").value.trim();
+      if (content) {
+        codeSnippets.push({ language, content });
       }
     });
+    
+    try {
+      // Add project to Firestore
+      const projectRef = await addDoc(collection(db, "Kamba_projects"), {
+        name,
+        description,
+        banner,
+        overview,
+        steps,
+        importance,
+        profitability,
+        obstacles,
+        codeSnippets,
+        creatorId: currentUser.uid,
+        creatorEmail: currentUser.email,
+        createdAt: new Date(),
+        likes: 0,
+        shares: 0,
+        comments: 0,
+        views: 0
+      });
+      
+      // Update user's projects list
+      await updateDoc(doc(db, "Kamba_users", currentUser.uid), {
+        projects: arrayUnion(projectRef.id)
+      });
+      
+      // Close modal and reset form
+      createModal.style.display = "none";
+      resetCreateForms();
+      alert("Project created successfully!");
+      
+      // Reload projects channel if active
+      if (currentChannel === "projects") {
+        loadChannelMessages();
+      }
+    } catch (error) {
+      console.error("Error creating project:", error);
+      alert("Failed to create project");
+    }
+  }
 
-    // Auto-resize textarea
-    messageInput.addEventListener("input", function() {
-      this.style.height = "auto";
-      this.style.height = (this.scrollHeight) + "px";
+  // Submit post form
+  async function submitPost() {
+    const content = postContent.value.trim();
+    if (!content) {
+      alert("Please enter post content");
+      return;
+    }
+    
+    const isBold = boldBtn.classList.contains("active");
+    const isItalic = italicBtn.classList.contains("active");
+    const isUnderline = underlineBtn.classList.contains("active");
+    const fontFamily = postFontSelect.value;
+    
+    try {
+      // Add post to Firestore
+      await addDoc(collection(db, "Kamba_posts"), {
+        content,
+        isBold,
+        isItalic,
+        isUnderline,
+        fontFamily,
+        creatorId: currentUser.uid,
+        creatorEmail: currentUser.email,
+        createdAt: new Date(),
+        likes: 0,
+        shares: 0,
+        comments: 0
+      });
+      
+      // Close modal and reset form
+      createModal.style.display = "none";
+      resetCreateForms();
+      alert("Post created successfully!");
+      
+      // Reload posts channel if active
+      if (currentChannel === "posts") {
+        loadChannelMessages();
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert("Failed to create post");
+    }
+  }
+
+  // Submit group form
+  async function submitGroup() {
+    const name = document.getElementById("group-name").value.trim();
+    const image = document.getElementById("group-image").value.trim();
+    const banner = document.getElementById("group-banner").value.trim();
+    const description = document.getElementById("group-description").value.trim();
+    
+    // Validate required fields
+    if (!name || !image || !description) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    
+    // Collect rules
+    const rules = [];
+    document.querySelectorAll(".rule-item input").forEach(input => {
+      const rule = input.value.trim();
+      if (rule) {
+        rules.push(rule);
+      }
     });
+    
+    try {
+      // Add group to Firestore
+      const groupRef = await addDoc(collection(db, "Kamba_groups"), {
+        name,
+        image,
+        banner,
+        description,
+        rules,
+        creatorId: currentUser.uid,
+        creatorEmail: currentUser.email,
+        createdAt: new Date(),
+        members: [currentUser.uid],
+        maxMembers: 20,
+        isPrivate: true
+      });
+      
+      // Update user's groups list
+      await updateDoc(doc(db, "Kamba_users", currentUser.uid), {
+        groups: arrayUnion(groupRef.id)
+      });
+      
+      // Close modal and reset form
+      createModal.style.display = "none";
+      resetCreateForms();
+      alert("Group created successfully!");
+      
+      // Reload groups in sidebar
+      loadGroups();
+    } catch (error) {
+      console.error("Error creating group:", error);
+      alert("Failed to create group");
+    }
+  }
 
-    // Profile clicks to settings
-    userProfile.addEventListener("click", () => window.location.href = "settings.html");
-    headerProfile.addEventListener("click", () => window.location.href = "settings.html");
+  // Submit community form
+  async function submitCommunity() {
+    const name = document.getElementById("community-name").value.trim();
+    const image = document.getElementById("community-image").value.trim();
+    const banner = document.getElementById("community-banner").value.trim();
+    const description = document.getElementById("community-description").value.trim();
+    
+    // Validate required fields
+    if (!name || !image || !description) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    
+    // Validate collaborators
+    const validCollaborators = [];
+    for (const email of collaborators) {
+      // Check if user exists
+      const usersQuery = query(collection(db, "Kamba_users"), where("email", "==", email));
+      const querySnapshot = await getDocs(usersQuery);
+      
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        validCollaborators.push({
+          email,
+          userId: userDoc.id
+        });
+      }
+    }
+    
+    try {
+      // Add community to Firestore
+      const communityRef = await addDoc(collection(db, "Kamba_communities"), {
+        name,
+        image,
+        banner,
+        description,
+        collaborators: validCollaborators,
+        creatorId: currentUser.uid,
+        creatorEmail: currentUser.email,
+        createdAt: new Date(),
+        members: [currentUser.uid],
+        isPublic: true,
+        announcements: [],
+        rules: []
+      });
+      
+      // Update user's communities list
+      await updateDoc(doc(db, "Kamba_users", currentUser.uid), {
+        communities: arrayUnion(communityRef.id)
+      });
+      
+      // Close modal and reset form
+      createModal.style.display = "none";
+      resetCreateForms();
+      alert("Community created successfully!");
+      
+      // Reload communities channel if active
+      if (currentChannel === "communities") {
+        loadChannelMessages();
+      }
+    } catch (error) {
+      console.error("Error creating community:", error);
+      alert("Failed to create community");
+    }
+  }
+
+  // Reset all create forms
+  function resetCreateForms() {
+    // Project form
+    document.getElementById("project-name").value = "";
+    document.getElementById("project-description").value = "";
+    document.getElementById("project-banner").value = "";
+    document.getElementById("project-overview").value = "";
+    document.getElementById("project-steps").value = "";
+    document.getElementById("project-importance").value = "";
+    document.getElementById("project-profitability").value = "";
+    document.getElementById("project-obstacles").value = "";
+    codeSnippetsContainer.innerHTML = "";
+    
+    // Post form
+    postContent.value = "";
+    boldBtn.classList.remove("active");
+    italicBtn.classList.remove("active");
+    underlineBtn.classList.remove("active");
+    postFontSelect.value = "Poppins";
+    postPreview.innerHTML = "";
+    postPreview.style.fontFamily = "Poppins";
+    
+    // Group form
+    document.getElementById("group-name").value = "";
+    document.getElementById("group-image").value = "";
+    document.getElementById("group-banner").value = "";
+    document.getElementById("group-description").value = "";
+    rulesContainer.innerHTML = "";
+    
+    // Community form
+    document.getElementById("community-name").value = "";
+    document.getElementById("community-image").value = "";
+    document.getElementById("community-banner").value = "";
+    document.getElementById("community-description").value = "";
+    collaborators = [];
+    collaboratorsList.innerHTML = "";
+    collaboratorEmailInput.value = "";
+    
+    // Reset to project tab
+    createTabs.forEach(t => t.classList.remove("active"));
+    createTabs[0].classList.add("active");
+    createTabContents.forEach(c => c.classList.remove("active"));
+    createTabContents[0].classList.add("active");
+    currentActiveTab = "project";
   }
 
   // Update user profile section
   function updateUserProfile(userData) {
     if (!userData) return;
     
-    // Set profile picture with first letter of name
-    const displayName = simplifyEmail(userData.email);
-    profilePic.textContent = displayName.charAt(0).toUpperCase();
-    
-    // Set random color for profile pic
-    const colors = ['#5865f2', '#57f287', '#f04747', '#eb459e', '#ed4245', '#faa61a'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    profilePic.style.backgroundColor = randomColor;
+    // Set profile picture
+    if (userData.profilePic) {
+      profilePic.style.backgroundImage = `url(${userData.profilePic})`;
+      profilePic.textContent = "";
+    } else {
+      const displayName = simplifyEmail(userData.email);
+      profilePic.textContent = displayName.charAt(0).toUpperCase();
+      profilePic.style.backgroundImage = "none";
+      
+      // Set random color for profile pic
+      const colors = ['#5865f2', '#57f287', '#f04747', '#eb459e', '#ed4245', '#faa61a'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      profilePic.style.backgroundColor = randomColor;
+    }
     
     // Set username
-    profileName.textContent = displayName;
+    profileName.textContent = simplifyEmail(userData.email);
     
     // Set status based on sparks
     let status, statusColor;
@@ -1380,16 +1996,56 @@
     
     // Update sparks count
     sparksValue.textContent = userData.sparks || 0;
-
-    // Update header profile
-    headerProfileName.textContent = displayName;
-    headerStatusDot.className = "status-dot " + statusColor;
   }
 
-  // Helper: remove @gmail.com and similar domains
-  function simplifyEmail(email) {
-    if (!email) return "unknown";
-    return email.split("@")[0];
+  // Load random groups into sidebar from Firestore
+  async function loadGroups() {
+    rightSidebar.innerHTML = '<div class="right-sidebar-title">GROUPS</div>';
+    
+    try {
+      const groupsQuery = query(collection(db, "Kamba_groups"));
+      const querySnapshot = await getDocs(groupsQuery);
+      
+      if (querySnapshot.empty) {
+        console.log("No groups found");
+        return;
+      }
+      
+      // Convert to array and shuffle
+      const groups = [];
+      querySnapshot.forEach(doc => {
+        groups.push({ id: doc.id, ...doc.data() });
+      });
+      
+      const shuffledGroups = [...groups].sort(() => 0.5 - Math.random()).slice(0, 4);
+      
+      shuffledGroups.forEach(group => {
+        const groupItem = document.createElement("div");
+        groupItem.className = "group-item";
+        groupItem.dataset.groupId = group.id;
+        
+        const avatar = document.createElement("img");
+        avatar.className = "group-avatar";
+        avatar.src = group.image || "https://i.imgur.com/J6l19aF.png";
+        avatar.alt = group.name;
+        
+        const name = document.createElement("div");
+        name.className = "group-name";
+        name.textContent = group.name;
+        
+        groupItem.appendChild(avatar);
+        groupItem.appendChild(name);
+        rightSidebar.appendChild(groupItem);
+        
+        // Add click event to view group
+        groupItem.addEventListener("click", () => {
+          // In a real app, this would navigate to the group
+          alert(`Viewing group: ${group.name}`);
+        });
+      });
+    } catch (error) {
+      console.error("Error loading groups:", error);
+    }
   }
 
   // Check if song notification was dismissed
@@ -1578,6 +2234,12 @@
         searchResults.innerHTML = "<div style='padding: 1rem; text-align: center; color: #f04747;'>Error searching</div>";
       }
     }, 300);
+  }
+
+  // Helper: remove @gmail.com and similar domains
+  function simplifyEmail(email) {
+    if (!email) return "unknown";
+    return email.split("@")[0];
   }
 
   // Get user status based on sparks
@@ -1795,56 +2457,6 @@
     document.body.appendChild(container);
   }
 
-  // Load random groups into sidebar from Firestore
-  async function loadGroups() {
-    rightSidebar.innerHTML = '<div class="right-sidebar-title">GROUPS</div>';
-    
-    try {
-      const groupsQuery = query(collection(db, "Kamba_groups"));
-      const querySnapshot = await getDocs(groupsQuery);
-      
-      if (querySnapshot.empty) {
-        console.log("No groups found");
-        return;
-      }
-      
-      // Convert to array and shuffle
-      const groups = [];
-      querySnapshot.forEach(doc => {
-        groups.push({ id: doc.id, ...doc.data() });
-      });
-      
-      const shuffledGroups = [...groups].sort(() => 0.5 - Math.random()).slice(0, 4);
-      
-      shuffledGroups.forEach(group => {
-        const groupItem = document.createElement("div");
-        groupItem.className = "group-item";
-        groupItem.dataset.groupId = group.id;
-        
-        const avatar = document.createElement("img");
-        avatar.className = "group-avatar";
-        avatar.src = group.image || "https://i.imgur.com/J6l19aF.png";
-        avatar.alt = group.name;
-        
-        const name = document.createElement("div");
-        name.className = "group-name";
-        name.textContent = group.name;
-        
-        groupItem.appendChild(avatar);
-        groupItem.appendChild(name);
-        rightSidebar.appendChild(groupItem);
-        
-        // Add click event to view group
-        groupItem.addEventListener("click", () => {
-          // In a real app, this would navigate to the group
-          alert(`Viewing group: ${group.name}`);
-        });
-      });
-    } catch (error) {
-      console.error("Error loading groups:", error);
-    }
-  }
-
   // Load messages for current channel
   function loadChannelMessages() {
     // Clear existing messages
@@ -1870,6 +2482,11 @@
         where("isPost", "==", true),
         orderBy("timestamp", "asc")
       );
+    } else if (currentChannel === "projects") {
+      messagesQuery = query(
+        collection(db, "Kamba_projects"),
+        orderBy("createdAt", "asc")
+      );
     } else {
       // For other channels, show empty state
       messagesContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: #b9bbbe;">
@@ -1891,7 +2508,12 @@
       // We want to show username colored by status, so fetch user statuses:
       const userIds = new Set();
       querySnapshot.forEach((doc) => {
-        userIds.add(doc.data().userId);
+        if (doc.data().userId) {
+          userIds.add(doc.data().userId);
+        }
+        if (doc.data().creatorId) {
+          userIds.add(doc.data().creatorId);
+        }
       });
       
       // Preload user data for all message senders:
@@ -1912,23 +2534,43 @@
         // Render messages
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
-          const senderUid = data.userId;
-          const userData = userDataMap.get(senderUid);
-          const displayName = simplifyEmail(data.senderEmail || "unknown");
-          const status = getUserStatus(userData || {});
+          let senderUid, displayName, status, messageData;
+          
+          if (currentChannel === "projects") {
+            // Handle projects differently
+            senderUid = data.creatorId;
+            const userData = userDataMap.get(senderUid) || {};
+            displayName = simplifyEmail(data.creatorEmail || "unknown");
+            status = getUserStatus(userData);
 
-          const messageData = {
-            sender: displayName,
-            status: status,
-            message: data.message,
-            replyToText: data.replyToText || null,
-            imageUrl: data.imageUrl || null,
-            isAnnouncement: data.isAnnouncement || false,
-            isPost: data.isPost || false,
-            isProject: data.isProject || false,
-            timestamp: data.timestamp,
-            userId: data.userId
-          };
+            messageData = {
+              sender: displayName,
+              status: status,
+              message: `${data.name}: ${data.description}`,
+              isProject: true,
+              timestamp: data.createdAt,
+              userId: senderUid
+            };
+          } else {
+            // Regular messages
+            senderUid = data.userId;
+            const userData = userDataMap.get(senderUid) || {};
+            displayName = simplifyEmail(data.senderEmail || "unknown");
+            status = getUserStatus(userData);
+
+            messageData = {
+              sender: displayName,
+              status: status,
+              message: data.message,
+              replyToText: data.replyToText || null,
+              imageUrl: data.imageUrl || null,
+              isAnnouncement: data.isAnnouncement || false,
+              isPost: data.isPost || false,
+              timestamp: data.timestamp,
+              userId: data.userId
+            };
+          }
+          
           const msgDiv = renderMessage(docSnap.id, messageData);
           messagesContainer.appendChild(msgDiv);
         });
@@ -2101,6 +2743,20 @@
   }
 
   // Send message handler
+  sendBtn.addEventListener("click", () => sendMessage());
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Auto-resize textarea
+  messageInput.addEventListener("input", function() {
+    this.style.height = "auto";
+    this.style.height = (this.scrollHeight) + "px";
+  });
+
   async function sendMessage(text = null, imageUrl = null) {
     const messageText = text || messageInput.value.trim();
     
@@ -2154,6 +2810,60 @@
     } catch (err) {
       alert("Error sending message: " + err.message);
     }
+  }
+
+  // Set up user environment after authentication
+  function setupUserEnvironment() {
+    // Set background audio if available
+    if (currentUserData.song && currentUserData.song.trim() !== "") {
+      // Check if song exists in Music folder
+      const songName = currentUserData.song.split('/').pop().split('.')[0];
+      const songPath = `Music/${songName}.mp3`;
+      
+      // Try to play the song (in a real app, you would check if the file exists)
+      backgroundAudio.src = songPath;
+      backgroundAudio.volume = currentUserData.volume ?? 0.5;
+      
+      // Play audio on first interaction
+      document.addEventListener('click', function firstInteraction() {
+        if (!hasInteracted) {
+          backgroundAudio.play().catch(e => console.log("Audio play failed:", e));
+          hasInteracted = true;
+          document.removeEventListener('click', firstInteraction);
+        }
+      });
+      
+      noSongNotification.style.display = "none";
+    } else {
+      noSongNotification.style.display = "flex";
+    }
+
+    loadChannelMessages();
+  }
+
+  // Check authentication state
+  function checkAuthState() {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "sign.html";
+        return;
+      }
+      currentUser = user;
+
+      // Load user data from Firestore
+      const userDocRef = doc(db, "Kamba_users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (!userDocSnap.exists()) {
+        // Show welcome modal for new users
+        welcomeModal.style.display = "flex";
+        return;
+      }
+      
+      currentUserData = userDocSnap.data();
+      updateUserProfile(currentUserData);
+      setupUserEnvironment();
+    });
   }
 
   // Initialize the app
