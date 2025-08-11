@@ -140,6 +140,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    cursor: pointer;
   }
   #profile-pic {
     width: 60px;
@@ -693,6 +694,17 @@
     padding: 0.3rem 0.6rem;
     cursor: pointer;
   }
+  #header-profile {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  #header-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-left: 0.5rem;
+  }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -709,6 +721,10 @@
 
 <header>
   <h1>KAMBA Forum</h1>
+  <div id="header-profile">
+    <span id="header-profile-name"></span>
+    <div id="header-status-dot"></div>
+  </div>
 </header>
 
 <div id="main-content">
@@ -1066,8 +1082,6 @@
     getDocs,
     increment,
     setDoc,
-    arrayUnion,
-    arrayRemove,
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1115,43 +1129,10 @@
   const sparksValue = document.getElementById("sparks-value");
   const welcomeModal = document.getElementById("welcome-modal");
   const agreeBtn = document.getElementById("agree-btn");
-
-  const createProjectModal = document.getElementById("create-project-modal");
-  const cancelCreateProject = document.getElementById("cancel-create-project");
-  const saveCreateProject = document.getElementById("save-create-project");
-  const addCodeSnippet = document.getElementById("add-code-snippet");
-  const codeSnippetsContainer = document.getElementById("code-snippets-container");
-  const addOverviewImage = document.getElementById("add-overview-image");
-  const overviewImagesContainer = document.getElementById("overview-images-container");
-
-  const createPostModal = document.getElementById("create-post-modal");
-  const cancelCreatePost = document.getElementById("cancel-create-post");
-  const saveCreatePost = document.getElementById("save-create-post");
-  const postEditor = document.getElementById("post-editor");
-  const boldBtn = document.getElementById("bold-btn");
-  const italicBtn = document.getElementById("italic-btn");
-  const underlineBtn = document.getElementById("underline-btn");
-  const linkBtn = document.getElementById("link-btn");
-  const postFont = document.getElementById("post-font");
-
-  const createGroupModal = document.getElementById("create-group-modal");
-  const cancelCreateGroup = document.getElementById("cancel-create-group");
-  const saveCreateGroup = document.getElementById("save-create-group");
-  const addGroupRule = document.getElementById("add-group-rule");
-  const groupRulesContainer = document.getElementById("group-rules-container");
-
-  const createCommunityModal = document.getElementById("create-community-modal");
-  const cancelCreateCommunity = document.getElementById("cancel-create-community");
-  const saveCreateCommunity = document.getElementById("save-create-community");
-  const addCommunityRule = document.getElementById("add-community-rule");
-  const communityRulesContainer = document.getElementById("community-rules-container");
-
-  const projectViewModal = document.getElementById("project-view-modal");
-  const closeProjectView = document.getElementById("close-project-view");
-  const projectLikeBtn = document.getElementById("project-like-btn");
-  const projectShareBtn = document.getElementById("project-share-btn");
-  const projectCommentInput = document.getElementById("project-comment-input");
-  const projectAddComment = document.getElementById("project-add-comment");
+  const headerProfile = document.getElementById("header-profile");
+  const headerProfileName = document.getElementById("header-profile-name");
+  const headerStatusDot = document.getElementById("header-status-dot");
+  const userProfile = document.getElementById("user-profile");
 
   // App State
   let currentUser = null;
@@ -1159,15 +1140,12 @@
   let replyToMessageId = null;
   let replyToMessageText = null;
   let currentChannel = "general";
-  let currentChatType = null;
-  let currentChatId = null;
   let messageBeingEdited = null;
   let searchTimeout = null;
   let likedMessages = new Set();
   let likedPosts = new Set();
   let likedProjects = new Set();
   let hasInteracted = false;
-  let currentProjectId = null;
 
   // Initialize the app
   function init() {
@@ -1197,10 +1175,6 @@
       }
       
       currentUserData = userDocSnap.data();
-      if (!currentUserData.displayName) {
-        await updateDoc(userDocRef, {displayName: simplifyEmail(user.email)});
-        currentUserData.displayName = simplifyEmail(user.email);
-      }
       updateUserProfile(currentUserData);
       setupUserEnvironment();
     });
@@ -1236,10 +1210,8 @@
     agreeBtn.addEventListener("click", async () => {
       try {
         // Create user document with default values
-        const displayName = simplifyEmail(currentUser.email);
         await setDoc(doc(db, "Kamba_users", currentUser.uid), {
           email: currentUser.email,
-          displayName: displayName,
           phone: "",
           status: "green",
           sparks: 0,
@@ -1308,23 +1280,8 @@
         channelItems.forEach(i => i.classList.remove("active"));
         item.classList.add("active");
         currentChannel = item.dataset.channel;
-        currentChatType = null;
-        currentChatId = null;
         channelTitle.textContent = item.querySelector("span").textContent.slice(1);
         loadChannelMessages();
-      });
-    });
-
-    // Create items
-    const createItems = document.querySelectorAll(".sidebar-item[data-create]");
-    createItems.forEach(item => {
-      item.addEventListener("click", () => {
-        const type = item.dataset.create;
-        if (checkPermission('create-' + type)) {
-          showCreateModal(type);
-        } else {
-          alert('You do not have permission to create ' + type + '.');
-        }
       });
     });
 
@@ -1363,374 +1320,603 @@
       statusInfo.style.display = "none";
     });
 
-    // Create project listeners
-    cancelCreateProject.addEventListener("click", () => createProjectModal.style.display = "none");
-    saveCreateProject.addEventListener("click", saveProject);
-    addCodeSnippet.addEventListener("click", addCodeSnippetField);
-    addOverviewImage.addEventListener("click", addOverviewImageField);
-
-    // Create post listeners
-    cancelCreatePost.addEventListener("click", () => createPostModal.style.display = "none");
-    saveCreatePost.addEventListener("click", savePost);
-    boldBtn.addEventListener("click", () => document.execCommand("bold"));
-    italicBtn.addEventListener("click", () => document.execCommand("italic"));
-    underlineBtn.addEventListener("click", () => document.execCommand("underline"));
-    linkBtn.addEventListener("click", () => {
-      const url = prompt("Enter URL");
-      if (url) document.execCommand("createLink", false, url);
+    // Message send
+    sendBtn.addEventListener("click", () => sendMessage());
+    messageInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
-    postFont.addEventListener("change", () => postEditor.style.fontFamily = postFont.value);
 
-    // Create group listeners
-    cancelCreateGroup.addEventListener("click", () => createGroupModal.style.display = "none");
-    saveCreateGroup.addEventListener("click", saveGroup);
-    addGroupRule.addEventListener("click", addRuleField.bind(null, groupRulesContainer));
+    // Auto-resize textarea
+    messageInput.addEventListener("input", function() {
+      this.style.height = "auto";
+      this.style.height = (this.scrollHeight) + "px";
+    });
 
-    // Create community listeners
-    cancelCreateCommunity.addEventListener("click", () => createCommunityModal.style.display = "none");
-    saveCreateCommunity.addEventListener("click", saveCommunity);
-    addCommunityRule.addEventListener("click", addRuleField.bind(null, communityRulesContainer));
-
-    // Project view
-    closeProjectView.addEventListener("click", () => projectViewModal.style.display = "none");
-    projectLikeBtn.addEventListener("click", likeCurrentProject);
-    projectShareBtn.addEventListener("click", shareCurrentProject);
-    projectAddComment.addEventListener("click", addProjectComment);
+    // Profile clicks to settings
+    userProfile.addEventListener("click", () => window.location.href = "settings.html");
+    headerProfile.addEventListener("click", () => window.location.href = "settings.html");
   }
 
-  // Permission check
-  function checkPermission(action) {
-    const status = getUserStatus(currentUserData);
-    if (action === 'create-post' || action === 'create-project') return true;
-    if (action === 'create-group') return status !== "green";
-    if (action === 'create-community') return status === "violet" || status === "red";
-    return false;
+  // Update user profile section
+  function updateUserProfile(userData) {
+    if (!userData) return;
+    
+    // Set profile picture with first letter of name
+    const displayName = simplifyEmail(userData.email);
+    profilePic.textContent = displayName.charAt(0).toUpperCase();
+    
+    // Set random color for profile pic
+    const colors = ['#5865f2', '#57f287', '#f04747', '#eb459e', '#ed4245', '#faa61a'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    profilePic.style.backgroundColor = randomColor;
+    
+    // Set username
+    profileName.textContent = displayName;
+    
+    // Set status based on sparks
+    let status, statusColor;
+    if (userData.isAdmin) {
+      status = "Admin";
+      statusColor = "red";
+    } else {
+      const sparks = userData.sparks || 0;
+      if (sparks >= 1000) {
+        status = "Violet";
+        statusColor = "violet";
+      } else if (sparks >= 100) {
+        status = "Blue";
+        statusColor = "blue";
+      } else {
+        status = "Green";
+        statusColor = "green";
+      }
+    }
+    
+    statusDot.className = "status-dot " + statusColor;
+    statusText.textContent = status;
+    
+    // Update sparks count
+    sparksValue.textContent = userData.sparks || 0;
+
+    // Update header profile
+    headerProfileName.textContent = displayName;
+    headerStatusDot.className = "status-dot " + statusColor;
   }
 
-  // Show create modal
-  function showCreateModal(type) {
-    document.getElementById("create-" + type + "-modal").style.display = "flex";
-    if (type === "project") {
-      codeSnippetsContainer.innerHTML = "";
-      overviewImagesContainer.innerHTML = "";
-    } else if (type === "post") {
-      postEditor.innerHTML = "";
-      postFont.value = "Poppins";
-      postEditor.style.fontFamily = "Poppins";
-    } else if (type === "group") {
-      groupRulesContainer.innerHTML = "";
-    } else if (type === "community") {
-      communityRulesContainer.innerHTML = "";
+  // Helper: remove @gmail.com and similar domains
+  function simplifyEmail(email) {
+    if (!email) return "unknown";
+    return email.split("@")[0];
+  }
+
+  // Check if song notification was dismissed
+  function checkSongNotificationDismissed() {
+    const dismissedUntil = localStorage.getItem('songNotificationDismissed');
+    if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) {
+      noSongNotification.style.display = "none";
     }
   }
 
-  // Add code snippet field
-  function addCodeSnippetField() {
-    const div = document.createElement("div");
-    div.className = "code-snippet-item";
-    div.innerHTML = `
-      <select class="modal-input code-lang">
-        <option value="html">HTML</option>
-        <option value="css">CSS</option>
-        <option value="js">JavaScript</option>
-        <option value="java">Java</option>
-        <option value="python">Python</option>
-        <option value="node">Node.js</option>
-        <option value="c">C</option>
-      </select>
-      <textarea class="modal-input code-code" rows="5"></textarea>
-    `;
-    codeSnippetsContainer.appendChild(div);
+  // Dismiss song notification for 5 hours
+  function dismissSongNotification() {
+    const fiveHours = 5 * 60 * 60 * 1000;
+    const dismissedUntil = Date.now() + fiveHours;
+    localStorage.setItem('songNotificationDismissed', dismissedUntil.toString());
+    noSongNotification.style.display = "none";
   }
 
-  // Add overview image field
-  function addOverviewImageField() {
-    const div = document.createElement("div");
-    div.className = "overview-image-item";
-    div.innerHTML = `
-      <input type="file" accept="image/*" class="overview-image-file">
-      <select class="modal-input overview-image-position">
-        <option value="left">Left</option>
-        <option value="right">Right</option>
-        <option value="center">Center</option>
-      </select>
-    `;
-    overviewImagesContainer.appendChild(div);
-  }
+  // Handle image upload to ImgBB
+  async function handleImageUpload(e) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-  // Add rule field
-  function addRuleField(container) {
-    const div = document.createElement("div");
-    div.className = "rule-item";
-    div.innerHTML = `
-      <textarea class="modal-input rule-text" rows="2"></textarea>
-    `;
-    container.appendChild(div);
-  }
-
-  // Save project
-  async function saveProject() {
-    const name = document.getElementById("project-name").value.trim();
-    const shortDesc = document.getElementById("project-short-desc").value.trim();
-    const bannerFile = document.getElementById("project-banner").files[0];
-    const overview = document.getElementById("project-overview").value.trim();
-    const steps = document.getElementById("project-steps").value.trim();
-    const importance = document.getElementById("project-importance").value.trim();
-    const profitability = document.getElementById("project-profitability").value.trim();
-    const obstacles = document.getElementById("project-obstacles").value.trim();
-
-    if (!name || !shortDesc || !bannerFile || !overview || !importance || !obstacles) {
-      alert("Please fill all required fields.");
+    // Check if user can upload images
+    if (getUserStatus(currentUserData) === "green") {
+      alert("Your account level (Green) doesn't allow image uploads. Reach Blue status to unlock this feature.");
+      fileInput.value = "";
       return;
     }
 
     try {
-      // Upload banner
-      const bannerUrl = await uploadImageToImgBB(bannerFile);
+      // For multiple images, we'll upload them one by one
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > 6 * 1024 * 1024) {
+          alert("Image is too large (max 6MB)");
+          continue;
+        }
 
-      // Collect code snippets
-      const codeSnippets = Array.from(codeSnippetsContainer.querySelectorAll(".code-snippet-item")).map(item => ({
-        lang: item.querySelector(".code-lang").value,
-        code: item.querySelector(".code-code").value.trim()
-      })).filter(snippet => snippet.code);
-
-      // Upload and collect overview images
-      const imageItems = overviewImagesContainer.querySelectorAll(".overview-image-item");
-      const imageUrls = [];
-      for (let item of imageItems) {
-        const file = item.querySelector(".overview-image-file").files[0];
-        if (file) {
-          const url = await uploadImageToImgBB(file);
-          const position = item.querySelector(".overview-image-position").value;
-          imageUrls.push({url, position});
+        const formData = new FormData();
+        formData.append("image", file);
+        
+        // Upload to ImgBB
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=0f248e70fc4e7dffde307dd772823379`, {
+          method: "POST",
+          body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          // Send message with image
+          await sendMessage(null, result.data.url);
+        } else {
+          alert("Failed to upload image");
         }
       }
-
-      await addDoc(collection(db, "Kamba_projects"), {
-        creatorUid: currentUser.uid,
-        name,
-        shortDesc,
-        bannerUrl,
-        overview,
-        imageUrls,
-        steps,
-        codeSnippets,
-        importance,
-        profitability,
-        obstacles,
-        likes: 0,
-        views: 0,
-        shares: 0,
-        comments: [],
-        timestamp: Date.now()
-      });
-
-      createProjectModal.style.display = "none";
-      if (currentChannel === "projects") loadChannelMessages();
     } catch (error) {
-      console.error("Error creating project:", error);
-      alert("Failed to create project");
+      console.error("Image upload error:", error);
+      alert("Error uploading image");
+    } finally {
+      fileInput.value = ""; // Reset file input
     }
   }
 
-  // Save post
-  async function savePost() {
-    const htmlContent = postEditor.innerHTML.trim();
-    if (!htmlContent) {
-      alert("Post cannot be empty");
-      return;
-    }
-
-    try {
-      await addDoc(collection(db, "Kamba_messages"), {
-        userId: currentUser.uid,
-        senderEmail: currentUser.email,
-        message: htmlContent,
-        isPost: true,
-        timestamp: Date.now(),
-      });
-
-      createPostModal.style.display = "none";
-      if (currentChannel === "posts") loadChannelMessages();
-    } catch (error) {
-      console.error("Error creating post:", error);
-      alert("Failed to create post");
-    }
+  // Handle search with 300ms debounce
+  function handleSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(async () => {
+      const searchTerm = searchBar.value.trim();
+      if (searchTerm === "") {
+        searchResults.innerHTML = "";
+        searchResults.style.display = "none";
+        return;
+      }
+      
+      try {
+        searchResults.innerHTML = "<div style='padding: 1rem; text-align: center;'>Searching...</div>";
+        searchResults.style.display = "block";
+        
+        // Search users
+        const usersQuery = query(
+          collection(db, "Kamba_users"),
+          where("email", ">=", searchTerm),
+          where("email", "<=", searchTerm + "\uf8ff")
+        );
+        const usersSnapshot = await getDocs(usersQuery);
+        
+        // Search groups
+        const groupsQuery = query(
+          collection(db, "Kamba_groups"),
+          where("name", ">=", searchTerm),
+          where("name", "<=", searchTerm + "\uf8ff")
+        );
+        const groupsSnapshot = await getDocs(groupsQuery);
+        
+        // Search announcements
+        const announcementsQuery = query(
+          collection(db, "Kamba_messages"),
+          where("isAnnouncement", "==", true),
+          where("message", ">=", searchTerm),
+          where("message", "<=", searchTerm + "\uf8ff")
+        );
+        const announcementsSnapshot = await getDocs(announcementsQuery);
+        
+        // Search posts
+        const postsQuery = query(
+          collection(db, "Kamba_messages"),
+          where("isPost", "==", true),
+          where("message", ">=", searchTerm),
+          where("message", "<=", searchTerm + "\uf8ff")
+        );
+        const postsSnapshot = await getDocs(postsQuery);
+        
+        // Combine and display results
+        searchResults.innerHTML = "";
+        
+        // Users
+        usersSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${simplifyEmail(data.email)}</div>
+            <div class="search-result-type">User</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would navigate to the user's profile
+            alert(`Viewing user: ${simplifyEmail(data.email)}`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        // Groups
+        groupsSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${data.name}</div>
+            <div class="search-result-type">Group</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would navigate to the group
+            alert(`Viewing group: ${data.name}`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        // Announcements
+        announcementsSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${data.message.slice(0, 50)}${data.message.length > 50 ? '...' : ''}</div>
+            <div class="search-result-type">Announcement by ${simplifyEmail(data.senderEmail)}</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would scroll to the announcement
+            alert(`Viewing announcement: ${data.message.slice(0, 100)}...`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        // Posts
+        postsSnapshot.forEach(doc => {
+          const data = doc.data();
+          const item = document.createElement("div");
+          item.className = "search-result-item";
+          item.innerHTML = `
+            <div>${data.message.slice(0, 50)}${data.message.length > 50 ? '...' : ''}</div>
+            <div class="search-result-type">Post by ${simplifyEmail(data.senderEmail)}</div>
+          `;
+          item.addEventListener("click", () => {
+            // In a real app, this would scroll to the post
+            alert(`Viewing post: ${data.message.slice(0, 100)}...`);
+          });
+          searchResults.appendChild(item);
+        });
+        
+        if (searchResults.children.length === 0) {
+          searchResults.innerHTML = "<div style='padding: 1rem; text-align: center;'>No results found</div>";
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        searchResults.innerHTML = "<div style='padding: 1rem; text-align: center; color: #f04747;'>Error searching</div>";
+      }
+    }, 300);
   }
 
-  // Save group
-  async function saveGroup() {
-    const name = document.getElementById("group-name").value.trim();
-    const imageFile = document.getElementById("group-image").files[0];
-    const bannerFile = document.getElementById("group-banner").files[0];
-    const desc = document.getElementById("group-desc").value.trim();
-
-    if (!name) {
-      alert("Name is required");
-      return;
-    }
-
-    try {
-      const imageUrl = imageFile ? await uploadImageToImgBB(imageFile) : "";
-      const bannerUrl = bannerFile ? await uploadImageToImgBB(bannerFile) : "";
-
-      const rules = Array.from(groupRulesContainer.querySelectorAll(".rule-text")).map(textarea => textarea.value.trim()).filter(rule => rule);
-
-      await addDoc(collection(db, "Kamba_groups"), {
-        name,
-        image: imageUrl,
-        banner: bannerUrl,
-        description: desc,
-        rules,
-        creatorUid: currentUser.uid,
-        members: [currentUser.uid],
-        pending: [],
-        timestamp: Date.now()
-      });
-
-      createGroupModal.style.display = "none";
-      loadGroups();
-    } catch (error) {
-      console.error("Error creating group:", error);
-      alert("Failed to create group");
-    }
+  // Get user status based on sparks
+  function getUserStatus(userData) {
+    if (!userData) return "green";
+    if (userData.isAdmin) return "red";
+    const sparks = userData.sparks || 0;
+    if (sparks >= 1000) return "violet";
+    if (sparks >= 100) return "blue";
+    return "green";
   }
 
-  // Save community
-  async function saveCommunity() {
-    const name = document.getElementById("community-name").value.trim();
-    const imageFile = document.getElementById("community-image").files[0];
-    const bannerFile = document.getElementById("community-banner").files[0];
-    const desc = document.getElementById("community-desc").value.trim();
-
-    if (!name) {
-      alert("Name is required");
-      return;
-    }
-
-    try {
-      const imageUrl = imageFile ? await uploadImageToImgBB(imageFile) : "";
-      const bannerUrl = bannerFile ? await uploadImageToImgBB(bannerFile) : "";
-
-      const rules = Array.from(communityRulesContainer.querySelectorAll(".rule-text")).map(textarea => textarea.value.trim()).filter(rule => rule);
-
-      await addDoc(collection(db, "Kamba_communities"), {
-        name,
-        image: imageUrl,
-        banner: bannerUrl,
-        description: desc,
-        rules,
-        creatorUid: currentUser.uid,
-        leaders: [currentUser.uid],
-        members: [],
-        public: true,
-        timestamp: Date.now()
-      });
-
-      createCommunityModal.style.display = "none";
-      // Load communities if separate, but for now assume in groups sidebar or separate
-    } catch (error) {
-      console.error("Error creating community:", error);
-      alert("Failed to create community");
-    }
+  // Get status class for styling
+  function getStatusClass(status) {
+    return status.toLowerCase();
   }
 
-  // Upload image to ImgBB
-  async function uploadImageToImgBB(file) {
-    if (!file) return "";
-    const formData = new FormData();
-    formData.append("image", file);
-    const response = await fetch(`https://api.imgbb.com/1/upload?key=0f248e70fc4e7dffde307dd772823379`, {
-      method: "POST",
-      body: formData
+  // Render a message
+  function renderMessage(id, msgData) {
+    const div = document.createElement("div");
+    div.className = "message";
+    div.dataset.id = id;
+
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "message-header";
+
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "username " + getStatusClass(msgData.status);
+    usernameSpan.textContent = msgData.sender;
+    headerDiv.appendChild(usernameSpan);
+
+    if (msgData.isAnnouncement) {
+      const badge = document.createElement("span");
+      badge.className = "announcement-badge";
+      badge.textContent = "ANNOUNCEMENT";
+      headerDiv.appendChild(badge);
+    } else if (msgData.isPost) {
+      const badge = document.createElement("span");
+      badge.className = "post-badge";
+      badge.textContent = "POST";
+      headerDiv.appendChild(badge);
+    }
+
+    const timeSpan = document.createElement("span");
+    timeSpan.className = "message-time";
+    timeSpan.textContent = formatTime(msgData.timestamp);
+    headerDiv.appendChild(timeSpan);
+
+    div.appendChild(headerDiv);
+
+    if (msgData.replyToText) {
+      const replyDiv = document.createElement("div");
+      replyDiv.className = "reply-to";
+      replyDiv.textContent = "Replying to: " + msgData.replyToText;
+      div.appendChild(replyDiv);
+    }
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "message-text";
+    
+    // Process mentions and posts/announcements
+    let messageText = msgData.message;
+    if (messageText) {
+      // Replace @mentions with styled spans
+      messageText = messageText.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+      textDiv.innerHTML = messageText;
+    } else {
+      textDiv.textContent = "";
+    }
+    
+    div.appendChild(textDiv);
+
+    if (msgData.imageUrl) {
+      const imgContainer = document.createElement("div");
+      const img = document.createElement("img");
+      img.src = msgData.imageUrl;
+      img.className = "message-image";
+      img.alt = "Uploaded image";
+      
+      img.addEventListener("click", () => showFullImage(msgData.imageUrl));
+      imgContainer.appendChild(img);
+      div.appendChild(imgContainer);
+    }
+
+    // Message actions (like, reply, etc.)
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "message-actions";
+    
+    // Reply button (all users)
+    const replyBtn = document.createElement("span");
+    replyBtn.className = "message-action";
+    replyBtn.textContent = "Reply";
+    replyBtn.addEventListener("click", () => {
+      replyToMessageId = id;
+      replyToMessageText = msgData.message;
+      messageInput.focus();
+      messageInput.placeholder = "Replying: " + replyToMessageText.slice(0, 30) + "... (click send)";
     });
-    const result = await response.json();
-    if (result.success) return result.data.url;
-    throw new Error("Upload failed");
+    actionsDiv.appendChild(replyBtn);
+    
+    // Like button (all users)
+    const likeBtn = document.createElement("span");
+    likeBtn.className = "message-action";
+    likeBtn.textContent = "Like";
+    
+    // Check if user already liked this
+    const hasLiked = likedMessages.has(id) || 
+                    (msgData.isPost && likedPosts.has(id)) || 
+                    (msgData.isProject && likedProjects.has(id));
+    
+    if (hasLiked) {
+      likeBtn.textContent = "Liked";
+      likeBtn.style.color = "#43b581";
+    } else {
+      likeBtn.addEventListener("click", () => {
+        if (msgData.isPost) {
+          likePost(id, msgData.userId);
+        } else if (msgData.isProject) {
+          likeProject(id, msgData.userId);
+        } else {
+          likeMessage(id, msgData.userId);
+        }
+      });
+    }
+    
+    actionsDiv.appendChild(likeBtn);
+    
+    // Dislike button (all users)
+    const dislikeBtn = document.createElement("span");
+    dislikeBtn.className = "message-action";
+    dislikeBtn.textContent = "Dislike";
+    dislikeBtn.addEventListener("click", () => {
+      if (msgData.isPost) {
+        dislikePost(id, msgData.userId);
+      } else if (msgData.isProject) {
+        dislikeProject(id, msgData.userId);
+      }
+    });
+    
+    if (msgData.isPost || msgData.isProject) {
+      actionsDiv.appendChild(dislikeBtn);
+    }
+    
+    // Edit button (only for own messages)
+    if (msgData.userId === currentUser?.uid) {
+      const editBtn = document.createElement("span");
+      editBtn.className = "message-action";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => editMessage(id, msgData.message));
+      actionsDiv.appendChild(editBtn);
+    }
+    
+    // Delete button (own messages for blue+, any for red)
+    if ((msgData.userId === currentUser?.uid && getUserStatus(currentUserData) !== "green") || 
+        getUserStatus(currentUserData) === "red") {
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "message-action";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", () => deleteMessage(id));
+      actionsDiv.appendChild(deleteBtn);
+    }
+    
+    // Report button (for others' messages)
+    if (msgData.userId !== currentUser?.uid) {
+      const reportBtn = document.createElement("span");
+      reportBtn.className = "message-action";
+      reportBtn.textContent = "Report";
+      reportBtn.addEventListener("click", () => reportMessage(id));
+      actionsDiv.appendChild(reportBtn);
+    }
+    
+    div.appendChild(actionsDiv);
+
+    return div;
   }
 
-  // Load channel messages (expanded for projects, notifications, groups, communities)
-  function loadChannelMessages() {
-    messagesContainer.innerHTML = "";
+  // Format timestamp
+  function formatTime(timestamp) {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
+  // Show full screen image
+  function showFullImage(url) {
+    const container = document.createElement("div");
+    container.className = "image-container";
+    
+    const img = document.createElement("img");
+    img.src = url;
+    img.className = "full-image";
+    
+    const closeBtn = document.createElement("span");
+    closeBtn.className = "close-image";
+    closeBtn.innerHTML = "&times;";
+    closeBtn.addEventListener("click", () => {
+      document.body.removeChild(container);
+    });
+    
+    const downloadBtn = document.createElement("span");
+    downloadBtn.className = "download-image";
+    downloadBtn.innerHTML = "&#x2193;";
+    downloadBtn.addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "kamba-image-" + Date.now();
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+    
+    container.appendChild(img);
+    container.appendChild(closeBtn);
+    container.appendChild(downloadBtn);
+    document.body.appendChild(container);
+  }
+
+  // Load random groups into sidebar from Firestore
+  async function loadGroups() {
+    rightSidebar.innerHTML = '<div class="right-sidebar-title">GROUPS</div>';
+    
+    try {
+      const groupsQuery = query(collection(db, "Kamba_groups"));
+      const querySnapshot = await getDocs(groupsQuery);
+      
+      if (querySnapshot.empty) {
+        console.log("No groups found");
+        return;
+      }
+      
+      // Convert to array and shuffle
+      const groups = [];
+      querySnapshot.forEach(doc => {
+        groups.push({ id: doc.id, ...doc.data() });
+      });
+      
+      const shuffledGroups = [...groups].sort(() => 0.5 - Math.random()).slice(0, 4);
+      
+      shuffledGroups.forEach(group => {
+        const groupItem = document.createElement("div");
+        groupItem.className = "group-item";
+        groupItem.dataset.groupId = group.id;
+        
+        const avatar = document.createElement("img");
+        avatar.className = "group-avatar";
+        avatar.src = group.image || "https://i.imgur.com/J6l19aF.png";
+        avatar.alt = group.name;
+        
+        const name = document.createElement("div");
+        name.className = "group-name";
+        name.textContent = group.name;
+        
+        groupItem.appendChild(avatar);
+        groupItem.appendChild(name);
+        rightSidebar.appendChild(groupItem);
+        
+        // Add click event to view group
+        groupItem.addEventListener("click", () => {
+          // In a real app, this would navigate to the group
+          alert(`Viewing group: ${group.name}`);
+        });
+      });
+    } catch (error) {
+      console.error("Error loading groups:", error);
+    }
+  }
+
+  // Load messages for current channel
+  function loadChannelMessages() {
+    // Clear existing messages
+    messagesContainer.innerHTML = "";
+    
     let messagesQuery;
-    if (currentChannel === "general" || currentChannel === "announcements" || currentChannel === "posts" || currentChannel === "mentions") {
-      // Existing logic
+    if (currentChannel === "general") {
       messagesQuery = query(
         collection(db, "Kamba_messages"),
-        where(currentChannel === "announcements" ? "isAnnouncement" : currentChannel === "posts" ? "isPost" : "isAnnouncement", "==", currentChannel === "announcements" ? true : currentChannel === "posts" ? true : false),
+        where("isAnnouncement", "==", false),
+        where("isPost", "==", false),
         orderBy("timestamp", "asc")
       );
-    } else if (currentChannel === "projects") {
-      messagesQuery = query(collection(db, "Kamba_projects"), orderBy("timestamp", "desc"));
-    } else if (currentChannel === "notifications") {
-      messagesQuery = query(collection(db, "Kamba_notifications"), where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
-    } else if (currentChatType) {
-      messagesQuery = query(collection(db, "Kamba_" + currentChatType + "s", currentChatId, "messages"), orderBy("timestamp", "asc"));
+    } else if (currentChannel === "announcements") {
+      messagesQuery = query(
+        collection(db, "Kamba_messages"),
+        where("isAnnouncement", "==", true),
+        orderBy("timestamp", "asc")
+      );
+    } else if (currentChannel === "posts") {
+      messagesQuery = query(
+        collection(db, "Kamba_messages"),
+        where("isPost", "==", true),
+        orderBy("timestamp", "asc")
+      );
     } else {
+      // For other channels, show empty state
       messagesContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: #b9bbbe;">
         ${currentChannel.charAt(0).toUpperCase() + currentChannel.slice(1)} content will appear here
       </div>`;
       return;
     }
-
+    
     if (messagesQuery) {
       setupMessagesListener(messagesQuery);
     }
   }
 
-  // Setup listener and render
+  // Setup Firestore real-time listener for messages
   function setupMessagesListener(messagesQuery) {
     const unsubscribe = onSnapshot(messagesQuery, async (querySnapshot) => {
-      messagesContainer.innerHTML = "";
+      messagesContainer.innerHTML = ""; // Clear chat on update
 
+      // We want to show username colored by status, so fetch user statuses:
       const userIds = new Set();
-      querySnapshot.forEach((doc) => userIds.add(doc.data().userId || doc.data().creatorUid));
-
-      const userDataMap = new Map();
-      const userDocs = await Promise.all(Array.from(userIds).map(uid => getDoc(doc(db, "Kamba_users", uid))));
-      userDocs.forEach(snap => {
-        if (snap.exists()) userDataMap.set(snap.id, snap.data());
+      querySnapshot.forEach((doc) => {
+        userIds.add(doc.data().userId);
       });
-
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const senderUid = data.userId || data.creatorUid;
-        const userData = userDataMap.get(senderUid) || {};
-        const displayName = userData.displayName || simplifyEmail(data.senderEmail || "unknown");
-        const status = getUserStatus(userData);
-
-        if (currentChannel === "projects") {
-          const div = document.createElement("div");
-          div.className = "message";
-          div.innerHTML = `
-            <div class="message-header">
-              <span class="username ${status}">${displayName}</span>
-              <span class="post-badge">PROJECT</span>
-            </div>
-            <div class="message-text">${data.name}: ${data.shortDesc}</div>
-            <button onclick="openProjectView('${docSnap.id}')">View</button>
-          `;
-          messagesContainer.appendChild(div);
-        } else if (currentChannel === "notifications") {
-          const div = document.createElement("div");
-          div.className = "message";
-          div.innerHTML = `
-            <div class="message-text">${data.message}</div>
-          `;
-          if (data.type === "join-group") {
-            const acceptBtn = document.createElement("button");
-            acceptBtn.textContent = "Accept";
-            acceptBtn.addEventListener("click", () => approveJoin(data.groupId, data.fromUid, docSnap.id));
-            div.appendChild(acceptBtn);
-            const denyBtn = document.createElement("button");
-            denyBtn.textContent = "Deny";
-            denyBtn.addEventListener("click", () => denyJoin(docSnap.id));
-            div.appendChild(denyBtn);
+      
+      // Preload user data for all message senders:
+      const userDataMap = new Map();
+      const userDocsPromises = [];
+      userIds.forEach((uid) => {
+        userDocsPromises.push(getDoc(doc(db, "Kamba_users", uid)));
+      });
+      
+      try {
+        const userDocs = await Promise.all(userDocsPromises);
+        userDocs.forEach((docSnap) => {
+          if (docSnap.exists()) {
+            userDataMap.set(docSnap.id, docSnap.data());
           }
-          messagesContainer.appendChild(div);
-        } else {
-          // Existing message render
+        });
+
+        // Render messages
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const senderUid = data.userId;
+          const userData = userDataMap.get(senderUid);
+          const displayName = simplifyEmail(data.senderEmail || "unknown");
+          const status = getUserStatus(userData || {});
+
           const messageData = {
             sender: displayName,
             status: status,
@@ -1745,171 +1931,232 @@
           };
           const msgDiv = renderMessage(docSnap.id, messageData);
           messagesContainer.appendChild(msgDiv);
-        }
-      });
+        });
 
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Scroll to bottom on new messages
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      }
     });
+    
+    return unsubscribe;
   }
 
-  // Open project view
-  async function openProjectView(projectId) {
-    currentProjectId = projectId;
-    const projectDoc = await getDoc(doc(db, "Kamba_projects", projectId));
-    if (!projectDoc.exists()) return;
-
-    const data = projectDoc.data();
-    document.getElementById("project-view-name").textContent = data.name;
-    document.getElementById("project-view-banner").src = data.bannerUrl;
-    document.getElementById("project-view-short-desc").textContent = data.shortDesc;
-    document.getElementById("project-view-overview").innerHTML = data.overview;
-    document.getElementById("project-view-steps").textContent = data.steps;
-    document.getElementById("project-view-importance").textContent = data.importance;
-    document.getElementById("project-view-profitability").textContent = data.profitability;
-    document.getElementById("project-view-obstacles").textContent = data.obstacles;
-
-    const imagesDiv = document.getElementById("project-view-images");
-    imagesDiv.innerHTML = "";
-    data.imageUrls.forEach(img => {
-      const imgElem = document.createElement("img");
-      imgElem.src = img.url;
-      imgElem.style.float = img.position;
-      imgElem.style.maxWidth = "50%";
-      imagesDiv.appendChild(imgElem);
-    });
-
-    const codeDiv = document.getElementById("project-view-code-snippets");
-    codeDiv.innerHTML = "";
-    data.codeSnippets.forEach(snippet => {
-      const pre = document.createElement("pre");
-      const code = document.createElement("code");
-      code.className = `code-${snippet.lang}`;
-      code.textContent = snippet.code;
-      pre.appendChild(code);
-      codeDiv.appendChild(pre);
-    });
-
-    const commentsDiv = document.getElementById("project-comments");
-    commentsDiv.innerHTML = "";
-    data.comments.forEach(comment => {
-      const p = document.createElement("p");
-      p.textContent = `${comment.user}: ${comment.text}`;
-      commentsDiv.appendChild(p);
-    });
-
-    // Increment views
-    await updateDoc(doc(db, "Kamba_projects", projectId), {views: increment(1)});
-
-    // Check if liked
-    if (likedProjects.has(projectId)) {
-      projectLikeBtn.textContent = "Liked";
-      projectLikeBtn.style.color = "#43b581";
-    } else {
-      projectLikeBtn.textContent = "Like";
-      projectLikeBtn.style.color = "";
+  // Like a message
+  async function likeMessage(messageId, senderUid) {
+    if (likedMessages.has(messageId)) {
+      alert("You've already liked this message");
+      return;
     }
-
-    projectViewModal.style.display = "flex";
-  }
-
-  // Like current project
-  async function likeCurrentProject() {
-    if (likedProjects.has(currentProjectId)) return;
-    likedProjects.add(currentProjectId);
-    const projectDoc = await getDoc(doc(db, "Kamba_projects", currentProjectId));
-    const creatorUid = projectDoc.data().creatorUid;
-    await updateDoc(doc(db, "Kamba_projects", currentProjectId), {likes: increment(1)});
-    await updateDoc(doc(db, "Kamba_users", creatorUid), {sparks: increment(5)});
-    projectLikeBtn.textContent = "Liked";
-    projectLikeBtn.style.color = "#43b581";
-  }
-
-  // Share current project
-  async function shareCurrentProject() {
-    const projectDoc = await getDoc(doc(db, "Kamba_projects", currentProjectId));
-    const creatorUid = projectDoc.data().creatorUid;
-    await updateDoc(doc(db, "Kamba_projects", currentProjectId), {shares: increment(1)});
-    await updateDoc(doc(db, "Kamba_users", creatorUid), {sparks: increment(10)});
-    alert("Project shared! Creator received 10 sparks.");
-  }
-
-  // Add comment to project
-  async function addProjectComment() {
-    const text = projectCommentInput.value.trim();
-    if (!text) return;
-    const comment = {user: currentUserData.displayName, text, timestamp: Date.now()};
-    await updateDoc(doc(db, "Kamba_projects", currentProjectId), {comments: arrayUnion(comment)});
-    projectCommentInput.value = "";
-    openProjectView(currentProjectId); // Reload
-  }
-
-  // Approve join
-  async function approveJoin(groupId, fromUid, notId) {
-    await updateDoc(doc(db, "Kamba_groups", groupId), {
-      members: arrayUnion(fromUid),
-      pending: arrayRemove(fromUid)
-    });
-    await deleteDoc(doc(db, "Kamba_notifications", notId));
-    await addDoc(collection(db, "Kamba_notifications"), {
-      userId: fromUid,
-      message: `Accepted to group`,
-      type: "join-approved",
-      timestamp: Date.now()
-    });
-    loadChannelMessages();
-  }
-
-  // Deny join
-  async function denyJoin(notId) {
-    await deleteDoc(doc(db, "Kamba_notifications", notId));
-    loadChannelMessages();
-  }
-
-  // Load groups (expanded for communities if needed)
-  async function loadGroups() {
-    rightSidebar.innerHTML = '<div class="right-sidebar-title">GROUPS</div>';
     
-    const groupsQuery = query(collection(db, "Kamba_groups"));
-    const querySnapshot = await getDocs(groupsQuery);
-    
-    const groups = [];
-    querySnapshot.forEach(doc => {
-      groups.push({ id: doc.id, ...doc.data() });
-    });
-    
-    const shuffledGroups = [...groups].sort(() => 0.5 - Math.random()).slice(0, 4);
-    
-    shuffledGroups.forEach(group => {
-      const groupItem = document.createElement("div");
-      groupItem.className = "group-item";
-      groupItem.dataset.groupId = group.id;
+    try {
+      likedMessages.add(messageId);
       
-      const avatar = document.createElement("img");
-      avatar.className = "group-avatar";
-      avatar.src = group.image || "https://i.imgur.com/J6l19aF.png";
-      avatar.alt = group.name;
-      
-      const name = document.createElement("div");
-      name.className = "group-name";
-      name.textContent = group.name;
-      
-      groupItem.appendChild(avatar);
-      groupItem.appendChild(name);
-      rightSidebar.appendChild(groupItem);
-      
-      groupItem.addEventListener("click", () => {
-        currentChatType = "group";
-        currentChatId = group.id;
-        channelTitle.textContent = group.name;
-        loadChannelMessages();
+      // Update sender's sparks (2 sparks per like)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      await updateDoc(senderRef, {
+        sparks: increment(2)
       });
-    });
+      
+      // Reload messages to show updated like status
+      loadChannelMessages();
+    } catch (error) {
+      console.error("Error liking message:", error);
+      alert("Failed to like message");
+    }
   }
 
-  // Other functions remain similar, with expansions for new features...
+  // Like a post
+  async function likePost(postId, senderUid) {
+    if (likedPosts.has(postId)) {
+      alert("You've already liked this post");
+      return;
+    }
+    
+    try {
+      likedPosts.add(postId);
+      
+      // Update sender's sparks (2 sparks per post like)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      await updateDoc(senderRef, {
+        sparks: increment(2)
+      });
+      
+      // Reload messages to show updated like status
+      loadChannelMessages();
+    } catch (error) {
+      console.error("Error liking post:", error);
+      alert("Failed to like post");
+    }
+  }
 
-  // Note: Due to length limits, the full script is summarized. In a real implementation, expand the remaining functions similarly for communities, handle joins (add join button in group view, but since no group view modal, assume in chat if not member, show join button in header or something), etc.
+  // Dislike a post
+  async function dislikePost(postId, senderUid) {
+    try {
+      // Update sender's sparks (-1 spark per dislike)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      await updateDoc(senderRef, {
+        sparks: increment(-1)
+      });
+      
+      // Reload messages to show updated status
+      loadChannelMessages();
+    } catch (error) {
+      console.error("Error disliking post:", error);
+      alert("Failed to dislike post");
+    }
+  }
 
+  // Like a project
+  async function likeProject(projectId, senderUid) {
+    if (likedProjects.has(projectId)) {
+      alert("You've already liked this project");
+      return;
+    }
+    
+    try {
+      likedProjects.add(projectId);
+      
+      // Update sender's sparks (5 sparks per project like)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      await updateDoc(senderRef, {
+        sparks: increment(5)
+      });
+      
+      // Reload messages to show updated like status
+      loadChannelMessages();
+    } catch (error) {
+      console.error("Error liking project:", error);
+      alert("Failed to like project");
+    }
+  }
+
+  // Dislike a project
+  async function dislikeProject(projectId, senderUid) {
+    try {
+      // Update sender's sparks (-3 sparks per dislike)
+      const senderRef = doc(db, "Kamba_users", senderUid);
+      await updateDoc(senderRef, {
+        sparks: increment(-3)
+      });
+      
+      // Reload messages to show updated status
+      loadChannelMessages();
+    } catch (error) {
+      console.error("Error disliking project:", error);
+      alert("Failed to dislike project");
+    }
+  }
+
+  // Edit a message
+  function editMessage(messageId, currentText) {
+    messageBeingEdited = messageId;
+    editMessageInput.value = currentText;
+    editMessageModal.style.display = "flex";
+    editMessageInput.focus();
+  }
+
+  // Save edited message
+  async function saveEditedMessage() {
+    if (!messageBeingEdited) return;
+    
+    const newText = editMessageInput.value.trim();
+    if (!newText) {
+      alert("Message cannot be empty");
+      return;
+    }
+    
+    try {
+      const messageRef = doc(db, "Kamba_messages", messageBeingEdited);
+      await updateDoc(messageRef, {
+        message: newText,
+        edited: true
+      });
+      
+      editMessageModal.style.display = "none";
+      messageBeingEdited = null;
+    } catch (error) {
+      console.error("Error editing message:", error);
+      alert("Failed to edit message");
+    }
+  }
+
+  // Delete a message
+  async function deleteMessage(messageId) {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    
+    try {
+      await deleteDoc(doc(db, "Kamba_messages", messageId));
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      alert("Failed to delete message");
+    }
+  }
+
+  // Report a message
+  function reportMessage(messageId) {
+    alert(`Message ${messageId} reported to admins. Thank you!`);
+    // In a real app, this would create a report in Firestore
+  }
+
+  // Send message handler
+  async function sendMessage(text = null, imageUrl = null) {
+    const messageText = text || messageInput.value.trim();
+    
+    // Check if this is a special command (announcement or post)
+    let isAnnouncement = false;
+    let isPost = false;
+    let processedText = messageText;
+    
+    if (getUserStatus(currentUserData) === "red" && messageText.startsWith("#announcement")) {
+      isAnnouncement = true;
+      processedText = messageText.replace("#announcement", "").trim();
+    } else if ((getUserStatus(currentUserData) === "violet" || getUserStatus(currentUserData) === "red") && 
+               messageText.startsWith("&post")) {
+      isPost = true;
+      processedText = messageText.replace("&post", "").trim();
+    }
+    
+    if (!processedText && !imageUrl) return;
+
+    try {
+      // Add message doc
+      await addDoc(collection(db, "Kamba_messages"), {
+        userId: currentUser.uid,
+        senderEmail: currentUser.email,
+        sender: simplifyEmail(currentUser.email),
+        message: processedText || "",
+        replyTo: replyToMessageId || null,
+        replyToText: replyToMessageText || null,
+        imageUrl: imageUrl || null,
+        isAnnouncement: isAnnouncement,
+        isPost: isPost,
+        timestamp: Date.now(),
+      });
+
+      // Reset input & reply if this was a text message
+      if (!text) {
+        messageInput.value = "";
+        messageInput.style.height = "auto";
+        messageInput.placeholder = "Type a message...";
+        replyToMessageId = null;
+        replyToMessageText = null;
+      }
+
+      // Update sparks for regular messages (not posts/announcements)
+      if (!isAnnouncement && !isPost) {
+        const userDocRef = doc(db, "Kamba_users", currentUser.uid);
+        await updateDoc(userDocRef, {
+          sparks: increment(1)
+        });
+      }
+    } catch (err) {
+      alert("Error sending message: " + err.message);
+    }
+  }
+
+  // Initialize the app
   init();
 </script>
 </body>
