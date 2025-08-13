@@ -20,400 +20,652 @@
 <meta name="twitter:description" content="Join KAMBA Forum to connect, share tech projects, and collaborate with people around Africa." />
 <meta name="twitter:image" content="https://i.ibb.co/TRXscBP/KAMBA-Logo-2.png" />
 
-<!-- Preload important resources -->
-<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<!-- Inline Critical CSS -->
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
-  /* Critical CSS - Loads first */
+  :root {
+    /* Color palette */
+    --primary: #5865f2;
+    --primary-dark: #4752c4;
+    --primary-light: #7983f5;
+    --background: #36393f;
+    --background-dark: #2f3136;
+    --background-darker: #202225;
+    --background-light: #40444b;
+    --text-primary: #ffffff;
+    --text-secondary: #b9bbbe;
+    --text-tertiary: #8e9297;
+    --success: #43b581;
+    --warning: #faa61a;
+    --danger: #f04747;
+    --violet: #9b59b6;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-lg: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    --shadow-inset: inset 0 1px 3px rgba(0,0,0,0.1);
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-medium: 0.3s ease;
+    --transition-slow: 0.5s ease;
+  }
+
+  /* Base styles */
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
+  
   body, html {
     height: 100%;
-    background-color: #36393f;
-    color: #dcddde;
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.5;
     display: flex;
     flex-direction: column;
-    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
   }
+  
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  p {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+  
+  a:hover {
+    color: var(--primary-light);
+    text-decoration: underline;
+  }
+  
+  /* Layout */
   header {
-    background-color: #2f3136;
-    padding: 1rem 2rem;
+    background-color: var(--background-dark);
+    padding: var(--spacing-md) var(--spacing-lg);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: white;
-    border-bottom: 1px solid #202225;
+    border-bottom: 1px solid var(--background-darker);
+    box-shadow: var(--shadow-md);
+    z-index: 10;
   }
+  
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    background: linear-gradient(90deg, var(--primary), var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+  }
+  
   #main-content {
     display: flex;
     flex: 1;
     overflow: hidden;
   }
+  
+  /* Sidebars */
   #left-sidebar {
-    width: 250px;
-    background-color: #2f3136;
-    border-right: 1px solid #202225;
-    padding: 1rem;
+    width: 260px;
+    background-color: var(--background-dark);
+    border-right: 1px solid var(--background-darker);
+    padding: var(--spacing-md);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    transition: width var(--transition-medium);
   }
-  #chat-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background-color: #36393f;
-  }
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-  }
-</style>
-
-<!-- Deferred CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-
-<style id="deferred-styles">
-  /* Non-critical CSS - Loads after page is rendered */
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
   
   .sidebar-section {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-lg);
   }
+  
   .sidebar-title {
-    color: #b9bbbe;
-    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
     text-transform: uppercase;
-    margin-bottom: 0.5rem;
-    padding-left: 0.5rem;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-sm);
+    padding-left: var(--spacing-sm);
+    font-weight: 600;
   }
+  
   .sidebar-item {
     display: flex;
     align-items: center;
-    padding: 0.5rem;
-    border-radius: 4px;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    margin-bottom: 0.3rem;
-    transition: background-color 0.2s;
+    margin-bottom: var(--spacing-xs);
+    transition: all var(--transition-fast);
+    color: var(--text-secondary);
+    font-weight: 500;
   }
+  
   .sidebar-item:hover {
-    background-color: #3a3d44;
+    background-color: var(--background-light);
+    color: var(--text-primary);
   }
+  
   .sidebar-item.active {
-    background-color: #40444b;
+    background-color: var(--primary);
+    color: white;
   }
+  
   .sidebar-item .dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    margin-right: 0.8rem;
-    background-color: #b9bbbe;
+    margin-right: var(--spacing-sm);
+    background-color: var(--text-tertiary);
   }
+  
   .sidebar-item.active .dot {
-    background-color: #5865f2;
+    background-color: white;
   }
+  
   .sidebar-item .icon {
-    margin-right: 0.8rem;
+    margin-right: var(--spacing-sm);
     font-size: 1.1rem;
     width: 20px;
     text-align: center;
   }
+  
+  /* Search */
+  .search-container {
+    position: relative;
+    margin-bottom: var(--spacing-lg);
+  }
+  
   #search-bar {
     width: 100%;
-    padding: 0.5rem;
-    border-radius: 4px;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
     border: none;
-    background-color: #202225;
-    color: white;
-    margin-bottom: 1rem;
+    background-color: var(--background-darker);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
   }
+  
   #search-bar:focus {
-    outline: 2px solid #5865f2;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
   }
+  
+  #search-bar::placeholder {
+    color: var(--text-tertiary);
+  }
+  
   #search-results {
     position: absolute;
     top: 100%;
     left: 0;
     width: 100%;
-    background-color: #2f3136;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    background-color: var(--background-dark);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
     z-index: 100;
     max-height: 300px;
     overflow-y: auto;
     display: none;
-  }
-  .search-result-item {
-    padding: 0.8rem;
-    border-bottom: 1px solid #40444b;
-    cursor: pointer;
-  }
-  .search-result-item:hover {
-    background-color: #3a3d44;
-  }
-  .search-result-type {
-    font-size: 0.7rem;
-    color: #b9bbbe;
-    margin-top: 0.2rem;
-  }
-  .search-container {
-    position: relative;
-    margin-bottom: 1.5rem;
+    border: 1px solid var(--background-darker);
   }
   
-  /* User profile section */
+  .search-result-item {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--background-light);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+  
+  .search-result-item:hover {
+    background-color: var(--background-light);
+  }
+  
+  .search-result-type {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: var(--spacing-xs);
+  }
+  
+  /* User profile */
   #user-profile {
     margin-top: auto;
-    padding: 1rem;
-    background-color: #292b2f;
-    border-radius: 8px;
+    padding: var(--spacing-md);
+    background-color: var(--background-darker);
+    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: all var(--transition-fast);
   }
+  
+  #user-profile:hover {
+    background-color: var(--background-light);
+  }
+  
   #profile-pic {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    background-color: #5865f2;
+    background-color: var(--primary);
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 1.5rem;
     font-weight: bold;
     color: white;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--spacing-sm);
     background-size: cover;
     background-position: center;
+    border: 3px solid var(--background);
+    box-shadow: var(--shadow-sm);
   }
+  
   #profile-name {
     font-weight: 600;
-    margin-bottom: 0.3rem;
+    margin-bottom: var(--spacing-xs);
   }
+  
   #profile-status {
     display: flex;
     align-items: center;
     font-size: 0.8rem;
-    color: #b9bbbe;
+    color: var(--text-secondary);
   }
+  
   #status-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    margin-right: 0.5rem;
+    margin-right: var(--spacing-xs);
   }
+  
   #status-info {
     position: absolute;
     bottom: 100px;
     left: 20px;
-    background-color: #202225;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    background-color: var(--background-darker);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
     z-index: 100;
     display: none;
-    width: 200px;
+    width: 220px;
+    border: 1px solid var(--background-light);
   }
-  #status-info h4 {
-    margin-bottom: 0.5rem;
-  }
+  
   .status-level {
     display: flex;
     align-items: center;
-    margin-bottom: 0.3rem;
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.85rem;
   }
+  
   .status-level-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    margin-right: 0.5rem;
+    margin-right: var(--spacing-sm);
   }
   
   /* Chat area */
-  #chat-header {
-    padding: 1rem;
-    border-bottom: 1px solid #202225;
+  #chat-area {
+    flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--background);
+    overflow: hidden;
   }
-  #chat-header h2 {
-    font-size: 1.2rem;
-    margin-left: 0.5rem;
+  
+  #community-header {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
   }
-  #sparks-count {
+  
+  #community-banner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  #community-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: var(--spacing-md);
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    gap: var(--spacing-md);
+  }
+  
+  #community-image {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-md);
+    border: 3px solid var(--background);
+    object-fit: cover;
+  }
+  
+  #community-details {
+    flex: 1;
+  }
+  
+  #community-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  #community-description {
     font-size: 0.9rem;
-    background-color: #2f3136;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    color: #faa61a;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
   }
-  #sparks-count i {
-    color: #faa61a;
-    margin-right: 0.3rem;
+  
+  #community-members {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
   }
+  
+  #join-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+  
+  #join-btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  #join-btn:disabled {
+    background-color: var(--text-tertiary);
+    cursor: not-allowed;
+  }
+  
+  /* Content sections */
+  #content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .section {
+    flex: 1;
+    display: none;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+  }
+  
+  .section.active {
+    display: block;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--background-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .manage-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+  
+  .manage-btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  /* Messages */
   #messages-container {
     flex: 1;
-    padding: 1rem;
+    padding: var(--spacing-md);
     overflow-y: auto;
+    scroll-behavior: smooth;
   }
+  
   .message {
-    background-color: #2f3136;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    background-color: var(--background-dark);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
     position: relative;
     max-width: 80%;
     word-break: break-word;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
   }
+  
   .message:hover {
-    background-color: #34373c;
+    background-color: var(--background-light);
+    box-shadow: var(--shadow-md);
   }
+  
   .message-header {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--spacing-sm);
   }
+  
   .username {
     font-weight: 700;
     cursor: default;
   }
+  
   .message-time {
-    font-size: 0.7rem;
-    color: #b9bbbe;
-    margin-left: 0.8rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-left: var(--spacing-sm);
   }
+  
   .message-text {
     white-space: pre-wrap;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.5;
   }
+  
   .message-actions {
     display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
   }
+  
+  .message:hover .message-actions {
+    opacity: 1;
+  }
+  
   .message-action {
     font-size: 0.8rem;
-    color: #b9bbbe;
+    color: var(--text-tertiary);
     cursor: pointer;
+    transition: all var(--transition-fast);
   }
+  
   .message-action:hover {
-    color: white;
-    text-decoration: underline;
+    color: var(--primary);
+    text-decoration: none;
   }
+  
   .reply-to {
-    font-size: 0.75rem;
-    color: #b9bbbe;
-    margin-bottom: 0.5rem;
-    padding-left: 0.5rem;
-    border-left: 2px solid #5865f2;
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    margin-bottom: var(--spacing-sm);
+    padding-left: var(--spacing-sm);
+    border-left: 2px solid var(--primary);
   }
+  
   .mention {
-    color: #5865f2;
+    color: var(--primary);
     font-weight: bold;
   }
+  
   .announcement-badge, .post-badge {
     font-size: 0.7rem;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    margin-left: 0.5rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    margin-left: var(--spacing-sm);
+    font-weight: 600;
   }
+  
   .announcement-badge {
-    background-color: #f04747;
-    color: white;
-  }
-  .post-badge {
-    background-color: #43b581;
+    background-color: var(--danger);
     color: white;
   }
   
-  /* Right sidebar */
-  #right-sidebar {
-    display: none;
+  .post-badge {
+    background-color: var(--success);
+    color: white;
   }
   
   /* Message input area */
   #message-input-area {
-    background-color: #40444b;
-    padding: 1rem;
+    background-color: var(--background-light);
+    padding: var(--spacing-md);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
+    border-top: 1px solid var(--background-darker);
   }
+  
   #message-input {
     flex: 1;
-    padding: 0.8rem;
-    border-radius: 5px;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
     border: none;
     font-size: 1rem;
-    color: white;
-    background-color: #2f3136;
+    color: var(--text-primary);
+    background-color: var(--background-dark);
     resize: none;
     height: auto;
-    min-height: 40px;
+    min-height: 44px;
     max-height: 150px;
+    transition: all var(--transition-fast);
   }
+  
   #message-input:focus {
-    outline: 2px solid #5865f2;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
   }
+  
+  #message-input::placeholder {
+    color: var(--text-tertiary);
+  }
+  
   #send-btn {
-    background-color: #5865f2;
+    background-color: var(--primary);
     border: none;
     color: white;
-    padding: 0.55rem 1.2rem;
-    font-weight: 700;
-    border-radius: 5px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-weight: 600;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-fast);
+    height: 44px;
   }
+  
   #send-btn:hover {
-    background-color: #4752c4;
+    background-color: var(--primary-dark);
   }
-  #emoji-btn {
+  
+  #emoji-btn, #upload-btn {
     background: transparent;
     border: none;
     font-size: 1.4rem;
     cursor: pointer;
-    color: #b9bbbe;
+    color: var(--text-secondary);
     user-select: none;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
   }
+  
+  #emoji-btn:hover, #upload-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--background-dark);
+  }
+  
   #emoji-picker {
     position: absolute;
     bottom: 5rem;
     right: 2rem;
-    background-color: #202225;
-    border-radius: 8px;
-    padding: 0.5rem;
+    background-color: var(--background-darker);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
     display: none;
-    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    box-shadow: var(--shadow-lg);
     z-index: 1000;
+    border: 1px solid var(--background-light);
   }
+  
   #emoji-picker span {
     font-size: 1.6rem;
     margin: 0 6px;
     cursor: pointer;
     user-select: none;
-    transition: transform 0.15s ease;
+    transition: transform var(--transition-fast);
   }
+  
   #emoji-picker span:hover {
     transform: scale(1.3);
   }
@@ -422,14 +674,18 @@
   .message-image {
     max-width: 100%;
     max-height: 300px;
-    border-radius: 4px;
-    margin-top: 0.5rem;
+    border-radius: var(--radius-sm);
+    margin-top: var(--spacing-sm);
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform var(--transition-fast);
+    box-shadow: var(--shadow-sm);
   }
+  
   .message-image:hover {
     transform: scale(1.02);
+    box-shadow: var(--shadow-md);
   }
+  
   .image-container {
     position: fixed;
     top: 0;
@@ -442,221 +698,433 @@
     align-items: center;
     z-index: 10000;
   }
+  
   .full-image {
     max-width: 90%;
     max-height: 90%;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
   }
+  
+  .close-image, .download-image {
+    position: absolute;
+    color: white;
+    cursor: pointer;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+  }
+  
+  .close-image:hover, .download-image:hover {
+    background-color: rgba(0,0,0,0.8);
+    transform: scale(1.1);
+  }
+  
   .close-image {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    color: white;
-    font-size: 2rem;
-    cursor: pointer;
-  }
-  .download-image {
-    position: absolute;
-    top: 20px;
-    right: 70px;
-    color: white;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
     font-size: 1.5rem;
-    cursor: pointer;
+  }
+  
+  .download-image {
+    top: var(--spacing-lg);
+    right: calc(var(--spacing-lg) + 50px);
+    font-size: 1.2rem;
   }
   
   /* File upload button */
   #file-input {
     display: none;
   }
-  #upload-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.4rem;
-    cursor: pointer;
-    color: #b9bbbe;
-    user-select: none;
-  }
   
   /* Status colors */
-  .username.green { color: #43b581; }
-  .username.blue { color: #5865f2; }
-  .username.violet { color: #9b59b6; }
-  .username.red { color: #f04747; }
+  .username.green { color: var(--success); }
+  .username.blue { color: var(--primary); }
+  .username.violet { color: var(--violet); }
+  .username.red { color: var(--danger); }
   
-  .status-dot.green { background-color: #43b581; }
-  .status-dot.blue { background-color: #5865f2; }
-  .status-dot.violet { background-color: #9b59b6; }
-  .status-dot.red { background-color: #f04747; }
+  .status-dot.green { background-color: var(--success); }
+  .status-dot.blue { background-color: var(--primary); }
+  .status-dot.violet { background-color: var(--violet); }
+  .status-dot.red { background-color: var(--danger); }
   
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: #5865f2;
-    border-radius: 5px;
-  }
-  
-  /* No song notification */
-  #no-song-notification {
-    background-color: #f04747;
-    color: white;
-    text-align: center;
-    padding: 0.7rem 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
+  /* Modals */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
     align-items: center;
+    backdrop-filter: blur(5px);
   }
-  .dismiss-btn {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: white;
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
+  
   .modal-content {
-    background-color: #2f3136;
-    padding: 1.5rem;
-    border-radius: 8px;
-    width: 80%;
+    background-color: var(--background-dark);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    width: 90%;
     max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--background-light);
+    animation: modalFadeIn var(--transition-medium);
   }
+  
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
   .modal-title {
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing-md);
+    font-size: 1.3rem;
+    color: var(--text-primary);
   }
+  
   .modal-input {
     width: 100%;
-    padding: 0.8rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    border: none;
-    background-color: #40444b;
-    color: white;
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--background-light);
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: all var(--transition-fast);
   }
+  
+  .modal-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+  }
+  
   .modal-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
   }
+  
   .modal-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-fast);
   }
+  
   .modal-btn.cancel {
-    background-color: #72767d;
+    background-color: var(--text-tertiary);
     color: white;
   }
+  
+  .modal-btn.cancel:hover {
+    background-color: var(--text-secondary);
+  }
+  
   .modal-btn.save {
-    background-color: #5865f2;
+    background-color: var(--primary);
     color: white;
   }
-
+  
+  .modal-btn.save:hover {
+    background-color: var(--primary-dark);
+  }
+  
   /* Create modal styles */
   .create-tabs {
     display: flex;
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
+  
   .create-tab {
-    padding: 0.5rem 1rem;
+    padding: var(--spacing-sm) var(--spacing-md);
     cursor: pointer;
-    background-color: #40444b;
-    margin-right: 0.5rem;
-    border-radius: 4px;
+    background-color: var(--background);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
   }
+  
+  .create-tab:hover {
+    background-color: var(--background-light);
+  }
+  
   .create-tab.active {
-    background-color: #5865f2;
+    background-color: var(--primary);
     color: white;
+    border-color: var(--primary-dark);
   }
+  
   .create-tab-content {
     display: none;
   }
+  
   .create-tab-content.active {
     display: block;
   }
+  
   .form-row {
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing-md);
   }
+  
   .form-row label {
     display: block;
-    margin-bottom: 0.3rem;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+    color: var(--text-secondary);
   }
-  .form-row input, .form-row textarea {
+  
+  .form-row input, .form-row textarea, .form-row select {
     width: 100%;
-    padding: 0.8rem;
-    border-radius: 4px;
-    border: none;
-    background-color: #40444b;
-    color: white;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--background-light);
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: all var(--transition-fast);
   }
+  
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+  }
+  
   .form-row textarea {
     min-height: 100px;
     resize: vertical;
   }
+  
   .create-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
   }
+  
   .create-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-fast);
   }
+  
   .create-btn.cancel {
-    background-color: #72767d;
+    background-color: var(--text-tertiary);
     color: white;
   }
+  
+  .create-btn.cancel:hover {
+    background-color: var(--text-secondary);
+  }
+  
   .create-btn.submit {
-    background-color: #5865f2;
+    background-color: var(--primary);
     color: white;
   }
+  
+  .create-btn.submit:hover {
+    background-color: var(--primary-dark);
+  }
+  
   .required-field::after {
     content: '*';
-    color: #f04747;
-    margin-left: 0.2rem;
+    color: var(--danger);
+    margin-left: var(--spacing-xs);
   }
+  
   .font-style-controls {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
   }
+  
   .font-style-btn {
-    background-color: #40444b;
-    border: none;
-    padding: 0.5rem;
-    border-radius: 4px;
-    color: white;
+    background-color: var(--background);
+    border: 1px solid var(--background-light);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
     cursor: pointer;
+    transition: all var(--transition-fast);
   }
+  
+  .font-style-btn:hover {
+    background-color: var(--background-light);
+  }
+  
   .font-style-btn.active {
-    background-color: #5865f2;
-  }
-  .preview-area {
-    background-color: #2f3136;
-    padding: 1rem;
-    border-radius: 4px;
-    min-height: 100px;
-  }
-  .add-code-btn, .add-rule-btn, #add-collaborator-btn {
-    background-color: #5865f2;
+    background-color: var(--primary);
+    border-color: var(--primary-dark);
     color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+  }
+  
+  .preview-area {
+    background-color: var(--background);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    min-height: 100px;
+    border: 1px solid var(--background-light);
+  }
+  
+  .add-code-btn, .add-rule-btn, #add-collaborator-btn {
+    background-color: var(--primary);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
-    margin-top: 0.5rem;
+    margin-top: var(--spacing-sm);
+    font-weight: 500;
+    transition: background-color var(--transition-fast);
   }
+  
+  .add-code-btn:hover, .add-rule-btn:hover, #add-collaborator-btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
   .collaborator-input {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
   }
+  
   .collaborator-list {
-    margin-top: 0.5rem;
+    margin-top: var(--spacing-sm);
+  }
+  
+  .collaborator-item {
+    background-color: var(--background);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-xs);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .remove-collaborator-btn {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+  
+  .remove-collaborator-btn:hover {
+    background-color: #d63c3c;
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--background-dark);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--primary);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--background-dark);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    #left-sidebar {
+      width: 220px;
+    }
+    
+    #community-header {
+      height: 150px;
+    }
+    
+    #community-image {
+      width: 60px;
+      height: 60px;
+    }
+    
+    #community-name {
+      font-size: 1.2rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    #main-content {
+      flex-direction: column;
+    }
+    
+    #left-sidebar {
+      width: 100%;
+      order: 2;
+      border-right: none;
+      border-top: 1px solid var(--background-darker);
+    }
+    
+    #chat-area {
+      order: 1;
+    }
+    
+    #community-header {
+      height: 120px;
+    }
+    
+    #community-image {
+      width: 50px;
+      height: 50px;
+    }
+    
+    #community-name {
+      font-size: 1rem;
+    }
+    
+    .modal-content {
+      width: 95%;
+      padding: var(--spacing-md);
+    }
+    
+    .create-tabs {
+      flex-wrap: wrap;
+    }
+    
+    .create-tab {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8rem;
+      padding: var(--spacing-xs) var(--spacing-sm);
+    }
   }
 </style>
 </head>
@@ -667,7 +1135,9 @@
   <div class="modal-content">
     <h3>Welcome to KAMBA Forum!</h3>
     <p>By continuing, you agree to our Terms of Service and Privacy Policy. We'll set up your account with default settings.</p>
-    <button id="agree-btn" class="modal-btn save">Agree & Continue</button>
+    <div class="modal-buttons">
+      <button id="agree-btn" class="modal-btn save">Agree & Continue</button>
+    </div>
   </div>
 </div>
 
@@ -933,7 +1403,7 @@
     </div>
     
     <div id="content-area">
-      <div id="chat-section" class="section">
+      <div id="chat-section" class="section active">
         <div class="section-title">Chat</div>
         <div id="messages-container"></div>
         <div id="message-input-area">
@@ -946,23 +1416,20 @@
           </div>
         </div>
       </div>
-      <div id="announcements-section" class="section" style="display:none;">
+      <div id="announcements-section" class="section">
         <div class="section-title">Announcements <button class="manage-btn" id="add-announcement-btn" style="display:none;">Add</button></div>
         <div id="community-announcements"></div>
       </div>
-      <div id="rules-section" class="section" style="display:none;">
+      <div id="rules-section" class="section">
         <div class="section-title">Rules <button class="manage-btn" id="add-rule-btn" style="display:none;">Add</button></div>
         <div id="community-rules"></div>
       </div>
-      <div id="shared-section" class="section" style="display:none;">
+      <div id="shared-section" class="section">
         <div class="section-title">Shared Content <button class="manage-btn" id="add-shared-btn" style="display:none;">Add</button></div>
         <div id="shared-content"></div>
       </div>
     </div>
   </div>
-
-  <!-- No right sidebar -->
-  <div id="no-groups-sidebar"></div>
 </div>
 
 <!-- Emoji Picker -->
@@ -978,9 +1445,6 @@
   <span>🤔</span>
   <span>😢</span>
 </div>
-
-<!-- Background Audio -->
-<audio id="background-audio" loop></audio>
 
 <!-- Edit Message Modal -->
 <div id="edit-message-modal" class="modal">
@@ -1083,237 +1547,973 @@
   </div>
 </div>
 
-<!-- Load scripts with defer -->
-<script defer src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js"></script>
-
-<!-- Main script with type module -->
 <script type="module">
-// Immediately Invoked Function Expression to avoid global scope pollution
-(function() {
-  // Load deferred styles
-  const loadDeferredStyles = function() {
-    const addStylesNode = document.getElementById("deferred-styles");
-    const replacement = document.createElement("div");
-    replacement.innerHTML = addStylesNode.textContent;
-    document.body.appendChild(replacement);
-    addStylesNode.parentElement.removeChild(addStylesNode);
-  };
-  
-  const raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || 
-              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-  if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); });
-  else window.addEventListener('load', loadDeferredStyles);
+  // Your existing JavaScript code goes here
+  // (The same as in your original file)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc as firestoreDoc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    arrayUnion,
+    arrayRemove,
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    deleteDoc,
+    getDocs,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL,
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
 
-  // Wait for all scripts to load
-  document.addEventListener('DOMContentLoaded', function() {
-    // Check if all Firebase scripts are loaded
-    if (typeof firebase === 'undefined' || typeof firebase.initializeApp !== 'function') {
-      console.error('Firebase scripts not loaded properly');
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
+    authDomain: "muah-feed.firebaseapp.com",
+    databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
+    projectId: "muah-feed",
+    storageBucket: "muah-feed.firebasestorage.app",
+    messagingSenderId: "442314397706",
+    appId: "1:442314397706:web:a69e3958257fb13b3667f3",
+    measurementId: "G-S86S229F1T",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  // DOM Elements
+  const communityBanner = document.getElementById("community-banner");
+  const communityImage = document.getElementById("community-image");
+  const communityName = document.getElementById("community-name");
+  const communityDescription = document.getElementById("community-description");
+  const communityMembers = document.getElementById("community-members");
+  const joinBtn = document.getElementById("join-btn");
+  const contentArea = document.getElementById("content-area");
+  const chatSection = document.getElementById("chat-section");
+  const announcementsSection = document.getElementById("announcements-section");
+  const rulesSection = document.getElementById("rules-section");
+  const sharedSection = document.getElementById("shared-section");
+  const communityAnnouncements = document.getElementById("community-announcements");
+  const communityRules = document.getElementById("community-rules");
+  const sharedContent = document.getElementById("shared-content");
+  const addAnnouncementBtn = document.getElementById("add-announcement-btn");
+  const addRuleBtn = document.getElementById("add-rule-btn");
+  const addSharedBtn = document.getElementById("add-shared-btn");
+  const messagesContainer = document.getElementById("messages-container");
+  const messageInput = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+  const uploadBtn = document.getElementById("upload-btn");
+  const fileInput = document.getElementById("file-input");
+  const emojiBtn = document.getElementById("emoji-btn");
+  const emojiPicker = document.getElementById("emoji-picker");
+  const profilePic = document.getElementById("profile-pic");
+  const profileName = document.getElementById("profile-name");
+  const statusDot = document.getElementById("status-dot");
+  const statusText = document.getElementById("status-text");
+  const statusInfoBtn = document.getElementById("status-info-btn");
+  const statusInfo = document.getElementById("status-info");
+  const welcomeModal = document.getElementById("welcome-modal");
+  const agreeBtn = document.getElementById("agree-btn");
+  const createModal = document.getElementById("create-modal");
+  const projectTab = document.getElementById("project-tab");
+  const postTab = document.getElementById("post-tab");
+  const groupTab = document.getElementById("group-tab");
+  const communityTab = document.getElementById("community-tab");
+  const projectNameInput = document.getElementById("project-name");
+  const projectDescriptionInput = document.getElementById("project-description");
+  const projectBannerInput = document.getElementById("project-banner");
+  const projectOverviewInput = document.getElementById("project-overview");
+  const projectStepsInput = document.getElementById("project-steps");
+  const projectImportanceInput = document.getElementById("project-importance");
+  const projectProfitabilityInput = document.getElementById("project-profitability");
+  const projectObstaclesInput = document.getElementById("project-obstacles");
+  const addCodeBtn = document.getElementById("add-code-btn");
+  const codeSnippetsContainer = document.getElementById("code-snippets-container");
+  const cancelProjectBtn = document.getElementById("cancel-project");
+  const submitProjectBtn = document.getElementById("submit-project");
+  const postFontSelect = document.getElementById("post-font");
+  const boldBtn = document.getElementById("bold-btn");
+  const italicBtn = document.getElementById("italic-btn");
+  const underlineBtn = document.getElementById("underline-btn");
+  const postContentInput = document.getElementById("post-content");
+  const postPreview = document.getElementById("post-preview");
+  const cancelPostBtn = document.getElementById("cancel-post");
+  const submitPostBtn = document.getElementById("submit-post");
+  const groupNameInput = document.getElementById("group-name");
+  const groupImageInput = document.getElementById("group-image");
+  const groupBannerInput = document.getElementById("group-banner");
+  const groupDescriptionInput = document.getElementById("group-description");
+  const addRuleBtnModal = document.getElementById("add-rule-btn");
+  const rulesContainer = document.getElementById("rules-container");
+  const cancelGroupBtn = document.getElementById("cancel-group");
+  const submitGroupBtn = document.getElementById("submit-group");
+  const communityNameInput = document.getElementById("community-name");
+  const communityImageInput = document.getElementById("community-image");
+  const communityBannerInput = document.getElementById("community-banner");
+  const communityDescriptionInput = document.getElementById("community-description");
+  const collaboratorEmailInput = document.getElementById("collaborator-email");
+  const addCollaboratorBtn = document.getElementById("add-collaborator-btn");
+  const collaboratorsList = document.getElementById("collaborators-list");
+  const cancelCommunityBtn = document.getElementById("cancel-community");
+  const submitCommunityBtn = document.getElementById("submit-community");
+  const addAnnouncementModal = document.getElementById("add-announcement-modal");
+  const newAnnouncementInput = document.getElementById("new-announcement-input");
+  const cancelAnnouncementBtn = document.getElementById("cancel-announcement-btn");
+  const saveAnnouncementBtn = document.getElementById("save-announcement-btn");
+  const editAnnouncementModal = document.getElementById("edit-announcement-modal");
+  const editAnnouncementInput = document.getElementById("edit-announcement-input");
+  const cancelEditAnnouncementBtn = document.getElementById("cancel-edit-announcement-btn");
+  const saveEditAnnouncementBtn = document.getElementById("save-edit-announcement-btn");
+  const addRuleModal = document.getElementById("add-rule-modal");
+  const newRuleInput = document.getElementById("new-rule-input");
+  const cancelRuleBtn = document.getElementById("cancel-rule-btn");
+  const saveRuleBtn = document.getElementById("save-rule-btn");
+  const editRuleModal = document.getElementById("edit-rule-modal");
+  const editRuleInput = document.getElementById("edit-rule-input");
+  const cancelEditRuleBtn = document.getElementById("cancel-edit-rule-btn");
+  const saveEditRuleBtn = document.getElementById("save-edit-rule-btn");
+  const manageMembersModal = document.getElementById("manage-members-modal");
+  const membersList = document.getElementById("members-list");
+  const cancelManageMembersBtn = document.getElementById("cancel-manage-members-btn");
+  const addSharedModal = document.getElementById("add-shared-modal");
+  const sharedImageInput = document.getElementById("shared-image-input");
+  const cancelSharedBtn = document.getElementById("cancel-shared-btn");
+  const saveSharedBtn = document.getElementById("save-shared-btn");
+  const joinPromptModal = document.getElementById("join-prompt-modal");
+  const joinBanner = document.getElementById("join-banner");
+  const joinImage = document.getElementById("join-image");
+  const joinName = document.getElementById("join-name");
+  const joinDescription = document.getElementById("join-description");
+  const joinRules = document.getElementById("join-rules");
+  const cancelJoinBtn = document.getElementById("cancel-join-btn");
+  const agreeJoinBtn = document.getElementById("agree-join-btn");
+  const searchBar = document.getElementById("search-bar");
+  const searchResults = document.getElementById("search-results");
+  const editMessageModal = document.getElementById("edit-message-modal");
+  const editMessageInput = document.getElementById("edit-message-input");
+  const cancelEditBtn = document.getElementById("cancel-edit-btn");
+  const saveEditBtn = document.getElementById("save-edit-btn");
+
+  let currentUser = null;
+  let currentUserData = null;
+  let communityId = new URLSearchParams(window.location.search).get('id');
+  let communityData = null;
+  let hasInteracted = false;
+  let announcementBeingEdited = -1;
+  let ruleBeingEdited = -1;
+  let currentSection = 'chat';
+  let messageBeingEdited = null;
+  let codeSnippets = [];
+  let rules = [];
+  let collaborators = [];
+
+  function init() {
+    setupEventListeners();
+    checkAuthState();
+  }
+
+  function setupEventListeners() {
+    cancelJoinBtn.addEventListener("click", () => {
+      joinPromptModal.style.display = "none";
+      window.location.href = "communities.html";
+    });
+    agreeJoinBtn.addEventListener("click", () => {
+      joinPromptModal.style.display = "none";
+      joinCommunity();
+    });
+
+    document.querySelectorAll(".sidebar-item").forEach(item => {
+      item.addEventListener("click", () => {
+        document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+        currentSection = item.dataset.section;
+        contentArea.querySelectorAll(".section").forEach(section => section.style.display = "none");
+        document.getElementById(`${currentSection}-section`).style.display = "block";
+        if (currentSection === "chat") loadCommunityMessages();
+        if (currentSection === "announcements") displayAnnouncements(communityData.announcements);
+        if (currentSection === "rules") displayRules(communityData.rules);
+        if (currentSection === "shared") displaySharedContent(communityData.sharedImages);
+        if (currentSection === "members") displayMembers();
+      });
+    });
+
+    agreeBtn.addEventListener("click", () => {
+      welcomeModal.style.display = "none";
+      localStorage.setItem("kambaTermsAgreed", "true");
+      loadCommunity();
+    });
+
+    document.querySelectorAll(".create-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".create-tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".create-tab-content").forEach(c => c.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(`${tab.dataset.tab}-tab`).classList.add("active");
+      });
+    });
+
+    addCodeBtn.addEventListener("click", () => {
+      const snippetContainer = document.createElement("div");
+      snippetContainer.className = "code-snippet";
+      snippetContainer.innerHTML = `
+        <textarea placeholder="Enter code snippet"></textarea>
+        <button class="remove-code-btn">Remove</button>
+      `;
+      codeSnippetsContainer.appendChild(snippetContainer);
+      snippetContainer.querySelector(".remove-code-btn").addEventListener("click", () => {
+        snippetContainer.remove();
+      });
+    });
+
+    cancelProjectBtn.addEventListener("click", () => createModal.style.display = "none");
+    submitProjectBtn.addEventListener("click", async () => {
+      const projectData = {
+        name: projectNameInput.value,
+        description: projectDescriptionInput.value,
+        banner: projectBannerInput.value,
+        overview: projectOverviewInput.value,
+        steps: projectStepsInput.value,
+        importance: projectImportanceInput.value,
+        profitability: projectProfitabilityInput.value,
+        obstacles: projectObstaclesInput.value,
+        codeSnippets: Array.from(codeSnippetsContainer.querySelectorAll("textarea")).map(t => t.value),
+        creatorId: currentUser.uid,
+        createdAt: new Date(),
+      };
+      if (!projectData.name || !projectData.description || !projectData.banner || !projectData.overview || !projectData.importance || !projectData.profitability || !projectData.obstacles) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+      await addDoc(collection(db, "Kamba_projects"), projectData);
+      createModal.style.display = "none";
+      codeSnippetsContainer.innerHTML = "";
+      projectNameInput.value = "";
+      projectDescriptionInput.value = "";
+      projectBannerInput.value = "";
+      projectOverviewInput.value = "";
+      projectStepsInput.value = "";
+      projectImportanceInput.value = "";
+      projectProfitabilityInput.value = "";
+      projectObstaclesInput.value = "";
+    });
+
+    postFontSelect.addEventListener("change", updatePostPreview);
+    boldBtn.addEventListener("click", () => toggleFontStyle(boldBtn, "bold"));
+    italicBtn.addEventListener("click", () => toggleFontStyle(italicBtn, "italic"));
+    underlineBtn.addEventListener("click", () => toggleFontStyle(underlineBtn, "underline"));
+    postContentInput.addEventListener("input", updatePostPreview);
+
+    function toggleFontStyle(button, style) {
+      button.classList.toggle("active");
+      updatePostPreview();
+    }
+
+    function updatePostPreview() {
+      let style = `font-family: ${postFontSelect.value};`;
+      if (boldBtn.classList.contains("active")) style += "font-weight: bold;";
+      if (italicBtn.classList.contains("active")) style += "font-style: italic;";
+      if (underlineBtn.classList.contains("active")) style += "text-decoration: underline;";
+      postPreview.style = style;
+      postPreview.textContent = postContentInput.value || "Your post preview will appear here.";
+    }
+
+    cancelPostBtn.addEventListener("click", () => createModal.style.display = "none");
+    submitPostBtn.addEventListener("click", async () => {
+      const postData = {
+        content: postContentInput.value,
+        font: postFontSelect.value,
+        bold: boldBtn.classList.contains("active"),
+        italic: italicBtn.classList.contains("active"),
+        underline: underlineBtn.classList.contains("active"),
+        creatorId: currentUser.uid,
+        createdAt: new Date(),
+        communityId: communityId,
+      };
+      if (!postData.content) {
+        alert("Please enter post content.");
+        return;
+      }
+      await addDoc(collection(db, "Kamba_posts"), postData);
+      createModal.style.display = "none";
+      postContentInput.value = "";
+      postPreview.textContent = "";
+      boldBtn.classList.remove("active");
+      italicBtn.classList.remove("active");
+      underlineBtn.classList.remove("active");
+    });
+
+    addRuleBtnModal.addEventListener("click", () => {
+      const ruleInput = document.createElement("div");
+      ruleInput.className = "rule-input";
+      ruleInput.innerHTML = `
+        <textarea placeholder="Enter rule"></textarea>
+        <button class="remove-rule-btn">Remove</button>
+      `;
+      rulesContainer.appendChild(ruleInput);
+      ruleInput.querySelector(".remove-rule-btn").addEventListener("click", () => ruleInput.remove());
+    });
+
+    cancelGroupBtn.addEventListener("click", () => createModal.style.display = "none");
+    submitGroupBtn.addEventListener("click", async () => {
+      const groupData = {
+        name: groupNameInput.value,
+        image: groupImageInput.value,
+        banner: groupBannerInput.value,
+        description: groupDescriptionInput.value,
+        rules: Array.from(rulesContainer.querySelectorAll("textarea")).map(t => t.value),
+        creatorId: currentUser.uid,
+        createdAt: new Date(),
+        communityId: communityId,
+      };
+      if (!groupData.name || !groupData.image || !groupData.description) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+      await addDoc(collection(db, "Kamba_groups"), groupData);
+      createModal.style.display = "none";
+      groupNameInput.value = "";
+      groupImageInput.value = "";
+      groupBannerInput.value = "";
+      groupDescriptionInput.value = "";
+      rulesContainer.innerHTML = "";
+    });
+
+    addCollaboratorBtn.addEventListener("click", () => {
+      const email = collaboratorEmailInput.value.trim();
+      if (email) {
+        collaboratorsList.innerHTML += `
+          <div class="collaborator-item">
+            ${email}
+            <button class="remove-collaborator-btn">Remove</button>
+          </div>
+        `;
+        collaboratorEmailInput.value = "";
+        collaboratorsList.querySelectorAll(".remove-collaborator-btn").forEach(btn => {
+          btn.addEventListener("click", () => btn.parentElement.remove());
+        });
+      }
+    });
+
+    cancelCommunityBtn.addEventListener("click", () => createModal.style.display = "none");
+    submitCommunityBtn.addEventListener("click", async () => {
+      const communityData = {
+        name: communityNameInput.value,
+        image: communityImageInput.value,
+        banner: communityBannerInput.value,
+        description: communityDescriptionInput.value,
+        collaborators: Array.from(collaboratorsList.querySelectorAll(".collaborator-item")).map(item => ({ userId: item.textContent.trim().split("Remove")[0].trim() })),
+        creatorId: currentUser.uid,
+        createdAt: new Date(),
+        members: [currentUser.uid],
+        announcements: [],
+        rules: [],
+        sharedImages: [],
+      };
+      if (!communityData.name || !communityData.image || !communityData.description) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+      await addDoc(collection(db, "Kamba_communities"), communityData);
+      createModal.style.display = "none";
+      communityNameInput.value = "";
+      communityImageInput.value = "";
+      communityBannerInput.value = "";
+      communityDescriptionInput.value = "";
+      collaboratorsList.innerHTML = "";
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keypress", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    async function sendMessage() {
+      if (!messageInput.value.trim()) return;
+      const messageData = {
+        text: messageInput.value,
+        userId: currentUser.uid,
+        timestamp: new Date(),
+        communityId: communityId,
+      };
+      messageInput.value = "";
+      await addDoc(collection(db, `Kamba_communities/${communityId}/messages`), messageData);
+    }
+
+    uploadBtn.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", async e => {
+      const file = e.target.files[0];
+      if (file) {
+        const storageRef = ref(storage, `community_images/${communityId}/${file.name}_${Date.now()}`);
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        const messageData = {
+          image: url,
+          userId: currentUser.uid,
+          timestamp: new Date(),
+          communityId: communityId,
+        };
+        await addDoc(collection(db, `Kamba_communities/${communityId}/messages`), messageData);
+        fileInput.value = "";
+      }
+    });
+
+    emojiBtn.addEventListener("click", () => {
+      emojiPicker.style.display = emojiPicker.style.display === "block" ? "none" : "block";
+    });
+    emojiPicker.querySelectorAll("span").forEach(span => {
+      span.addEventListener("click", () => {
+        messageInput.value += span.textContent;
+        emojiPicker.style.display = "none";
+        messageInput.focus();
+      });
+    });
+
+    statusInfoBtn.addEventListener("click", () => {
+      statusInfo.style.display = statusInfo.style.display === "block" ? "none" : "block";
+    });
+
+    addAnnouncementBtn.addEventListener("click", () => {
+      addAnnouncementModal.style.display = "flex";
+    });
+    cancelAnnouncementBtn.addEventListener("click", () => {
+      addAnnouncementModal.style.display = "none";
+      newAnnouncementInput.value = "";
+    });
+    saveAnnouncementBtn.addEventListener("click", async () => {
+      if (newAnnouncementInput.value.trim()) {
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        await updateDoc(communityRef, {
+          announcements: arrayUnion(newAnnouncementInput.value),
+        });
+        addAnnouncementModal.style.display = "none";
+        newAnnouncementInput.value = "";
+      }
+    });
+
+    cancelEditAnnouncementBtn.addEventListener("click", () => {
+      editAnnouncementModal.style.display = "none";
+      editAnnouncementInput.value = "";
+      announcementBeingEdited = -1;
+    });
+    saveEditAnnouncementBtn.addEventListener("click", async () => {
+      if (editAnnouncementInput.value.trim() && announcementBeingEdited !== -1) {
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        const newAnnouncements = [...communityData.announcements];
+        newAnnouncements[announcementBeingEdited] = editAnnouncementInput.value;
+        await updateDoc(communityRef, { announcements: newAnnouncements });
+        editAnnouncementModal.style.display = "none";
+        editAnnouncementInput.value = "";
+        announcementBeingEdited = -1;
+      }
+    });
+
+    addRuleBtn.addEventListener("click", () => {
+      addRuleModal.style.display = "flex";
+    });
+    cancelRuleBtn.addEventListener("click", () => {
+      addRuleModal.style.display = "none";
+      newRuleInput.value = "";
+    });
+    saveRuleBtn.addEventListener("click", async () => {
+      if (newRuleInput.value.trim()) {
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        await updateDoc(communityRef, {
+          rules: arrayUnion(newRuleInput.value),
+        });
+        addRuleModal.style.display = "none";
+        newRuleInput.value = "";
+      }
+    });
+
+    cancelEditRuleBtn.addEventListener("click", () => {
+      editRuleModal.style.display = "none";
+      editRuleInput.value = "";
+      ruleBeingEdited = -1;
+    });
+    saveEditRuleBtn.addEventListener("click", async () => {
+      if (editRuleInput.value.trim() && ruleBeingEdited !== -1) {
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        const newRules = [...communityData.rules];
+        newRules[ruleBeingEdited] = editRuleInput.value;
+        await updateDoc(communityRef, { rules: newRules });
+        editRuleModal.style.display = "none";
+        editRuleInput.value = "";
+        ruleBeingEdited = -1;
+      }
+    });
+
+    addSharedBtn.addEventListener("click", () => {
+      addSharedModal.style.display = "flex";
+    });
+    cancelSharedBtn.addEventListener("click", () => {
+      addSharedModal.style.display = "none";
+      sharedImageInput.value = "";
+    });
+    saveSharedBtn.addEventListener("click", async () => {
+      const file = sharedImageInput.files[0];
+      if (file) {
+        const storageRef = ref(storage, `shared_images/${communityId}/${file.name}_${Date.now()}`);
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        await updateDoc(communityRef, {
+          sharedImages: arrayUnion(url),
+        });
+        addSharedModal.style.display = "none";
+        sharedImageInput.value = "";
+      }
+    });
+
+    cancelManageMembersBtn.addEventListener("click", () => {
+      manageMembersModal.style.display = "none";
+    });
+
+    cancelEditBtn.addEventListener("click", () => {
+      editMessageModal.style.display = "none";
+      editMessageInput.value = "";
+      messageBeingEdited = null;
+    });
+    saveEditBtn.addEventListener("click", async () => {
+      if (editMessageInput.value.trim() && messageBeingEdited) {
+        const messageRef = firestoreDoc(db, `Kamba_communities/${communityId}/messages`, messageBeingEdited.id);
+        await updateDoc(messageRef, { text: editMessageInput.value });
+        editMessageModal.style.display = "none";
+        editMessageInput.value = "";
+        messageBeingEdited = null;
+      }
+    });
+
+    searchBar.addEventListener("input", async () => {
+      const searchTerm = searchBar.value.trim().toLowerCase();
+      searchResults.innerHTML = "";
+      if (!searchTerm) {
+        searchResults.style.display = "none";
+        return;
+      }
+      searchResults.style.display = "block";
+      const messagesQuery = query(collection(db, `Kamba_communities/${communityId}/messages`), orderBy("timestamp", "desc"));
+      const messagesSnapshot = await getDocs(messagesQuery);
+      messagesSnapshot.forEach(doc => {
+        const message = doc.data();
+        if (message.text?.toLowerCase().includes(searchTerm) || message.userId.toLowerCase().includes(searchTerm)) {
+          const resultItem = document.createElement("div");
+          resultItem.className = "search-result-item";
+          resultItem.innerHTML = `
+            <div>${message.text || "Image message"}</div>
+            <div class="search-result-type">Message by ${message.userId}</div>
+          `;
+          resultItem.addEventListener("click", () => {
+            currentSection = "chat";
+            document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
+            document.querySelector(".sidebar-item[data-section='chat']").classList.add("active");
+            contentArea.querySelectorAll(".section").forEach(section => section.style.display = "none");
+            chatSection.style.display = "block";
+            loadCommunityMessages();
+            setTimeout(() => {
+              const messageElement = document.getElementById(`message-${doc.id}`);
+              if (messageElement) messageElement.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+            searchResults.style.display = "none";
+            searchBar.value = "";
+          });
+          searchResults.appendChild(resultItem);
+        }
+      });
+    });
+
+    document.addEventListener("click", e => {
+      if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+        emojiPicker.style.display = "none";
+      }
+      if (!statusInfo.contains(e.target) && e.target !== statusInfoBtn) {
+        statusInfo.style.display = "none";
+      }
+      if (!createModal.contains(e.target) && !e.target.classList.contains("create-btn")) {
+        createModal.style.display = "none";
+      }
+    });
+  }
+
+  async function checkAuthState() {
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        currentUser = user;
+        const userRef = firestoreDoc(db, "Kamba_users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          currentUserData = userSnap.data();
+          profileName.textContent = currentUserData.username || user.displayName || "User";
+          profilePic.style.backgroundImage = currentUserData.profilePic ? `url(${currentUserData.profilePic})` : "";
+          const sparks = currentUserData.sparks || 0;
+          statusText.textContent = `${sparks} Sparks`;
+          if (currentUserData.isAdmin) {
+            statusDot.className = "status-dot red";
+            profileName.className = "username red";
+          } else if (sparks >= 1000) {
+            statusDot.className = "status-dot violet";
+            profileName.className = "username violet";
+          } else if (sparks >= 100) {
+            statusDot.className = "status-dot blue";
+            profileName.className = "username blue";
+          } else {
+            statusDot.className = "status-dot green";
+            profileName.className = "username green";
+          }
+          if (!localStorage.getItem("kambaTermsAgreed")) {
+            welcomeModal.style.display = "flex";
+          } else {
+            loadCommunity();
+          }
+        } else {
+          await setDoc(userRef, {
+            username: user.displayName || "User",
+            sparks: 0,
+            createdAt: new Date(),
+          });
+          welcomeModal.style.display = "flex";
+        }
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+  }
+
+  async function loadCommunity() {
+    const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+    const snap = await getDoc(communityRef);
+    if (snap.exists()) {
+      communityData = snap.data();
+      communityData.collaborators = communityData.collaborators || [];
+      communityData.announcements = communityData.announcements || [];
+      communityData.rules = communityData.rules || [];
+      communityData.sharedImages = communityData.sharedImages || [];
+      communityBanner.src = communityData.banner || "https://via.placeholder.com/800x250";
+      communityImage.src = communityData.image || "https://via.placeholder.com/100";
+      communityName.textContent = communityData.name;
+      communityDescription.textContent = communityData.description;
+      communityMembers.textContent = `${communityData.members.length} member${communityData.members.length === 1 ? '' : 's'}`;
+      const isMember = communityData.members.includes(currentUser.uid);
+      if (!isMember) {
+        joinBanner.src = communityData.banner || "https://via.placeholder.com/500x150";
+        joinImage.src = communityData.image || "https://via.placeholder.com/80";
+        joinName.textContent = communityData.name;
+        joinDescription.textContent = communityData.description;
+        joinRules.innerHTML = "";
+        communityData.rules.forEach(rule => {
+          const ruleItem = document.createElement("div");
+          ruleItem.className = "rule-item";
+          ruleItem.textContent = rule;
+          joinRules.appendChild(ruleItem);
+        });
+        joinPromptModal.style.display = "flex";
+      } else {
+        joinBtn.textContent = "Joined";
+        joinBtn.disabled = true;
+      }
+      const isCreator = communityData.creatorId === currentUser.uid;
+      const isCollaborator = communityData.collaborators.some(col => col.userId === currentUser.uid);
+      if (isCreator || isCollaborator) {
+        addAnnouncementBtn.style.display = "inline";
+        addRuleBtn.style.display = "inline";
+        addSharedBtn.style.display = "inline";
+      }
+      if (isCreator) {
+        document.querySelector(".sidebar-item[data-section='members']").style.display = "block";
+      }
+      displayAnnouncements(communityData.announcements);
+      displayRules(communityData.rules);
+      displaySharedContent(communityData.sharedImages);
+      loadCommunityMessages();
+      const communityQuery = firestoreDoc(db, "Kamba_communities", communityId);
+      onSnapshot(communityQuery, (docSnap) => {
+        if (docSnap.exists()) {
+          communityData = docSnap.data();
+          communityData.collaborators = communityData.collaborators || [];
+          communityData.announcements = communityData.announcements || [];
+          communityData.rules = communityData.rules || [];
+          communityData.sharedImages = communityData.sharedImages || [];
+          communityMembers.textContent = `${communityData.members.length} member${communityData.members.length === 1 ? '' : 's'}`;
+          if (currentSection === "announcements") displayAnnouncements(communityData.announcements);
+          if (currentSection === "rules") displayRules(communityData.rules);
+          if (currentSection === "shared") displaySharedContent(communityData.sharedImages);
+          if (currentSection === "members") displayMembers();
+        }
+      });
+    } else {
+      alert("Community not found");
+      window.location.href = "communities.html";
+    }
+  }
+
+  async function joinCommunity() {
+    const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+    await updateDoc(communityRef, {
+      members: arrayUnion(currentUser.uid),
+    });
+    joinBtn.textContent = "Joined";
+    joinBtn.disabled = true;
+    loadCommunityMessages();
+  }
+
+  function displayAnnouncements(announcements) {
+    communityAnnouncements.innerHTML = "";
+    announcements.forEach((announcement, index) => {
+      const announcementElement = document.createElement("div");
+      announcementElement.className = "message announcement";
+      announcementElement.innerHTML = `
+        <div class="message-header">
+          <span class="username red">Admin</span>
+          <span class="announcement-badge">Announcement</span>
+        </div>
+        <div class="message-text">${announcement}</div>
+        ${(communityData.creatorId === currentUser.uid || communityData.collaborators.some(col => col.userId === currentUser.uid)) ? `
+          <div class="message-actions">
+            <span class="message-action edit-announcement" data-index="${index}">Edit</span>
+            <span class="message-action delete-announcement" data-index="${index}">Delete</span>
+          </div>
+        ` : ""}
+      `;
+      communityAnnouncements.appendChild(announcementElement);
+    });
+    communityAnnouncements.querySelectorAll(".edit-announcement").forEach(btn => {
+      btn.addEventListener("click", () => {
+        announcementBeingEdited = parseInt(btn.dataset.index);
+        editAnnouncementInput.value = communityData.announcements[announcementBeingEdited];
+        editAnnouncementModal.style.display = "flex";
+      });
+    });
+    communityAnnouncements.querySelectorAll(".delete-announcement").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const index = parseInt(btn.dataset.index);
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        const newAnnouncements = [...communityData.announcements];
+        newAnnouncements.splice(index, 1);
+        await updateDoc(communityRef, { announcements: newAnnouncements });
+      });
+    });
+  }
+
+  function displayRules(rules) {
+    communityRules.innerHTML = "";
+    rules.forEach((rule, index) => {
+      const ruleElement = document.createElement("div");
+      ruleElement.className = "message rule";
+      ruleElement.innerHTML = `
+        <div class="message-header">
+          <span class="username red">Rule #${index + 1}</span>
+        </div>
+        <div class="message-text">${rule}</div>
+        ${(communityData.creatorId === currentUser.uid || communityData.collaborators.some(col => col.userId === currentUser.uid)) ? `
+          <div class="message-actions">
+            <span class="message-action edit-rule" data-index="${index}">Edit</span>
+            <span class="message-action delete-rule" data-index="${index}">Delete</span>
+          </div>
+        ` : ""}
+      `;
+      communityRules.appendChild(ruleElement);
+    });
+    communityRules.querySelectorAll(".edit-rule").forEach(btn => {
+      btn.addEventListener("click", () => {
+        ruleBeingEdited = parseInt(btn.dataset.index);
+        editRuleInput.value = communityData.rules[ruleBeingEdited];
+        editRuleModal.style.display = "flex";
+      });
+    });
+    communityRules.querySelectorAll(".delete-rule").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const index = parseInt(btn.dataset.index);
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        const newRules = [...communityData.rules];
+        newRules.splice(index, 1);
+        await updateDoc(communityRef, { rules: newRules });
+      });
+    });
+  }
+
+  function displaySharedContent(images) {
+    sharedContent.innerHTML = "";
+    images.forEach((image, index) => {
+      const imageElement = document.createElement("div");
+      imageElement.className = "message shared-image";
+      imageElement.innerHTML = `
+        <img src="${image}" class="message-image" alt="Shared image">
+        ${(communityData.creatorId === currentUser.uid || communityData.collaborators.some(col => col.userId === currentUser.uid)) ? `
+          <div class="message-actions">
+            <span class="message-action delete-shared" data-index="${index}">Delete</span>
+          </div>
+        ` : ""}
+      `;
+      sharedContent.appendChild(imageElement);
+    });
+    sharedContent.querySelectorAll(".delete-shared").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const index = parseInt(btn.dataset.index);
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        const newImages = [...communityData.sharedImages];
+        newImages.splice(index, 1);
+        await updateDoc(communityRef, { sharedImages: newImages });
+      });
+    });
+    sharedContent.querySelectorAll(".message-image").forEach(img => {
+      img.addEventListener("click", () => {
+        const container = document.createElement("div");
+        container.className = "image-container";
+        container.innerHTML = `
+          <img src="${img.src}" class="full-image">
+          <i class="fas fa-times close-image"></i>
+          <i class="fas fa-download download-image"></i>
+        `;
+        document.body.appendChild(container);
+        container.querySelector(".close-image").addEventListener("click", () => container.remove());
+        container.querySelector(".download-image").addEventListener("click", () => {
+          const link = document.createElement("a");
+          link.href = img.src;
+          link.download = "";
+          link.click();
+        });
+      });
+    });
+  }
+
+  async function displayMembers() {
+    membersList.innerHTML = "";
+    for (const memberId of communityData.members) {
+      const userRef = firestoreDoc(db, "Kamba_users", memberId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const memberElement = document.createElement("div");
+        memberElement.className = "message member";
+        memberElement.innerHTML = `
+          <div class="message-header">
+            <span class="username">${userData.username || "User"}</span>
+          </div>
+          <div class="message-text">Sparks: ${userData.sparks || 0}</div>
+          ${communityData.creatorId === currentUser.uid && memberId !== currentUser.uid ? `
+            <div class="message-actions">
+              <span class="message-action remove-member" data-uid="${memberId}">Remove</span>
+            </div>
+          ` : ""}
+        `;
+        membersList.appendChild(memberElement);
+      }
+    }
+    membersList.querySelectorAll(".remove-member").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const uid = btn.dataset.uid;
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        await updateDoc(communityRef, {
+          members: arrayRemove(uid),
+          collaborators: communityData.collaborators.filter(col => col.userId !== uid),
+        });
+      });
+    });
+  }
+
+  async function loadCommunityMessages() {
+    // Debug check to ensure firestoreDoc is a function
+    if (typeof firestoreDoc !== "function") {
+      console.error("firestoreDoc is not a function:", firestoreDoc);
       return;
     }
-
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCW2RJIku0JLJZTUu0YA9yKO8zjtX29fAo",
-      authDomain: "muah-feed.firebaseapp.com",
-      databaseURL: "https://muah-feed-default-rtdb.firebaseio.com",
-      projectId: "muah-feed",
-      storageBucket: "muah-feed.firebasestorage.app",
-      messagingSenderId: "442314397706",
-      appId: "1:442314397706:web:a69e3958257fb13b3667f3",
-      measurementId: "G-S86S229F1T",
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
-
-    // DOM Elements
-    const communityBanner = document.getElementById("community-banner");
-    const communityImage = document.getElementById("community-image");
-    const communityName = document.getElementById("community-name");
-    const communityDescription = document.getElementById("community-description");
-    const communityMembers = document.getElementById("community-members");
-    const joinBtn = document.getElementById("join-btn");
-    const contentArea = document.getElementById("content-area");
-    const chatSection = document.getElementById("chat-section");
-    const announcementsSection = document.getElementById("announcements-section");
-    const rulesSection = document.getElementById("rules-section");
-    const sharedSection = document.getElementById("shared-section");
-    const communityAnnouncements = document.getElementById("community-announcements");
-    const communityRules = document.getElementById("community-rules");
-    const sharedContent = document.getElementById("shared-content");
-    const addAnnouncementBtn = document.getElementById("add-announcement-btn");
-    const addRuleBtn = document.getElementById("add-rule-btn");
-    const addSharedBtn = document.getElementById("add-shared-btn");
-    const messagesContainer = document.getElementById("messages-container");
-    const messageInput = document.getElementById("message-input");
-    const sendBtn = document.getElementById("send-btn");
-    const uploadBtn = document.getElementById("upload-btn");
-    const fileInput = document.getElementById("file-input");
-    const emojiBtn = document.getElementById("emoji-btn");
-    const emojiPicker = document.getElementById("emoji-picker");
-    const profilePic = document.getElementById("profile-pic");
-    const profileName = document.getElementById("profile-name");
-    const statusDot = document.getElementById("status-dot");
-    const statusText = document.getElementById("status-text");
-    const statusInfoBtn = document.getElementById("status-info-btn");
-    const statusInfo = document.getElementById("status-info");
-    const welcomeModal = document.getElementById("welcome-modal");
-    const agreeBtn = document.getElementById("agree-btn");
-    const createModal = document.getElementById("create-modal");
-    const projectTab = document.getElementById("project-tab");
-    const postTab = document.getElementById("post-tab");
-    const groupTab = document.getElementById("group-tab");
-    const communityTab = document.getElementById("community-tab");
-    const projectNameInput = document.getElementById("project-name");
-    const projectDescriptionInput = document.getElementById("project-description");
-    const projectBannerInput = document.getElementById("project-banner");
-    const projectOverviewInput = document.getElementById("project-overview");
-    const projectStepsInput = document.getElementById("project-steps");
-    const projectImportanceInput = document.getElementById("project-importance");
-    const projectProfitabilityInput = document.getElementById("project-profitability");
-    const projectObstaclesInput = document.getElementById("project-obstacles");
-    const addCodeBtn = document.getElementById("add-code-btn");
-    const codeSnippetsContainer = document.getElementById("code-snippets-container");
-    const cancelProjectBtn = document.getElementById("cancel-project");
-    const submitProjectBtn = document.getElementById("submit-project");
-    const postFontSelect = document.getElementById("post-font");
-    const boldBtn = document.getElementById("bold-btn");
-    const italicBtn = document.getElementById("italic-btn");
-    const underlineBtn = document.getElementById("underline-btn");
-    const postContentInput = document.getElementById("post-content");
-    const postPreview = document.getElementById("post-preview");
-    const cancelPostBtn = document.getElementById("cancel-post");
-    const submitPostBtn = document.getElementById("submit-post");
-    const groupNameInput = document.getElementById("group-name");
-    const groupImageInput = document.getElementById("group-image");
-    const groupBannerInput = document.getElementById("group-banner");
-    const groupDescriptionInput = document.getElementById("group-description");
-    const addRuleBtnModal = document.getElementById("add-rule-btn");
-    const rulesContainer = document.getElementById("rules-container");
-    const cancelGroupBtn = document.getElementById("cancel-group");
-    const submitGroupBtn = document.getElementById("submit-group");
-    const communityNameInput = document.getElementById("community-name");
-    const communityImageInput = document.getElementById("community-image");
-    const communityBannerInput = document.getElementById("community-banner");
-    const communityDescriptionInput = document.getElementById("community-description");
-    const collaboratorEmailInput = document.getElementById("collaborator-email");
-    const addCollaboratorBtn = document.getElementById("add-collaborator-btn");
-    const collaboratorsList = document.getElementById("collaborators-list");
-    const cancelCommunityBtn = document.getElementById("cancel-community");
-    const submitCommunityBtn = document.getElementById("submit-community");
-    const addAnnouncementModal = document.getElementById("add-announcement-modal");
-    const newAnnouncementInput = document.getElementById("new-announcement-input");
-    const cancelAnnouncementBtn = document.getElementById("cancel-announcement-btn");
-    const saveAnnouncementBtn = document.getElementById("save-announcement-btn");
-    const editAnnouncementModal = document.getElementById("edit-announcement-modal");
-    const editAnnouncementInput = document.getElementById("edit-announcement-input");
-    const cancelEditAnnouncementBtn = document.getElementById("cancel-edit-announcement-btn");
-    const saveEditAnnouncementBtn = document.getElementById("save-edit-announcement-btn");
-    const addRuleModal = document.getElementById("add-rule-modal");
-    const newRuleInput = document.getElementById("new-rule-input");
-    const cancelRuleBtn = document.getElementById("cancel-rule-btn");
-    const saveRuleBtn = document.getElementById("save-rule-btn");
-    const editRuleModal = document.getElementById("edit-rule-modal");
-    const editRuleInput = document.getElementById("edit-rule-input");
-    const cancelEditRuleBtn = document.getElementById("cancel-edit-rule-btn");
-    const saveEditRuleBtn = document.getElementById("save-edit-rule-btn");
-    const manageMembersModal = document.getElementById("manage-members-modal");
-    const membersList = document.getElementById("members-list");
-    const cancelManageMembersBtn = document.getElementById("cancel-manage-members-btn");
-    const addSharedModal = document.getElementById("add-shared-modal");
-    const sharedImageInput = document.getElementById("shared-image-input");
-    const cancelSharedBtn = document.getElementById("cancel-shared-btn");
-    const saveSharedBtn = document.getElementById("save-shared-btn");
-    const joinPromptModal = document.getElementById("join-prompt-modal");
-    const joinBanner = document.getElementById("join-banner");
-    const joinImage = document.getElementById("join-image");
-    const joinName = document.getElementById("join-name");
-    const joinDescription = document.getElementById("join-description");
-    const joinRules = document.getElementById("join-rules");
-    const cancelJoinBtn = document.getElementById("cancel-join-btn");
-    const agreeJoinBtn = document.getElementById("agree-join-btn");
-    const searchBar = document.getElementById("search-bar");
-    const searchResults = document.getElementById("search-results");
-    const editMessageModal = document.getElementById("edit-message-modal");
-    const editMessageInput = document.getElementById("edit-message-input");
-    const cancelEditBtn = document.getElementById("cancel-edit-btn");
-    const saveEditBtn = document.getElementById("save-edit-btn");
-
-    let currentUser = null;
-    let currentUserData = null;
-    let communityId = new URLSearchParams(window.location.search).get('id');
-    let communityData = null;
-    let hasInteracted = false;
-    let announcementBeingEdited = -1;
-    let ruleBeingEdited = -1;
-    let currentSection = 'chat';
-    let messageBeingEdited = null;
-    let codeSnippets = [];
-    let rules = [];
-    let collaborators = [];
-
-    function init() {
-      setupEventListeners();
-      checkAuthState();
-    }
-
-    function setupEventListeners() {
-      // All your existing event listeners here...
-      // (Keep all the existing event listener code from your original script)
-      // I'm omitting it here for brevity, but you should include it all
-      
-      // Example of one event listener (you should include all of them):
-      cancelJoinBtn.addEventListener("click", () => {
-        joinPromptModal.style.display = "none";
-        window.location.href = "communities.html";
+    messagesContainer.innerHTML = "";
+    const messagesQuery = query(collection(db, `Kamba_communities/${communityId}/messages`), orderBy("timestamp", "asc"));
+    onSnapshot(messagesQuery, async snapshot => {
+      messagesContainer.innerHTML = "";
+      for (const messageDoc of snapshot.docs) {
+        const message = messageDoc.data();
+        const userRef = firestoreDoc(db, "Kamba_users", message.userId);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.exists() ? userSnap.data() : { username: "Unknown" };
+        const messageElement = document.createElement("div");
+        messageElement.className = "message";
+        messageElement.id = `message-${messageDoc.id}`;
+        let usernameClass = "green";
+        if (userData.isAdmin) {
+          usernameClass = "red";
+        } else if (userData.sparks >= 1000) {
+          usernameClass = "violet";
+        } else if (userData.sparks >= 100) {
+          usernameClass = "blue";
+        }
+        messageElement.innerHTML = `
+          <div class="message-header">
+            <span class="username ${usernameClass}">${userData.username || "User"}</span>
+            <span class="message-time">${new Date(message.timestamp.toDate()).toLocaleString()}</span>
+          </div>
+          ${message.text ? `<div class="message-text">${message.text}</div>` : ""}
+          ${message.image ? `<img src="${message.image}" class="message-image" alt="Message image">` : ""}
+          <div class="message-actions">
+            <span class="message-action reply-to-message" data-id="${messageDoc.id}">Reply</span>
+            ${message.userId === currentUser.uid ? `
+              <span class="message-action edit-message" data-id="${messageDoc.id}">Edit</span>
+              <span class="message-action delete-message" data-id="${messageDoc.id}">Delete</span>
+            ` : ""}
+          </div>
+        `;
+        messagesContainer.appendChild(messageElement);
+      }
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      messagesContainer.querySelectorAll(".reply-to-message").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.id;
+          messageInput.value = `Replying to message ${id}: `;
+          messageInput.focus();
+        });
       });
-      
-      // ... rest of your event listeners
-    }
+      messagesContainer.querySelectorAll(".edit-message").forEach(btn => {
+        btn.addEventListener("click", () => {
+          messageBeingEdited = { id: btn.dataset.id };
+          const messageElement = document.getElementById(`message-${btn.dataset.id}`);
+          editMessageInput.value = messageElement.querySelector(".message-text")?.textContent || "";
+          editMessageModal.style.display = "flex";
+        });
+      });
+      messagesContainer.querySelectorAll(".delete-message").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const messageRef = firestoreDoc(db, `Kamba_communities/${communityId}/messages`, btn.dataset.id);
+          await deleteDoc(messageRef);
+        });
+      });
+      messagesContainer.querySelectorAll(".message-image").forEach(img => {
+        img.addEventListener("click", () => {
+          const container = document.createElement("div");
+          container.className = "image-container";
+          container.innerHTML = `
+            <img src="${img.src}" class="full-image">
+            <i class="fas fa-times close-image"></i>
+            <i class="fas fa-download download-image"></i>
+          `;
+          document.body.appendChild(container);
+          container.querySelector(".close-image").addEventListener("click", () => container.remove());
+          container.querySelector(".download-image").addEventListener("click", () => {
+            const link = document.createElement("a");
+            link.href = img.src;
+            link.download = "";
+            link.click();
+          });
+        });
+      });
+    });
+  }
 
-    async function checkAuthState() {
-      // Your existing checkAuthState function
-    }
-
-    async function loadCommunity() {
-      // Your existing loadCommunity function
-    }
-
-    async function joinCommunity() {
-      // Your existing joinCommunity function
-    }
-
-    function displayAnnouncements(announcements) {
-      // Your existing displayAnnouncements function
-    }
-
-    function displayRules(rules) {
-      // Your existing displayRules function
-    }
-
-    function displaySharedContent(images) {
-      // Your existing displaySharedContent function
-    }
-
-    async function displayMembers() {
-      // Your existing displayMembers function
-    }
-
-    async function loadCommunityMessages() {
-      // Your existing loadCommunityMessages function
-    }
-
-    // Initialize the app
-    init();
-  });
-})();
+  init();
 </script>
 </body>
 </html>
