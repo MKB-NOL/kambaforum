@@ -1226,7 +1226,7 @@
     <h3>Welcome to KAMBA Forum!</h3>
     <p>By continuing, you agree to our Terms of Service and Privacy Policy. We'll set up your account with default settings.</p>
     <div class="modal-buttons">
-      <button id="agree-btn" class="modal-btn save"> Agree & Continue</button>
+      <button id="agree-btn" class="modal-btn save">Agree & Continue</button>
     </div>
   </div>
 </div>
@@ -2145,106 +2145,104 @@
     const messagesQuery = query(collection(db, `Kamba_communities/${communityId}/messages`), orderBy("timestamp", "desc"));
     const messagesSnapshot = await getDocs(messagesQuery);
     messagesSnapshot.forEach(doc => {
-           const messageData = doc.data();
-      if (
-        (messageData.text && messageData.text.toLowerCase().includes(searchTerm)) ||
-        (messageData.userId && messageData.userId.toLowerCase().includes(searchTerm))
-      ) {
+      const message = doc.data();
+      if (message.text?.toLowerCase().includes(searchTerm)) {
         const resultItem = document.createElement("div");
         resultItem.className = "search-result-item";
         resultItem.innerHTML = `
-          <div>Message: ${messageData.text ? messageData.text.substring(0, 50) : "[Image]"}...</div>
-          <div class="search-result-type">Chat</div>
+          <div>${message.text}</div>
+          <div class="search-result-type">Message</div>
         `;
         resultItem.addEventListener("click", () => {
           currentSection = "chat";
           document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
-          document.querySelector(`.sidebar-item[data-section="chat"]`).classList.add("active");
+          document.querySelector(".sidebar-item[data-section='chat']").classList.add("active");
           contentArea.querySelectorAll(".section").forEach(section => section.style.display = "none");
           chatSection.style.display = "block";
           loadCommunityMessages();
+          setTimeout(() => {
+            const messageElement = document.getElementById(`message-${doc.id}`);
+            if (messageElement) messageElement.scrollIntoView({ behavior: "smooth" });
+          }, 100);
           searchResults.style.display = "none";
           searchBar.value = "";
         });
         searchResults.appendChild(resultItem);
       }
     });
-
-    // Search announcements
-    if (communityData.announcements) {
-      communityData.announcements.forEach((announcement, index) => {
-        if (announcement.toLowerCase().includes(searchTerm)) {
+    
+    // Search members
+    for (const memberId of communityData.members) {
+      const userRef = firestoreDoc(db, "Kamba_users", memberId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const username = userData.username || extractNameFromEmail(userData.email);
+        if (username.toLowerCase().includes(searchTerm)) {
           const resultItem = document.createElement("div");
           resultItem.className = "search-result-item";
           resultItem.innerHTML = `
-            <div>Announcement: ${announcement.substring(0, 50)}...</div>
-            <div class="search-result-type">Announcement</div>
+            <div>${username}</div>
+            <div class="search-result-type">Member</div>
           `;
           resultItem.addEventListener("click", () => {
-            currentSection = "announcements";
+            currentSection = "members";
             document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
-            document.querySelector(`.sidebar-item[data-section="announcements"]`).classList.add("active");
+            document.querySelector(".sidebar-item[data-section='members']").classList.add("active");
             contentArea.querySelectorAll(".section").forEach(section => section.style.display = "none");
-            announcementsSection.style.display = "block";
-            displayAnnouncements(communityData.announcements);
+            membersSection.style.display = "block";
+            displayMembers();
             searchResults.style.display = "none";
             searchBar.value = "";
           });
           searchResults.appendChild(resultItem);
         }
-      });
+      }
     }
+  }
 
-    // Search rules
-    if (communityData.rules) {
-      communityData.rules.forEach((rule, index) => {
-        if (rule.toLowerCase().includes(searchTerm)) {
-          const resultItem = document.createElement("div");
-          resultItem.className = "search-result-item";
-          resultItem.innerHTML = `
-            <div>Rule: ${rule.substring(0, 50)}...</div>
-            <div class="search-result-type">Rule</div>
-          `;
-          resultItem.addEventListener("click", () => {
-            currentSection = "rules";
-            document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
-            document.querySelector(`.sidebar-item[data-section="rules"]`).classList.add("active");
-            contentArea.querySelectorAll(".section").forEach(section => section.style.display = "none");
-            rulesSection.style.display = "block";
-            displayRules(communityData.rules);
-            searchResults.style.display = "none";
-            searchBar.value = "";
-          });
-          searchResults.appendChild(resultItem);
-        }
-      });
-    }
+  function extractNameFromEmail(email) {
+    if (!email) return "User";
+    return email.split('@')[0].replace(/[^a-zA-Z]/g, ' ');
   }
 
   async function checkAuthState() {
     onAuthStateChanged(auth, async user => {
       if (user) {
         currentUser = user;
-        const userDoc = await getDoc(firestoreDoc(db, "Kamba_users", user.uid));
-        if (userDoc.exists()) {
-          currentUserData = userDoc.data();
-          updateUserProfile();
+        const userRef = firestoreDoc(db, "Kamba_users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          currentUserData = userSnap.data();
+          profileName.textContent = currentUserData.username || extractNameFromEmail(currentUserData.email) || "User";
+          profilePic.style.backgroundImage = currentUserData.profilePic ? `url(${currentUserData.profilePic})` : "";
+          const sparks = currentUserData.sparks || 0;
+          statusText.textContent = `${sparks} Sparks`;
+          if (currentUserData.isAdmin) {
+            statusDot.className = "status-dot red";
+            profileName.className = "username red";
+          } else if (sparks >= 1000) {
+            statusDot.className = "status-dot violet";
+            profileName.className = "username violet";
+          } else if (sparks >= 100) {
+            statusDot.className = "status-dot blue";
+            profileName.className = "username blue";
+          } else {
+            statusDot.className = "status-dot green";
+            profileName.className = "username green";
+          }
           if (!localStorage.getItem("kambaTermsAgreed")) {
             welcomeModal.style.display = "flex";
           } else {
             loadCommunity();
           }
         } else {
-          const newUserData = {
-            username: user.displayName || `User${Math.floor(Math.random() * 10000)}`,
-            profilePic: user.photoURL || "",
-            status: "green",
+          await setDoc(userRef, {
+            email: user.email,
+            username: extractNameFromEmail(user.email) || "User",
             sparks: 0,
             createdAt: new Date(),
-          };
-          await setDoc(firestoreDoc(db, "Kamba_users", user.uid), newUserData);
-          currentUserData = newUserData;
-          updateUserProfile();
+          });
           welcomeModal.style.display = "flex";
         }
       } else {
@@ -2253,298 +2251,371 @@
     });
   }
 
-  function updateUserProfile() {
-    profileName.textContent = currentUserData.username;
-    statusText.textContent = `${currentUserData.sparks || 0} Sparks`;
-    statusDot.className = `status-dot ${currentUserData.status}`;
-    profilePic.style.backgroundImage = currentUserData.profilePic ? `url(${currentUserData.profilePic})` : "";
-    profilePic.textContent = currentUserData.profilePic ? "" : currentUserData.username[0].toUpperCase();
-  }
-
   async function loadCommunity() {
-    if (!communityId) {
-      window.location.href = "communities.html";
-      return;
-    }
     const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
-    const communityDoc = await getDoc(communityRef);
-    if (communityDoc.exists()) {
-      communityData = communityDoc.data();
+    const snap = await getDoc(communityRef);
+    if (snap.exists()) {
+      communityData = snap.data();
+      communityData.leaders = communityData.leaders || [];
+      communityData.blockedUsers = communityData.blockedUsers || [];
+      communityData.announcements = communityData.announcements || [];
+      communityData.rules = communityData.rules || [];
+      communityData.members = communityData.members || [];
+      
+      communityBanner.src = communityData.banner || "https://via.placeholder.com/800x250";
+      communityImage.src = communityData.image || "https://via.placeholder.com/100";
       communityName.textContent = communityData.name;
       communityDescription.textContent = communityData.description;
-      communityMembers.textContent = `${communityData.members.length} Members`;
-      communityBanner.src = communityData.banner || "https://via.placeholder.com/1200x180";
-      communityImage.src = communityData.image || "https://via.placeholder.com/80";
-      const isMember = communityData.members.includes(currentUser.uid);
-      const isAdmin = communityData.creatorId === currentUser.uid;
-      const isLeader = communityData.leaders && communityData.leaders.includes(currentUser.uid);
-      joinBtn.style.display = isMember ? "none" : "block";
-      joinBtn.disabled = communityData.blockedUsers && communityData.blockedUsers.includes(currentUser.uid);
-      document.getElementById("members-section").style.display = isAdmin || isLeader ? "block" : "none";
-      document.querySelector(`.sidebar-item[data-section="members"]`).style.display = isAdmin || isLeader ? "block" : "none";
-      addAnnouncementBtn.style.display = isAdmin || isLeader ? "block" : "none";
-      addRuleBtn.style.display = isAdmin || isLeader ? "block" : "none";
+      communityMembers.textContent = `${communityData.members.length} member${communityData.members.length === 1 ? '' : 's'}`;
       
-      if (!isMember && !hasInteracted) {
-        joinBanner.src = communityData.banner || "https://via.placeholder.com/1200x180";
+      const isMember = communityData.members.includes(currentUser.uid);
+      const isBlocked = communityData.blockedUsers.includes(currentUser.uid);
+      
+      if (isBlocked) {
+        alert("You have been blocked from this community");
+        window.location.href = "communities.html";
+        return;
+      }
+      
+      if (!isMember) {
+        joinBanner.src = communityData.banner || "https://via.placeholder.com/500x150";
         joinImage.src = communityData.image || "https://via.placeholder.com/80";
         joinName.textContent = communityData.name;
         joinDescription.textContent = communityData.description;
-        joinRules.innerHTML = communityData.rules ? communityData.rules.map((rule, index) => `<div>${index + 1}. ${rule}</div>`).join("") : "No rules defined.";
+        joinRules.innerHTML = "";
+        communityData.rules.forEach(rule => {
+          const ruleItem = document.createElement("div");
+          ruleItem.className = "rule-item";
+          ruleItem.textContent = rule;
+          joinRules.appendChild(ruleItem);
+        });
         joinPromptModal.style.display = "flex";
       } else {
-        loadCommunityMessages();
-        displayAnnouncements(communityData.announcements);
-        displayRules(communityData.rules);
-        if (isAdmin || isLeader) displayMembers();
+        joinBtn.textContent = "Joined";
+        joinBtn.disabled = true;
       }
-
-      onSnapshot(communityRef, doc => {
-        communityData = doc.data();
-        communityMembers.textContent = `${communityData.members.length} Members`;
-        if (currentSection === "announcements") displayAnnouncements(communityData.announcements);
-        if (currentSection === "rules") displayRules(communityData.rules);
-        if (currentSection === "members") displayMembers();
+      
+      const isCreator = communityData.creatorId === currentUser.uid;
+      const isLeader = communityData.leaders.includes(currentUser.uid);
+      
+      if (isCreator || isLeader) {
+        addAnnouncementBtn.style.display = "inline";
+        addRuleBtn.style.display = "inline";
+      }
+      
+      if (isCreator) {
+        document.querySelector(".sidebar-item[data-section='members']").style.display = "block";
+      }
+      
+      displayAnnouncements(communityData.announcements);
+      displayRules(communityData.rules);
+      loadCommunityMessages();
+      
+      const communityQuery = firestoreDoc(db, "Kamba_communities", communityId);
+      onSnapshot(communityQuery, (docSnap) => {
+        if (docSnap.exists()) {
+          communityData = docSnap.data();
+          communityData.leaders = communityData.leaders || [];
+          communityData.blockedUsers = communityData.blockedUsers || [];
+          communityData.announcements = communityData.announcements || [];
+          communityData.rules = communityData.rules || [];
+          communityData.members = communityData.members || [];
+          
+          communityMembers.textContent = `${communityData.members.length} member${communityData.members.length === 1 ? '' : 's'}`;
+          
+          if (currentSection === "announcements") displayAnnouncements(communityData.announcements);
+          if (currentSection === "rules") displayRules(communityData.rules);
+          if (currentSection === "members") displayMembers();
+        }
       });
     } else {
+      alert("Community not found");
       window.location.href = "communities.html";
     }
   }
 
   async function joinCommunity() {
-    hasInteracted = true;
     const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
     await updateDoc(communityRef, {
       members: arrayUnion(currentUser.uid),
     });
-    joinBtn.style.display = "none";
+    joinBtn.textContent = "Joined";
+    joinBtn.disabled = true;
     loadCommunityMessages();
-    displayAnnouncements(communityData.announcements);
-    displayRules(communityData.rules);
-  }
-
-  async function loadCommunityMessages() {
-    const messagesQuery = query(collection(db, `Kamba_communities/${communityId}/messages`), orderBy("timestamp", "desc"));
-    onSnapshot(messagesQuery, async snapshot => {
-      messagesContainer.innerHTML = "";
-      for (const doc of snapshot.docs) {
-        const message = doc.data();
-        const userDoc = await getDoc(firestoreDoc(db, "Kamba_users", message.userId));
-        const userData = userDoc.exists() ? userDoc.data() : { username: "Unknown", status: "green" };
-        const isAdmin = communityData.creatorId === message.userId;
-        const isLeader = communityData.leaders && communityData.leaders.includes(message.userId);
-        const messageElement = document.createElement("div");
-        messageElement.className = "message";
-        let roleClass = "member";
-        if (isAdmin) roleClass = "admin";
-        else if (isLeader) roleClass = "leader";
-        
-        messageElement.innerHTML = `
-          <div class="message-header">
-            <span class="username ${roleClass} ${userData.status}">${userData.username}</span>
-            <span class="message-time">${new Date(message.timestamp.toDate()).toLocaleString()}</span>
-          </div>
-          ${message.text ? `<div class="message-text">${message.text}</div>` : ""}
-          ${message.image ? `<img src="${message.image}" class="message-image" alt="Message image">` : ""}
-          <div class="message-actions">
-            <a href="#" class="message-action reply">Reply</a>
-            ${message.userId === currentUser.uid ? `
-              <a href="#" class="message-action edit">Edit</a>
-              <a href="#" class="message-action delete">Delete</a>
-            ` : ""}
-          </div>
-        `;
-        
-        if (message.image) {
-          messageElement.querySelector(".message-image").addEventListener("click", () => {
-            const imageContainer = document.createElement("div");
-            imageContainer.className = "image-container";
-            imageContainer.innerHTML = `
-              <img src="${message.image}" class="full-image" alt="Full image">
-              <div class="close-image"><i class="fas fa-times"></i></div>
-              <a href="${message.image}" download class="download-image"><i class="fas fa-download"></i></a>
-            `;
-            document.body.appendChild(imageContainer);
-            imageContainer.querySelector(".close-image").addEventListener("click", () => {
-              imageContainer.remove();
-            });
-          });
-        }
-
-        messageElement.querySelector(".reply").addEventListener("click", () => {
-          messageInput.value = `@${userData.username} `;
-          messageInput.focus();
-        });
-
-        if (message.userId === currentUser.uid) {
-          messageElement.querySelector(".edit").addEventListener("click", () => {
-            messageBeingEdited = { id: doc.id, text: message.text };
-            editMessageInput.value = message.text || "";
-            editMessageModal.style.display = "flex";
-          });
-          messageElement.querySelector(".delete").addEventListener("click", async () => {
-            if (confirm("Are you sure you want to delete this message?")) {
-              await deleteDoc(firestoreDoc(db, `Kamba_communities/${communityId}/messages`, doc.id));
-            }
-          });
-        }
-
-        messagesContainer.insertBefore(messageElement, messagesContainer.firstChild);
-      }
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
   }
 
   function displayAnnouncements(announcements) {
     communityAnnouncements.innerHTML = "";
-    if (announcements && announcements.length > 0) {
-      announcements.forEach((announcement, index) => {
-        const announcementElement = document.createElement("div");
-        announcementElement.className = "message";
-        announcementElement.innerHTML = `
-          <div class="message-header">
-            <span class="username admin">Announcement</span>
-            <span class="announcement-badge">Announcement</span>
+    announcements.forEach((announcement, index) => {
+      const announcementElement = document.createElement("div");
+      announcementElement.className = "message announcement";
+      announcementElement.innerHTML = `
+        <div class="message-header">
+          <span class="username admin">Admin</span>
+          <span class="announcement-badge">Announcement</span>
+        </div>
+        <div class="message-text">${announcement}</div>
+        ${(communityData.creatorId === currentUser.uid || communityData.leaders.includes(currentUser.uid)) ? `
+          <div class="message-actions">
+            <span class="message-action edit-announcement" data-index="${index}">Edit</span>
+            <span class="message-action delete-announcement" data-index="${index}">Delete</span>
           </div>
-          <div class="message-text">${announcement}</div>
-          ${(communityData.creatorId === currentUser.uid || (communityData.leaders && communityData.leaders.includes(currentUser.uid))) ? `
-            <div class="message-actions">
-              <a href="#" class="message-action edit">Edit</a>
-              <a href="#" class="message-action delete">Delete</a>
-            </div>
-          ` : ""}
-        `;
-        if (communityData.creatorId === currentUser.uid || (communityData.leaders && communityData.leaders.includes(currentUser.uid))) {
-          announcementElement.querySelector(".edit").addEventListener("click", () => {
-            announcementBeingEdited = index;
-            editAnnouncementInput.value = announcement;
-            editAnnouncementModal.style.display = "flex";
-          });
-          announcementElement.querySelector(".delete").addEventListener("click", async () => {
-            if (confirm("Are you sure you want to delete this announcement?")) {
-              const newAnnouncements = [...communityData.announcements];
-              newAnnouncements.splice(index, 1);
-              await updateDoc(firestoreDoc(db, "Kamba_communities", communityId), { announcements: newAnnouncements });
-            }
-          });
-        }
-        communityAnnouncements.appendChild(announcementElement);
+        ` : ""}
+      `;
+      communityAnnouncements.appendChild(announcementElement);
+    });
+    communityAnnouncements.querySelectorAll(".edit-announcement").forEach(btn => {
+      btn.addEventListener("click", () => {
+        announcementBeingEdited = parseInt(btn.dataset.index);
+        editAnnouncementInput.value = communityData.announcements[announcementBeingEdited];
+        editAnnouncementModal.style.display = "flex";
       });
-    } else {
-      communityAnnouncements.innerHTML = "<p>No announcements yet.</p>";
-    }
+    });
+    communityAnnouncements.querySelectorAll(".delete-announcement").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const index = parseInt(btn.dataset.index);
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        const newAnnouncements = [...communityData.announcements];
+        newAnnouncements.splice(index, 1);
+        await updateDoc(communityRef, { announcements: newAnnouncements });
+      });
+    });
   }
 
   function displayRules(rules) {
     communityRules.innerHTML = "";
-    if (rules && rules.length > 0) {
-      rules.forEach((rule, index) => {
-        const ruleElement = document.createElement("div");
-        ruleElement.className = "message";
-        ruleElement.innerHTML = `
-          <div class="message-header">
-            <span class="username admin">Rule ${index + 1}</span>
+    rules.forEach((rule, index) => {
+      const ruleElement = document.createElement("div");
+      ruleElement.className = "message rule";
+      ruleElement.innerHTML = `
+        <div class="message-header">
+          <span class="username admin">Rule #${index + 1}</span>
+        </div>
+        <div class="message-text">${rule}</div>
+        ${(communityData.creatorId === currentUser.uid || communityData.leaders.includes(currentUser.uid)) ? `
+          <div class="message-actions">
+            <span class="message-action edit-rule" data-index="${index}">Edit</span>
+            <span class="message-action delete-rule" data-index="${index}">Delete</span>
           </div>
-          <div class="message-text">${rule}</div>
-          ${(communityData.creatorId === currentUser.uid || (communityData.leaders && communityData.leaders.includes(currentUser.uid))) ? `
-            <div class="message-actions">
-              <a href="#" class="message-action edit">Edit</a>
-              <a href="#" class="message-action delete">Delete</a>
-            </div>
-          ` : ""}
-        `;
-        if (communityData.creatorId === currentUser.uid || (communityData.leaders && communityData.leaders.includes(currentUser.uid))) {
-          ruleElement.querySelector(".edit").addEventListener("click", () => {
-            ruleBeingEdited = index;
-            editRuleInput.value = rule;
-            editRuleModal.style.display = "flex";
-          });
-          ruleElement.querySelector(".delete").addEventListener("click", async () => {
-            if (confirm("Are you sure you want to delete this rule?")) {
-              const newRules = [...communityData.rules];
-              newRules.splice(index, 1);
-              await updateDoc(firestoreDoc(db, "Kamba_communities", communityId), { rules: newRules });
-            }
-          });
-        }
-        communityRules.appendChild(ruleElement);
+        ` : ""}
+      `;
+      communityRules.appendChild(ruleElement);
+    });
+    communityRules.querySelectorAll(".edit-rule").forEach(btn => {
+      btn.addEventListener("click", () => {
+        ruleBeingEdited = parseInt(btn.dataset.index);
+        editRuleInput.value = communityData.rules[ruleBeingEdited];
+        editRuleModal.style.display = "flex";
       });
-    } else {
-      communityRules.innerHTML = "<p>No rules defined.</p>";
-    }
+    });
+    communityRules.querySelectorAll(".delete-rule").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const index = parseInt(btn.dataset.index);
+        const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+        const newRules = [...communityData.rules];
+        newRules.splice(index, 1);
+        await updateDoc(communityRef, { rules: newRules });
+      });
+    });
   }
 
   async function displayMembers() {
     membersList.innerHTML = "";
     for (const memberId of communityData.members) {
-      const userDoc = await getDoc(firestoreDoc(db, "Kamba_users", memberId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const isAdmin = communityData.creatorId === memberId;
-        const isLeader = communityData.leaders && communityData.leaders.includes(memberId);
-        const isBlocked = communityData.blockedUsers && communityData.blockedUsers.includes(memberId);
+      if (memberId === communityData.creatorId) continue; // Skip creator in members list
+      
+      const userRef = firestoreDoc(db, "Kamba_users", memberId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const username = userData.username || extractNameFromEmail(userData.email) || "User";
+        const isLeader = communityData.leaders.includes(memberId);
+        
         const memberElement = document.createElement("div");
         memberElement.className = "member-item";
-        let roleClass = "member";
-        if (isAdmin) roleClass = "admin";
-        else if (isLeader) roleClass = "leader";
         memberElement.innerHTML = `
           <div class="member-info">
-            <span class="username ${userData.status}">${userData.username}</span>
-            <span class="member-role role-${roleClass}">${isAdmin ? "Admin" : isLeader ? "Leader" : "Member"}</span>
-            ${isBlocked ? '<span class="member-role" style="background-color: var(--danger);">Blocked</span>' : ""}
+            <span>${username}</span>
+            <span class="member-role ${isLeader ? 'role-leader' : 'role-member'}">
+              ${isLeader ? 'Leader' : 'Member'}
+            </span>
           </div>
-          ${(communityData.creatorId === currentUser.uid && !isAdmin) ? `
+          ${communityData.creatorId === currentUser.uid ? `
             <div class="member-actions">
-              ${!isLeader ? `<button class="modal-btn assign" data-action="assign" data-user="${memberId}">Assign Leader</button>` : 
-                `<button class="modal-btn cancel" data-action="remove-leader" data-user="${memberId}">Remove Leader</button>`}
-              ${!isBlocked ? `<button class="modal-btn block" data-action="block" data-user="${memberId}">Block</button>` : 
-                `<button class="modal-btn save" data-action="unblock" data-user="${memberId}">Unblock</button>`}
+              <button class="modal-btn assign" data-uid="${memberId}">Assign</button>
+              <button class="modal-btn block" data-uid="${memberId}">Block</button>
             </div>
           ` : ""}
         `;
-        if (communityData.creatorId === currentUser.uid && !isAdmin) {
-          memberElement.querySelectorAll(".modal-btn").forEach(btn => {
-            btn.addEventListener("click", async () => {
-              const action = btn.dataset.action;
-              const userId = btn.dataset.user;
-              const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
-              if (action === "assign") {
-                await updateDoc(communityRef, {
-                  leaders: arrayUnion(userId),
-                });
-              } else if (action === "remove-leader") {
-                await updateDoc(communityRef, {
-                  leaders: arrayRemove(userId),
-                });
-              } else if (action === "block") {
-                await updateDoc(communityRef, {
-                  blockedUsers: arrayUnion(userId),
-                  members: arrayRemove(userId),
-                  leaders: arrayRemove(userId),
-                });
-              } else if (action === "unblock") {
-                await updateDoc(communityRef, {
-                  blockedUsers: arrayRemove(userId),
-                  members: arrayUnion(userId),
-                });
-              }
-            });
-          });
-        }
         membersList.appendChild(memberElement);
       }
     }
+    
+    // Add creator at the top
+    if (communityData.creatorId) {
+      const creatorRef = firestoreDoc(db, "Kamba_users", communityData.creatorId);
+      const creatorSnap = await getDoc(creatorRef);
+      if (creatorSnap.exists()) {
+        const creatorData = creatorSnap.data();
+        const creatorName = creatorData.username || extractNameFromEmail(creatorData.email) || "Creator";
+        
+        const creatorElement = document.createElement("div");
+        creatorElement.className = "member-item";
+        creatorElement.innerHTML = `
+          <div class="member-info">
+            <span>${creatorName}</span>
+            <span class="member-role role-admin">Admin</span>
+          </div>
+        `;
+        membersList.insertBefore(creatorElement, membersList.firstChild);
+      }
+    }
+    
+    // Add event listeners for assign and block buttons
+    membersList.querySelectorAll(".modal-btn.assign").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const memberId = btn.dataset.uid;
+        const userRef = firestoreDoc(db, "Kamba_users", memberId);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        const username = userData.username || extractNameFromEmail(userData.email) || "User";
+        
+        if (communityData.leaders.includes(memberId)) {
+          // Remove as leader
+          const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+          await updateDoc(communityRef, {
+            leaders: arrayRemove(memberId),
+          });
+          
+          // Add announcement
+          await updateDoc(communityRef, {
+            announcements: arrayUnion(`${username} was removed as a leader by the Admin`),
+          });
+        } else {
+          // Add as leader
+          const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+          await updateDoc(communityRef, {
+            leaders: arrayUnion(memberId),
+          });
+          
+          // Add announcement
+          await updateDoc(communityRef, {
+            announcements: arrayUnion(`${username} was set as a leader by the Admin`),
+          });
+        }
+      });
+    });
+    
+    membersList.querySelectorAll(".modal-btn.block").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const memberId = btn.dataset.uid;
+        const userRef = firestoreDoc(db, "Kamba_users", memberId);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        const username = userData.username || extractNameFromEmail(userData.email) || "User";
+        
+        if (confirm(`Are you sure you want to permanently block ${username}? This action cannot be undone.`)) {
+          const communityRef = firestoreDoc(db, "Kamba_communities", communityId);
+          
+          // Remove from members and leaders, add to blocked
+          await updateDoc(communityRef, {
+            members: arrayRemove(memberId),
+            leaders: arrayRemove(memberId),
+            blockedUsers: arrayUnion(memberId),
+            announcements: arrayUnion(`${username} was blocked by the Admin`),
+          });
+        }
+      });
+    });
   }
 
-  joinBtn.addEventListener("click", () => {
-    joinBanner.src = communityData.banner || "https://via.placeholder.com/1200x180";
-    joinImage.src = communityData.image || "https://via.placeholder.com/80";
-    joinName.textContent = communityData.name;
-    joinDescription.textContent = communityData.description;
-    joinRules.innerHTML = communityData.rules ? communityData.rules.map((rule, index) => `<div>${index + 1}. ${rule}</div>`).join("") : "No rules defined.";
-    joinPromptModal.style.display = "flex";
-  });
+  async function loadCommunityMessages() {
+    messagesContainer.innerHTML = "";
+    const messagesQuery = query(collection(db, `Kamba_communities/${communityId}/messages`), orderBy("timestamp", "asc"));
+    onSnapshot(messagesQuery, async snapshot => {
+      messagesContainer.innerHTML = "";
+      for (const messageDoc of snapshot.docs) {
+        const message = messageDoc.data();
+        const userRef = firestoreDoc(db, "Kamba_users", message.userId);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.exists() ? userSnap.data() : { username: "Unknown" };
+        
+        let usernameClass = "member";
+        if (message.userId === communityData.creatorId) {
+          usernameClass = "admin";
+        } else if (communityData.leaders.includes(message.userId)) {
+          usernameClass = "leader";
+        }
+        
+        const username = userData.username || extractNameFromEmail(userData.email) || "User";
+        
+        const messageElement = document.createElement("div");
+        messageElement.className = "message";
+        messageElement.id = `message-${messageDoc.id}`;
+        messageElement.innerHTML = `
+          <div class="message-header">
+            <span class="username ${usernameClass}">${username}</span>
+            <span class="message-time">${new Date(message.timestamp.toDate()).toLocaleString()}</span>
+          </div>
+          ${message.text ? `<div class="message-text">${message.text}</div>` : ""}
+          ${message.image ? `<img src="${message.image}" class="message-image" alt="Message image">` : ""}
+          <div class="message-actions">
+            <span class="message-action reply-to-message" data-id="${messageDoc.id}">Reply</span>
+            ${message.userId === currentUser.uid ? `
+              <span class="message-action edit-message" data-id="${messageDoc.id}">Edit</span>
+              <span class="message-action delete-message" data-id="${messageDoc.id}">Delete</span>
+            ` : ""}
+          </div>
+        `;
+        messagesContainer.appendChild(messageElement);
+      }
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      messagesContainer.querySelectorAll(".reply-to-message").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.id;
+          messageInput.value = `Replying to message ${id}: `;
+          messageInput.focus();
+        });
+      });
+      
+      messagesContainer.querySelectorAll(".edit-message").forEach(btn => {
+        btn.addEventListener("click", () => {
+          messageBeingEdited = { id: btn.dataset.id };
+          const messageElement = document.getElementById(`message-${btn.dataset.id}`);
+          editMessageInput.value = messageElement.querySelector(".message-text")?.textContent || "";
+          editMessageModal.style.display = "flex";
+        });
+      });
+      
+      messagesContainer.querySelectorAll(".delete-message").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const messageRef = firestoreDoc(db, `Kamba_communities/${communityId}/messages`, btn.dataset.id);
+          await deleteDoc(messageRef);
+        });
+      });
+      
+      messagesContainer.querySelectorAll(".message-image").forEach(img => {
+        img.addEventListener("click", () => {
+          const container = document.createElement("div");
+          container.className = "image-container";
+          container.innerHTML = `
+            <img src="${img.src}" class="full-image">
+            <i class="fas fa-times close-image"></i>
+            <i class="fas fa-download download-image"></i>
+          `;
+          document.body.appendChild(container);
+          container.querySelector(".close-image").addEventListener("click", () => container.remove());
+          container.querySelector(".download-image").addEventListener("click", () => {
+            const link = document.createElement("a");
+            link.href = img.src;
+            link.download = "";
+            link.click();
+          });
+        });
+      });
+    });
+  }
 
   init();
 </script>
